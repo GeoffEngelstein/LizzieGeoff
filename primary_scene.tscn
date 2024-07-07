@@ -1,7 +1,8 @@
-[gd_scene load_steps=21 format=3 uid="uid://caj4d7v430lhp"]
+[gd_scene load_steps=22 format=3 uid="uid://caj4d7v430lhp"]
 
 [ext_resource type="Script" path="res://primary_scene.gd" id="1_ugmt5"]
 [ext_resource type="Script" path="res://Button.gd" id="1_yknp3"]
+[ext_resource type="Script" path="res://Scripts/UI.cs" id="2_a0mv7"]
 [ext_resource type="Texture2D" uid="uid://cx7rrsbwfgw18" path="res://icon.svg" id="2_mvq54"]
 [ext_resource type="PackedScene" uid="uid://8ts0q3rup6h6" path="res://Scenes/table.tscn" id="4_s0yfi"]
 [ext_resource type="Script" path="res://Scripts/CameraController.cs" id="4_vrwqs"]
@@ -43,23 +44,73 @@ resource_local_to_scene = true
 [node name="PrimaryScene" type="Node3D"]
 script = ExtResource("1_ugmt5")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-visible = false
+[node name="UI" type="CanvasLayer" parent="."]
+script = ExtResource("2_a0mv7")
+highlightFontColor = Color(0.54902, 0.694118, 1, 1)
 
-[node name="Button" type="Button" parent="CanvasLayer"]
-anchors_preset = 8
-anchor_left = 0.5
+[node name="Button" type="Button" parent="UI"]
+anchors_preset = 6
+anchor_left = 1.0
 anchor_top = 0.5
-anchor_right = 0.5
+anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -38.5
+offset_left = -147.0
 offset_top = -15.5
-offset_right = 38.5
 offset_bottom = 15.5
-grow_horizontal = 2
+grow_horizontal = 0
 grow_vertical = 2
-text = "Load File"
+text = "Texture Load Test"
 script = ExtResource("1_yknp3")
+
+[node name="PanelContainer" type="PanelContainer" parent="UI"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+
+[node name="MenuBar" type="MenuBar" parent="UI/PanelContainer"]
+layout_mode = 2
+
+[node name="File" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
+title = "File"
+item_count = 3
+item_0/text = "New Project"
+item_0/id = 0
+item_1/text = "Open Project"
+item_1/id = 1
+item_2/text = "Save Project"
+item_2/id = 2
+
+[node name="Edit" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
+title = "Edit"
+
+[node name="Insert" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
+title = "Insert"
+
+[node name="Help" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
+title = "Help"
+
+[node name="Mode" type="HBoxContainer" parent="UI"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -576.0
+offset_right = 576.0
+offset_bottom = 31.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+alignment = 1
+
+[node name="Play2D" type="Button" parent="UI/Mode"]
+layout_mode = 2
+text = "Play 2D"
+
+[node name="Play3D" type="Button" parent="UI/Mode"]
+layout_mode = 2
+text = "Play 3D"
+
+[node name="Designer" type="Button" parent="UI/Mode"]
+layout_mode = 2
+text = "Designer"
 
 [node name="FileDialog" type="FileDialog" parent="."]
 title = "Open a File"
@@ -158,7 +209,10 @@ physics_material_override = SubResource("PhysicsMaterial_b00ve")
 transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, 0, 0)
 shape = SubResource("WorldBoundaryShape3D_at6bq")
 
-[connection signal="pressed" from="CanvasLayer/Button" to="CanvasLayer/Button" method="_on_pressed"]
+[connection signal="pressed" from="UI/Button" to="UI/Button" method="_on_pressed"]
+[connection signal="pressed" from="UI/Mode/Play2D" to="UI" method="_on_play_2d_pressed"]
+[connection signal="pressed" from="UI/Mode/Play3D" to="UI" method="_on_play_3d_pressed"]
+[connection signal="pressed" from="UI/Mode/Designer" to="UI" method="_on_designer_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
 [connection signal="mouse_entered" from="GameObjects/Cube" to="GameObjects/Cube" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="GameObjects/Cube" to="GameObjects/Cube" method="_on_mouse_exited"]

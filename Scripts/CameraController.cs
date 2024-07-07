@@ -28,6 +28,8 @@ public partial class CameraController : Node3D
 	private StaticBody3D _dragPlane;
 	private float _dragOffset;		//distance from the Y of the object origin to the bottom edge
 
+	private float _dragHeight;		//the distance from the center of the object to the bottom edge
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -198,8 +200,6 @@ public partial class CameraController : Node3D
 		
 		_selectedObject.IsDragging = true;
 		_selectedObject.FreezeMode = RigidBody3D.FreezeModeEnum.Static;
-		//_selectedObject.CanSleep = true;
-		//_selectedObject.Sleeping = true;
 		_isDragging = true;
 
 		_dragSource = _selectedObject;
@@ -209,8 +209,8 @@ public partial class CameraController : Node3D
 		//get the minimum Y for the AABB for the object so we can calculate the distance to the bottom edge
 		var b = MinYfromAabb(_selectedObject.Aabb);
 		var c = MaxYfromAabb(_selectedObject.Aabb);
-		var height = Mathf.Abs(b - c);
-		_dragOffset = _dragNode.GlobalPosition.Y - (height/2f);
+		_dragHeight = Mathf.Abs(b - c);
+		_dragOffset = _dragNode.GlobalPosition.Y - (_dragHeight/2f);
 		
 		//move the intersecting plane to the origin of the object. The shadow object position will be moved
 		//to the intersection of the mouse cursor ray and this plane.
@@ -236,8 +236,8 @@ public partial class CameraController : Node3D
 			float offSet = _dragOffset;
 		
 			var minY = MinY(_dragSource, _dragMesh);
-
-			minY = Mathf.Max(minY, offSet);
+			GD.Print($"miny: {minY} offset:{offSet}");
+			minY = Mathf.Max(minY, offSet) + _dragHeight/2f;
 			
 			_selectedObject.Position = new Vector3( _dragNode.Position.X, minY, _dragNode.Position.Z);
 
@@ -285,6 +285,10 @@ public partial class CameraController : Node3D
 
 	private float MinY(Pickable pickable, VisualInstance3D ghost)
 	{
+		//TODO This routine does not deal properly if multiple objects are stacked at the drag location
+		//since the moving object AABB may not be intersecting with all of them
+		//Needs to be changed to project rays in the Y axis to see if boundary points of moving AABB intersect
+		//(basically switch to a 2D projection)
 		var pickAabb = pickable.Aabb;
 		var minY = -100f;
 
@@ -300,10 +304,16 @@ public partial class CameraController : Node3D
 			i++;
 			if (n is Pickable p)
 			{
+				GD.Print($"Checking {p.Name}");
 				if (p == pickable) continue;
 				if (p.Aabb.Intersects(targetAabb))
 				{
+					GD.Print($"{p.Name} intersects. MaxY:{MaxYfromAabb(p.Aabb)}");
 					minY = Mathf.Max(minY, MaxYfromAabb(p.Aabb));
+				}
+				else
+				{
+					GD.Print($"{p.Name} does not intersect");
 				}
 				
 			}
