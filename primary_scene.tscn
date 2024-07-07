@@ -62,33 +62,6 @@ grow_vertical = 2
 text = "Texture Load Test"
 script = ExtResource("1_yknp3")
 
-[node name="PanelContainer" type="PanelContainer" parent="UI"]
-anchors_preset = 10
-anchor_right = 1.0
-grow_horizontal = 2
-
-[node name="MenuBar" type="MenuBar" parent="UI/PanelContainer"]
-layout_mode = 2
-
-[node name="File" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
-title = "File"
-item_count = 3
-item_0/text = "New Project"
-item_0/id = 0
-item_1/text = "Open Project"
-item_1/id = 1
-item_2/text = "Save Project"
-item_2/id = 2
-
-[node name="Edit" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
-title = "Edit"
-
-[node name="Insert" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
-title = "Insert"
-
-[node name="Help" type="PopupMenu" parent="UI/PanelContainer/MenuBar"]
-title = "Help"
-
 [node name="Mode" type="HBoxContainer" parent="UI"]
 anchors_preset = 5
 anchor_left = 0.5
@@ -111,6 +84,29 @@ text = "Play 3D"
 [node name="Designer" type="Button" parent="UI/Mode"]
 layout_mode = 2
 text = "Designer"
+
+[node name="MenuBar" type="MenuBar" parent="UI"]
+offset_right = 183.0
+offset_bottom = 31.0
+
+[node name="File" type="PopupMenu" parent="UI/MenuBar"]
+title = "File"
+item_count = 3
+item_0/text = "New Project"
+item_0/id = 0
+item_1/text = "Open Project"
+item_1/id = 1
+item_2/text = "Save Project"
+item_2/id = 2
+
+[node name="Edit" type="PopupMenu" parent="UI/MenuBar"]
+title = "Edit"
+
+[node name="Insert" type="PopupMenu" parent="UI/MenuBar"]
+title = "Insert"
+
+[node name="Help" type="PopupMenu" parent="UI/MenuBar"]
+title = "Help"
 
 [node name="FileDialog" type="FileDialog" parent="."]
 title = "Open a File"
