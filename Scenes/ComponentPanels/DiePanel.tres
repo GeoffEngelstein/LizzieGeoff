@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=3 format=3 uid="uid://bodj2sxcbs4l8"]
+
+[ext_resource type="Texture2D" uid="uid://b5oye208po5pr" path="res://Textures/UI/ifl_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="1_ff517"]
+[ext_resource type="Script" path="res://Scripts/ComponentTemplate.cs" id="2_g4pbp"]
+
+[resource]
+script = ExtResource("2_g4pbp")
+ComponentName = "Die"
+Icon = ExtResource("1_ff517")
+DefinitionDialogName = "res://Scenes/ComponentPanels/die_panel.tscn"

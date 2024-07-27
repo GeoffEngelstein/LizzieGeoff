@@ -1,9 +1,18 @@
-[gd_scene load_steps=5 format=3 uid="uid://caj4d7v430lhp"]
+[gd_scene load_steps=14 format=3 uid="uid://caj4d7v430lhp"]
 
 [ext_resource type="Script" path="res://Scripts/GameController.cs" id="1_hibmt"]
 [ext_resource type="Script" path="res://Button.gd" id="1_yknp3"]
 [ext_resource type="Script" path="res://Scripts/UI.cs" id="2_a0mv7"]
 [ext_resource type="PackedScene" uid="uid://c10pvpfntkay3" path="res://Scenes/3d_scene_no_physics.tscn" id="3_6khan"]
+[ext_resource type="Script" path="res://Scripts/ComponentDefinition.cs" id="4_eclwi"]
+[ext_resource type="Resource" uid="uid://ceywqk4reme07" path="res://Scenes/ComponentPanels/TokenPanel.tres" id="7_la08l"]
+[ext_resource type="Resource" uid="uid://mljy81wn7au4" path="res://Scenes/ComponentPanels/BoardPanel.tres" id="8_dwpay"]
+[ext_resource type="Resource" uid="uid://cjw75xmuh5hm1" path="res://Scenes/ComponentPanels/SingleCardPanel.tres" id="9_56ys6"]
+[ext_resource type="Resource" uid="uid://cvcpmheck0rjq" path="res://Scenes/ComponentPanels/DeckPanel.tres" id="10_711is"]
+[ext_resource type="Resource" uid="uid://bodj2sxcbs4l8" path="res://Scenes/ComponentPanels/DiePanel.tres" id="11_14nhc"]
+[ext_resource type="Resource" uid="uid://cp47ebupgytwa" path="res://Scenes/ComponentPanels/CubePanel.tres" id="12_6reuv"]
+[ext_resource type="Resource" uid="uid://crthu53rha88m" path="res://Scenes/ComponentPanels/MeshPanel.tres" id="12_ccm2a"]
+[ext_resource type="Resource" uid="uid://bctoe33s67u03" path="res://Scenes/ComponentPanels/DiscPanel.tres" id="13_5qcje"]
 
 [node name="PrimaryScene" type="Node3D"]
 script = ExtResource("1_hibmt")
@@ -13,16 +22,12 @@ script = ExtResource("2_a0mv7")
 highlightFontColor = Color(0.54902, 0.694118, 1, 1)
 
 [node name="Button" type="Button" parent="UI"]
-anchors_preset = 6
+anchors_preset = 1
 anchor_left = 1.0
-anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 0.5
 offset_left = -147.0
-offset_top = -15.5
-offset_bottom = 15.5
+offset_bottom = 31.0
 grow_horizontal = 0
-grow_vertical = 2
 text = "Texture Load Test"
 script = ExtResource("1_yknp3")
 
@@ -71,6 +76,49 @@ title = "Insert"
 
 [node name="Help" type="PopupMenu" parent="UI/MenuBar"]
 title = "Help"
+
+[node name="ComponentDefinition" type="HBoxContainer" parent="UI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_eclwi")
+_components = Array[Resource]([ExtResource("12_6reuv"), ExtResource("13_5qcje"), ExtResource("7_la08l"), ExtResource("8_dwpay"), ExtResource("9_56ys6"), ExtResource("10_711is"), ExtResource("11_14nhc"), ExtResource("12_ccm2a")])
+
+[node name="ButtonStrip" type="VBoxContainer" parent="UI/ComponentDefinition"]
+layout_mode = 2
+
+[node name="ComponentPanel" type="Panel" parent="UI/ComponentDefinition"]
+custom_minimum_size = Vector2(225, 450)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/ComponentDefinition/ComponentPanel"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -60.0
+offset_top = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Button" type="Button" parent="UI/ComponentDefinition/ComponentPanel/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Create"
 
 [node name="FileDialog" type="FileDialog" parent="."]
 title = "Open a File"

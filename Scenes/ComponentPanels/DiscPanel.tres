@@ -1,0 +1,10 @@
+[gd_resource type="Resource" load_steps=3 format=3 uid="uid://bctoe33s67u03"]
+
+[ext_resource type="Texture2D" uid="uid://cl232ymcr4r2w" path="res://Textures/UI/circle_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="2_76ns6"]
+[ext_resource type="Script" path="res://Scripts/ComponentTemplate.cs" id="3_c7ub8"]
+
+[resource]
+script = ExtResource("3_c7ub8")
+ComponentName = "Disc"
+Icon = ExtResource("2_76ns6")
+DefinitionDialogName = "res://Scenes/ComponentPanels/disc_panel.tscn"
