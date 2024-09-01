@@ -16,7 +16,8 @@ public partial class UI : CanvasLayer
 
 	private PopupMenu _insertMenu;
 	private PopupMenu _helpMenu;
-	
+
+	private PopupMenu _componentPopup;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -39,7 +40,32 @@ public partial class UI : CanvasLayer
 		_helpMenu = GetNode<PopupMenu>("MenuBar/Help");
 		_helpMenu.AddItem("Test Function",1);
 		_helpMenu.IdPressed += OnHelpMenuSelection;
+
+		_componentPopup = GetNode<PopupMenu>("ComponentPopup");
+		_componentPopup.IdPressed += PopupMenuCommandSelected;
 	}
+	
+	
+
+	private const int PopupLockId = 0;
+	private const int PopupFlipId = 1;
+	private const int PopupRotateCwId = 2;
+	private const int PopupRotateCcwId = 3;
+	private const int PopupDeleteId = 4;
+	
+	private void PopupMenuCommandSelected(long id)
+	{
+		GD.Print($"Manu {id}");
+		if (id == PopupFlipId)
+		{
+			if (GetParent() is GameController gc)
+			{
+				GD.Print("Flipping");
+				gc.ProcessCommand(SceneController.VisualCommand.Flip);
+			}
+		}
+	}
+
 
 	private void OnHelpMenuSelection(long id)
 	{
@@ -72,8 +98,16 @@ public partial class UI : CanvasLayer
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+
+	public void ShowComponentPopup(Vector2I position)
 	{
+		_componentPopup.Visible = true;
+		_componentPopup.Position = position;
+	}
+
+	public void HideComponentPopup()
+	{
+		_componentPopup.Visible = false;
 	}
 
 	public enum MasterMode

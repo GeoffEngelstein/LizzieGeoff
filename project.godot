@@ -13,7 +13,7 @@ config_version=5
 config/name="Lizzie"
 run/main_scene="res://primary_scene.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://Lizzie 2.jpg"
 
 [dotnet]
 

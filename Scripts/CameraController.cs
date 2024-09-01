@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 public partial class CameraController : Node3D, ICameraBase
@@ -17,12 +18,10 @@ public partial class CameraController : Node3D, ICameraBase
 	private Camera3D _camera;
 	
 	private Transform3D _baseTransform;
-	private Vector3 _baseCamPos;
+	private Transform3D _baseCamTrans;
 
-	private Transform3D _lastTransform;
-
-	private float _totPitch = 0;
-	private float _totYaw = 0;
+	private float _totPitch;
+	private float _totYaw;
 
 	private Node3D _dragNode;
 	private VisualComponentBase _dragSource;
@@ -40,10 +39,13 @@ public partial class CameraController : Node3D, ICameraBase
 	{
 		_baseTransform = Transform;
 		_camera = GetNode<Camera3D>("Camera3D");
-		 _baseCamPos = _camera.Position;
+		 _baseCamTrans = _camera.Transform;
 		 _gameObjects = GetParent().GetNode<Node>("GameObjects");
 		 _dragNode = GetParent().GetNode<Node3D>("DragNode");
 		 _dragPlane = GetParent().GetNode<StaticBody3D>("DragPlane");
+		 _totPitch = Rotation.X;
+		 _totYaw = Rotation.Y;
+		 GD.Print($"3D Camera Ready. Pitch:{_totPitch}, Yaw:{_totYaw}");
 	}
 
 	public override void _Process(double delta)
@@ -106,6 +108,17 @@ public partial class CameraController : Node3D, ICameraBase
 
 		
 		return null;
+	}
+	
+	private IEnumerable<VisualComponentBase> SelectedComponents()
+	{
+		foreach (var go in _gameObjects.GetChildren())
+		{
+			if (go is VisualComponentBase vcb && vcb.IsSelected)
+			{
+				yield return vcb;
+			}
+		}
 	}
 
 	private bool _isDragging = false;
@@ -197,6 +210,7 @@ public partial class CameraController : Node3D, ICameraBase
 
 	public void ProcessViewEvent(InputEvent @event)
 	{
+		GD.Print("Processing 3D Camera View Event");
 		int pitch = 0;
 		int yaw = 0;
 		int zoom = 0;
@@ -284,6 +298,7 @@ public partial class CameraController : Node3D, ICameraBase
 	{
 		_spawnMode = true;
 		_spawnComponent = component;
+		_spawnComponent.NeverHighlight = true;
 	}
 
 	public void ExitSpawnMode()
@@ -296,9 +311,9 @@ public partial class CameraController : Node3D, ICameraBase
 	public void ResetView()
 	{
 		Transform = _baseTransform;
-		_camera.Position = _baseCamPos;
-		_totYaw = 0;
-		_totPitch = -0.08f;
+		_camera.Transform = _baseCamTrans;
+		_totYaw = Rotation.Y;
+		_totPitch = Rotation.X;
 	}
 
 
@@ -370,6 +385,7 @@ public partial class CameraController : Node3D, ICameraBase
 		get => _camera.Current;
 		set => _camera.Current = value;
 	}
-	
+
+	public Camera3D Camera => _camera;
 
 }

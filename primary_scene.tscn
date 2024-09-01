@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://caj4d7v430lhp"]
+[gd_scene load_steps=22 format=3 uid="uid://caj4d7v430lhp"]
 
 [ext_resource type="Script" path="res://Scripts/GameController.cs" id="1_hibmt"]
 [ext_resource type="Script" path="res://Scripts/UI.cs" id="2_a0mv7"]
@@ -18,7 +18,9 @@
 [ext_resource type="PackedScene" uid="uid://chacoe302ooah" path="res://Scenes/ComponentPanels/single_card_panel.tscn" id="16_j3qli"]
 [ext_resource type="PackedScene" uid="uid://bifubswbhqkkp" path="res://Scenes/ComponentPanels/deck_panel.tscn" id="17_mgf4o"]
 [ext_resource type="PackedScene" uid="uid://diovg4u3xl1qn" path="res://Scenes/ComponentPanels/token_panel.tscn" id="18_c5hxe"]
+[ext_resource type="Texture2D" uid="uid://41ftdwu6bvkv" path="res://Textures/UI/lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="19_mftnr"]
 [ext_resource type="PackedScene" uid="uid://div11bya2rlmh" path="res://Scenes/ComponentPanels/mesh_panel.tscn" id="19_xcrb0"]
+[ext_resource type="Texture2D" uid="uid://b0ghdcbyhne5f" path="res://Textures/UI/flip_camera_android_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="20_7j0c8"]
 
 [node name="PrimaryScene" type="Node3D"]
 script = ExtResource("1_hibmt")
@@ -165,6 +167,29 @@ layout_mode = 2
 [node name="Mesh Panel" parent="UI/ComponentTabs" instance=ExtResource("19_xcrb0")]
 visible = false
 layout_mode = 2
+
+[node name="ComponentPopup" type="PopupMenu" parent="UI"]
+size = Vector2i(163, 174)
+item_count = 7
+item_0/text = "Lock"
+item_0/icon = ExtResource("19_mftnr")
+item_0/checkable = 1
+item_0/id = 0
+item_1/text = "Flip"
+item_1/icon = ExtResource("20_7j0c8")
+item_1/id = 1
+item_2/text = ""
+item_2/id = 6
+item_2/separator = true
+item_3/text = "Rotate CW"
+item_3/id = 2
+item_4/text = "Rotate CCW"
+item_4/id = 3
+item_5/text = ""
+item_5/id = 5
+item_5/separator = true
+item_6/text = "Delete"
+item_6/id = 4
 
 [node name="FileDialog" type="FileDialog" parent="."]
 title = "Open a File"

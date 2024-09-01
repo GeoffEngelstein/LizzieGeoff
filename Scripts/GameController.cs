@@ -72,10 +72,27 @@ public partial class GameController : Node3D
 		}
 		return null;
 	}
+
+	public void ShowComponentPopup(Vector2I position)
+	{
+		_uiController.ShowComponentPopup(position);
+	}
+
+	public void HideComponentPopup()
+	{
+		_uiController.HideComponentPopup();
+	}
+	
+	public bool ProcessCommand(SceneController.VisualCommand command)
+	{
+		return _mainScene.SendCommandToSelected(command);
+	}
 	
 	//test function
 	public void TestFunction()
 	{
 		_mainScene.TestFunction();
 	}
+	
+	
 }

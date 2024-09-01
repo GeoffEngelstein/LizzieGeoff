@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://c10pvpfntkay3"]
+[gd_scene load_steps=9 format=3 uid="uid://c10pvpfntkay3"]
 
 [ext_resource type="Script" path="res://Scripts/SceneController.cs" id="1_4ynb0"]
 [ext_resource type="PackedScene" uid="uid://8ts0q3rup6h6" path="res://Scenes/table.tscn" id="1_7yafe"]
 [ext_resource type="Script" path="res://Scripts/CameraController.cs" id="2_0y0is"]
+[ext_resource type="Script" path="res://Scripts/DragSelectRectangle.cs" id="5_56t6u"]
 [ext_resource type="Script" path="res://Scripts/Pseudo2DCamera.cs" id="10_mgbfc"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_b00ve"]
@@ -21,6 +22,7 @@ collision_layer = 1
 transform = Transform3D(0.819202, 2.19727e-07, 0.573505, -0.353913, 0.786881, 0.505534, -0.45128, -0.617105, 0.644614, 0, 0, 1.7548)
 
 [node name="CameraBase" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0)
 script = ExtResource("2_0y0is")
 PitchSpeed = 2.0
 YawSpeed = 2.0
@@ -28,7 +30,7 @@ ZoomSpeed = 100.0
 PanSpeed = 0.1
 
 [node name="Camera3D" type="Camera3D" parent="CameraBase"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 90)
 fov = 73.6372
 
 [node name="GameObjects" type="Node" parent="."]
@@ -55,3 +57,10 @@ size = 110.0
 script = ExtResource("10_mgbfc")
 ZoomSpeed = 100.0
 PanSpeed = 0.25
+
+[node name="DragSelectRectangle" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("5_56t6u")

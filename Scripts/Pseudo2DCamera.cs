@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class Pseudo2DCamera : Camera3D, ICameraBase
 {
@@ -13,8 +14,7 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 	private Node _gameObjects;
 
 	private Vector2 _mouseStartDragPos;
-	private Vector3 _objectStartDragPos;
-
+	
 	private float _tableSize = 100;
 
 	private bool _spawnMode;
@@ -71,22 +71,21 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 	private bool _isDragging = false;
 	public void StartDrag()
 	{
-		_selectedObject = GetSelectedObject();
-		if (_selectedObject == null)
-		{
-			//GD.PrintErr("No object selected");
-			return;
-		};
+		if (!GetSelectedObjects().Any()) return;
 
-		_selectedObject.IsDragging = true;
+		var o = GetMouseSelectedObject();
+		if (o == null) return;
+		
+		foreach (var v in GetSelectedObjects())
+		{
+			v.IsDragging = true;
+		}
 		_isDragging = true;
 		
 		
 		//Get mouse position
 		var rc = ShootRay(GetViewport().GetMousePosition());
 		_mouseStartDragPos = new Vector2(rc.X, rc.Z);
-		_objectStartDragPos = _selectedObject.Position;
-		
 	}
 
 	
@@ -179,26 +178,30 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 
 	public void StopDrag()
 	{
-		if (_selectedObject != null)
+		
+		foreach(var v in GetSelectedObjects())
 		{
-			_selectedObject.IsDragging = false;
-			_selectedObject = null;
-			_isDragging = false;
-			_stackingUpdateRequired = true;
+			v.IsDragging = false;
 		}
+
+		_isDragging = false;
+		_stackingUpdateRequired = true;
 
 		
 	}
 
 	public void ProcessDrag(Vector2 axis)
 	{
-		if (_selectedObject == null) return;
-
 		var targetPos = ShootRay(GetViewport().GetMousePosition());
 
 		var deltaPos = new Vector3(targetPos.X - _mouseStartDragPos.X, 0, targetPos.Z - _mouseStartDragPos.Y);
 
-		_selectedObject.Position = _objectStartDragPos + deltaPos;
+		foreach (var v in GetSelectedObjects())
+		{
+			v.Position += deltaPos;
+		}
+
+		_mouseStartDragPos = new Vector2(targetPos.X, targetPos.Z);	//reset starting point for next move
 	}
 
 	private Vector3 ShootRay(Vector2 position)
@@ -227,9 +230,9 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 		return o;
 	}
 
-	private VisualComponentBase _selectedObject;
+	//private VisualComponentBase _selectedObject;
 
-	private VisualComponentBase GetSelectedObject()
+	private VisualComponentBase GetMouseSelectedObject()
 	{
 		foreach (var n in _gameObjects.GetChildren())
 		{
@@ -242,10 +245,22 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 		return null;
 	}
 
+	private IEnumerable<VisualComponentBase> GetSelectedObjects()
+	{
+		foreach (var n in _gameObjects.GetChildren())
+		{
+			if (n is VisualComponentBase { IsSelected: true } p)
+			{
+				yield return p;
+			}
+		}
+	}
+
 	public void EnterSpawnMode(VisualComponentBase component)
 	{
 		_spawnMode = true;
 		_spawnComponent = component;
+		_spawnComponent.NeverHighlight = true;
 	}
 
 	public void ExitSpawnMode()
@@ -255,6 +270,5 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 		_spawnComponent = null;
 	}
 
-
-	
+	public Camera3D Camera => this;
 }

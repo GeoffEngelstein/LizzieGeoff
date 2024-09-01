@@ -11,7 +11,7 @@ public partial class VcToken : VisualComponentBase
 	{
 		base._Ready();
 		Visible = true;
-		ComponentType = VisualComponentType.Card;
+		ComponentType = VisualComponentType.Token;
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		StackingCollider = GetNode<Area3D>("Area3D");
@@ -26,17 +26,7 @@ public partial class VcToken : VisualComponentBase
 		}
 		base._Process(delta);
 	}
-
-	public override bool ProcessCommands()
-	{
-		if (Input.IsActionJustPressed("flip"))
-		{
-			StartFlip();
-			return true;
-		}
-		
-		return false;
-	}
+	
 
 	private float _flipRate = 720;	//degrees per second
 	private bool _showFace = true;

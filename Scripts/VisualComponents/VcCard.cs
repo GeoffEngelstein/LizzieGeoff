@@ -6,13 +6,14 @@ public partial class VcCard : VisualComponentBase
 {
 	private MeshInstance3D _backSurface;
 	private MeshInstance3D _frontSurface;
+	
 
 	public override void _Ready()
 	{
 		base._Ready();
 		Visible = true;
 		ComponentType = VisualComponentType.Card;
-		_backSurface = GetNode<MeshInstance3D>("HighlightMesh");
+		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		StackingCollider = GetNode<Area3D>("Area3D");
 	
@@ -26,16 +27,16 @@ public partial class VcCard : VisualComponentBase
 		}
 		base._Process(delta);
 	}
-
-	public override bool ProcessCommands()
+	
+	public override bool ProcessCommand(SceneController.VisualCommand command)
 	{
-		if (Input.IsActionJustPressed("flip"))
+		if (command == SceneController.VisualCommand.Flip)
 		{
 			StartFlip();
 			return true;
 		}
 		
-		return false;
+		return base.ProcessCommand(command);
 	}
 
 	private float _flipRate = 720;	//degrees per second
@@ -77,7 +78,7 @@ public partial class VcCard : VisualComponentBase
 
 	public override bool Build(Dictionary<string, object> parameters)
 	{
-		_backSurface = GetNode<MeshInstance3D>("HighlightMesh");
+		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 	
 		base.Build(parameters);
@@ -111,12 +112,10 @@ public partial class VcCard : VisualComponentBase
 		mat2.AlbedoTexture = tb;
 		_backSurface.MaterialOverride = mat2;
 
-		YHeight = 0.03f;
+		YHeight = 0.05f;
 		
 		//create card
 		Scale = new Vector3(Width, Scale.Y, Height);
-		
-		
 		
 		return true;
 	}

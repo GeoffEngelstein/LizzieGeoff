@@ -22,4 +22,6 @@ public partial interface ICameraBase
 
         void EnterSpawnMode(VisualComponentBase component);
         void ExitSpawnMode();
+        
+        Camera3D Camera { get; }
 }

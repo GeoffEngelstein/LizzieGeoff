@@ -2,8 +2,11 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+
+
 public partial class VcCube : VisualComponentBase
 {
+	
 	public override void _Ready()
 	{
 		base._Ready();
@@ -11,6 +14,8 @@ public partial class VcCube : VisualComponentBase
 		ComponentType = VisualComponentType.Cube;
 		StackingCollider = GetNode<Area3D>("Area3D");
 	}
+	
+	
 
 	public override bool Build(Dictionary<string, object> parameters)
 	{
@@ -59,6 +64,7 @@ public partial class VcCube : VisualComponentBase
 		
 		return true;
 	}
+	
 
 	public override List<string> ValidateParameters(Dictionary<string, object> parameters)
 	{
