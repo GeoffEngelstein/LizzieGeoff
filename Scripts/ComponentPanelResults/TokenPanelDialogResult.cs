@@ -19,119 +19,143 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 		private ColorPickerButton _quickTextColor;
 		private LineEdit _quickText;
 
-		private ColorRect _previewRect;
-		private Label _previewText;
+
 
 		//quick method back of token
 		private ColorPickerButton _quickBackgroundColor2;
 		private ColorPickerButton _quickTextColor2;
 		private LineEdit _quickText2;
 
-		private ColorRect _previewRect2;
-		private Label _previewText2;
+		private TokenTextureSubViewport _previewTop;
+		private TokenTextureSubViewport _previewBottom;
+	
 		
 		private CheckBox _quickBackCheckbox;
+
+		private OptionButton _shapePicker;
+
+		private TabContainer _tabs;
 		
 		public override void _Ready()
 		{
-			ComponentType = VisualComponentBase.VisualComponentType.Card;
+			ComponentType = VisualComponentBase.VisualComponentType.Token;
 			
 			
-			_nameInput = GetNode<LineEdit>("HBoxContainer/VBoxContainer/GridContainer/ItemName");
-			_heightInput = GetNode<LineEdit>("HBoxContainer/VBoxContainer/GridContainer/HBoxContainer3/Height");
-			_widthInput = GetNode<LineEdit>("HBoxContainer/VBoxContainer/GridContainer/HBoxContainer4/Width");
-			_thicknessInput = GetNode<LineEdit>("HBoxContainer/VBoxContainer/GridContainer/HBoxContainer7/Thickness");
+			_nameInput = GetNode<LineEdit>("%ItemName");
+			_heightInput = GetNode<LineEdit>("%Height");
+			_widthInput = GetNode<LineEdit>("%Width");
+			_thicknessInput = GetNode<LineEdit>("%Thickness");
 	
-			_frontImage = GetNode<LineEdit>("HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Custom/GridContainer/HBoxContainer5/FrontFile");
-			_backImage = GetNode<LineEdit>("HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Custom/GridContainer/HBoxContainer6/BackFile");
+			_frontImage = GetNode<LineEdit>("%FrontFile");
+			_backImage = GetNode<LineEdit>("%BackFile");
 			
-			_frontButton = GetNode<Button>("HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Custom/GridContainer/HBoxContainer5/Button");
+			_frontButton = GetNode<Button>("%FrontFileButton");
 			_frontButton.Pressed += GetFrontFile;
-			_backButton = GetNode<Button>("HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Custom/GridContainer/HBoxContainer6/Button");
+			_backButton = GetNode<Button>("%BackFileButton");
 			_backButton.Pressed += GetBackFile;
 
-			_quickBackgroundColor = GetNode<ColorPickerButton>(
-				"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer/ColorPickerButton");
+			_quickBackgroundColor = GetNode<ColorPickerButton>("%TopBgColor");
 			_quickText =
-				GetNode<LineEdit>(
-					"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer2/LineEdit");
-			_quickTextColor = GetNode<ColorPickerButton>(
-				"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer2/ColorPickerButton");
+				GetNode<LineEdit>("%TopCaption");
+			_quickTextColor = GetNode<ColorPickerButton>("%TopTextColor");
 			_quickBackCheckbox =
-				GetNode<CheckBox>(
-					"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer3/CheckBox");
+				GetNode<CheckBox>("%ToggleBack");
 			
 			_quickText.TextChanged += OnTextChange;
 			_quickBackgroundColor.ColorChanged += OnBackgroundColorChanged;
 			_quickTextColor.ColorChanged += OnPreviewTextColorChange;
 			_quickBackCheckbox.Pressed += OnQuickBackCheckboxChange;
 			
-			_quickBackgroundColor2 = GetNode<ColorPickerButton>(
-				"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer5/ColorPickerButton");
+			_quickBackgroundColor2 = GetNode<ColorPickerButton>("%BottomBgColor");
 			_quickText2 =
-				GetNode<LineEdit>(
-					"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer4/LineEdit");
-			_quickTextColor2 = GetNode<ColorPickerButton>(
-				"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer4/ColorPickerButton");
+				GetNode<LineEdit>("%BottomCaption");
+			_quickTextColor2 = GetNode<ColorPickerButton>("%BottomTextColor");
 			
 			_quickText2.TextChanged += OnText2Change;
 			_quickBackgroundColor2.ColorChanged += OnBackgroundColor2Changed;
 			_quickTextColor2.ColorChanged += OnPreviewTextColor2Change;
-			
-			
-			
-			_previewRect = GetNode<ColorRect>("HBoxContainer/PanelContainer/VBoxContainer/Panel/SubViewportContainer/SubViewport/ColorRect");
-			_previewText = GetNode<Label>("HBoxContainer/PanelContainer/VBoxContainer/Panel/SubViewportContainer/SubViewport/Label");
-			
-			_previewRect2 = GetNode<ColorRect>("HBoxContainer/PanelContainer/VBoxContainer/Panel2/SubViewportContainer/SubViewport/ColorRect");
-			_previewText2 = GetNode<Label>("HBoxContainer/PanelContainer/VBoxContainer/Panel2/SubViewportContainer/SubViewport/Label");
 
+			_shapePicker = GetNode<OptionButton>("%ShapePicker");
+			_shapePicker.ItemSelected += ShapePickerOnItemSelected;
+			
+			_previewTop =
+				GetNode<TokenTextureSubViewport>("%TopPreview");	
+			
+			_previewBottom =
+				GetNode<TokenTextureSubViewport>("%BottomPreview");
+
+			_tabs = GetNode<TabContainer>("%Tabs");
+		
 			OnQuickBackCheckboxChange();	//just to set the initial line visibility in case someone messed with the control.
+			ShapePickerOnItemSelected(0);
+		}
+
+		private void ShapePickerOnItemSelected(long index)
+		{
+			TokenTextureSubViewport.TokenShape shape = TokenTextureSubViewport.TokenShape.Square;
+			
+			switch (index)
+			{
+				case 0:
+					shape = TokenTextureSubViewport.TokenShape.Square;
+					break;
+					
+				case 1:
+					shape = TokenTextureSubViewport.TokenShape.Circle;
+					break;
+				case 2:
+					shape = TokenTextureSubViewport.TokenShape.HexPoint;
+					break;
+				case 3:
+					shape = TokenTextureSubViewport.TokenShape.HexFlat;
+					break;
+			}
+
+			PrototypeIndex = (int)index;
+			_previewTop.SetShape(shape);
+			_previewBottom.SetShape(shape);
 		}
 
 		private void OnQuickBackCheckboxChange()
 		{
-			var h4 = GetNode<HBoxContainer>(
-				"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer4");
+			var h4 = GetNode<HBoxContainer>("%BottomBgContainer");
 			
-			var h5 = GetNode<HBoxContainer>(
-				"HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer5");
+			var h5 = GetNode<HBoxContainer>("%BottomCaptionContainer");
 
 			h4.Visible = _quickBackCheckbox.ButtonPressed;
 			h5.Visible = _quickBackCheckbox.ButtonPressed;
 
-			var preview = GetNode<Panel>("HBoxContainer/PanelContainer/VBoxContainer/Panel2");
-			preview.Visible = _quickBackCheckbox.ButtonPressed;
+			GetNode<SubViewportContainer>("%BottomPreviewContainer").Visible = _quickBackCheckbox.ButtonPressed;
 		}
 
 		private void OnPreviewTextColorChange(Color color)
 		{
-			_previewText.LabelSettings.FontColor = color;
+			_previewTop.SetTextColor(color);
 		}
 
 		private void OnBackgroundColorChanged(Color color)
 		{
-			_previewRect.Color = color;
+			_previewTop.SetBackgroundColor(color);
 		}
 
 		private void OnTextChange(string newtext)
 		{
-			_previewText.Text = newtext;
+			_previewTop.SetText(newtext);
 		}
 
 		private void OnPreviewTextColor2Change(Color color)
 		{
-			_previewText2.LabelSettings.FontColor = color;
+			_previewBottom.SetTextColor(color);
 		}
 
 		private void OnBackgroundColor2Changed(Color color)
 		{
-			_previewRect2.Color = color;
+			_previewBottom.SetBackgroundColor(color);
 		}
 
 		private void OnText2Change(string newtext)
 		{
-			_previewText2.Text = newtext;
+			_previewBottom.SetText(newtext);
 		}
 		
 		private void GetFrontFile()
@@ -141,14 +165,12 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 
 		private Texture GetQuickTexture()
 		{
-			return GetNode<SubViewport>(
-				"HBoxContainer/PanelContainer/VBoxContainer/Panel/SubViewportContainer/SubViewport").GetTexture();
+			return _previewTop.GetTexture();
 		}
 		
 		private Texture GetQuickTexture2()
 		{
-			var t =  GetNode<SubViewport>(
-				"HBoxContainer/PanelContainer/VBoxContainer/Panel2/SubViewportContainer/SubViewport").GetTexture();
+			var t = _previewBottom.GetTexture();
 			var i = t.GetImage();
 			i.FlipX();
 
@@ -199,9 +221,15 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 			d.Add("Thickness", ParamToFloat(_thicknessInput.Text));
 			d.Add("FrontImage", _frontImage.Text);
 			d.Add("BackImage", _backImage.Text);
-			d.Add("QuickTexture", GetQuickTexture());		//TODO we can just pass in the colors and the text string
-			d.Add("QuickTextureBack", GetQuickTexture2());  //and have the texture created by the BUILD routine
-			
+			d.Add("Shape", _shapePicker.Selected);
+			d.Add("Mode", _tabs.CurrentTab);
+			d.Add("FrontBgColor", _quickBackgroundColor.Color);
+			d.Add("FrontCaption", _quickText.Text);
+			d.Add("FrontCaptionColor", _quickTextColor.Color);
+			d.Add("DifferentBack", _quickBackCheckbox.ButtonPressed);
+			d.Add("BackBgColor", _quickBackgroundColor2.Color);
+			d.Add("BackCaption", _quickText2.Text);
+			d.Add("BackCaptionColor", _quickTextColor2.Color);
 			return d;
 		}
 }

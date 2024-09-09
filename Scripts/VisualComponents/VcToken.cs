@@ -2,21 +2,26 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 
 public partial class VcToken : VisualComponentBase
 {
-	private MeshInstance3D _backSurface;
-	private MeshInstance3D _frontSurface;
+	private Sprite3D _frontSprite;
+	private Sprite3D _backSprite;
+
+
+	private TokenTextureSubViewport _frontView;
+	private TokenTextureSubViewport _backView;
 	
 	public override void _Ready()
 	{
 		base._Ready();
 		Visible = true;
 		ComponentType = VisualComponentType.Token;
-		_backSurface = GetNode<MeshInstance3D>("BackMesh");
-		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		StackingCollider = GetNode<Area3D>("Area3D");
-	
+
+		_frontSprite = GetNode<Sprite3D>("FrontSprite");
+		_backSprite = GetNode<Sprite3D>("BackSprite");
 	}
 
 	public override void _Process(double delta)
@@ -27,7 +32,9 @@ public partial class VcToken : VisualComponentBase
 		}
 		base._Process(delta);
 	}
-	
+
+	public override GeometryInstance3D DragMesh => _frontSprite;
+
 	public override bool ProcessCommand(SceneController.VisualCommand command)
 	{
 		if (command == SceneController.VisualCommand.Flip)
@@ -76,12 +83,93 @@ public partial class VcToken : VisualComponentBase
 
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
-
+	
 	public override bool Build(Dictionary<string, object> parameters)
 	{
-		_backSurface = GetNode<MeshInstance3D>("BackMesh");
-		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
+		_frontSprite = GetNode<Sprite3D>("FrontSprite");
+		_backSprite = GetNode<Sprite3D>("BackSprite");
+
+		if (!InitializeParameters(parameters)) return false;
+
+		switch (Mode)
+		{
+			case 0:
+				BuildQuick();
+				break;
+			
+			case 1:
+				BuildCustom();
+				break;
+			
+			case 2:
+				BuildImport();
+				break;
+		}
+		
+
+		YHeight = Thickness;
+		
+		Scale = new Vector3(Width, Thickness, Height);
+		
+		return true;
+	}
+
+	private void BuildQuick()
+	{
+		GD.Print("Build Front");
+		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
+		_frontView.Ready += CreateFrontTexture;
+
+		if (DifferentBack)
+		{
+			GD.Print("Build Back");
+			_backView = GetNode<TokenTextureSubViewport>("BackViewport");
+			_backView.Ready += CreateBackTexture;
+		}
+	}
+
+	private void BuildCustom()
+	{
+		ImageTexture tf;
+
+		if (File.Exists(FrontImage))
+		{
+			_frontSprite.Texture = LoadTexture(FrontImage);
+		}
+		
+		if (File.Exists(BackImage))
+		{
+			_backSprite.Texture = LoadTexture(BackImage);
+		}
+	}
 	
+	private void BuildImport(){}
+
+	private void CreateFrontTexture()
+	{
+		_frontView.SetBackgroundColor(FrontBgColor);
+		_frontView.SetText(FrontCaption);
+		_frontView.SetTextColor(FrontCaptionColor);
+		_frontView.SetShape((TokenTextureSubViewport.TokenShape) Shape);
+		_frontSprite.Texture = _frontView.GetTexture();
+
+		if (!DifferentBack)
+		{
+			_backSprite.Texture = _frontView.GetTexture();
+		}
+	}
+	
+	private void CreateBackTexture()
+	{
+		_backView.SetBackgroundColor(BackBgColor);
+		_backView.SetText(BackCaption);
+		_backView.SetTextColor(BackCaptionColor);
+		_backView.SetShape((TokenTextureSubViewport.TokenShape)Shape);
+		_backSprite.Texture = _backView.GetTexture();
+	}
+
+	private bool InitializeParameters(Dictionary<string, object> parameters)
+	{
 		base.Build(parameters);
 
 		if (parameters.ContainsKey(nameof(Height)))
@@ -106,49 +194,18 @@ public partial class VcToken : VisualComponentBase
 		FrontImage = parameters["FrontImage"].ToString();
 		BackImage = parameters["BackImage"].ToString();
 
-		ImageTexture tf;
-		
-		if (File.Exists(FrontImage)) tf = LoadTexture(FrontImage);
+		Shape = (int)parameters["Shape"];
+		Mode = (int)parameters["Mode"];
+		FrontBgColor = (Color)parameters["FrontBgColor"];
+		FrontCaption = parameters["FrontCaption"].ToString();
+		FrontCaptionColor = (Color)parameters["FrontCaptionColor"];
 
-		var vt = new Texture2D();
-		if (parameters.ContainsKey("QuickTexture"))
-		{
-			vt = parameters["QuickTexture"] as ViewportTexture;
-		}
+		DifferentBack = (bool)parameters["DifferentBack"];
 		
-		var vt2 = new Texture2D();
-		if (parameters.ContainsKey("QuickTextureBack"))
-		{
-			vt2 = parameters["QuickTextureBack"] as Texture2D;
-		}
-		
-		var mat = new StandardMaterial3D();
-		//mat.AlbedoTexture = tf;
-		mat.AlbedoTexture = vt;
-		_frontSurface.MaterialOverride = mat;
-		
-		
-		var mat2 = new StandardMaterial3D();
+		BackBgColor = (Color)parameters["BackBgColor"];
+		BackCaption = parameters["BackCaption"].ToString();
+		BackCaptionColor = (Color)parameters["BackCaptionColor"];
 
-		if (File.Exists(BackImage))
-		{
-			var tb = LoadTexture(BackImage);
-
-			mat2.AlbedoTexture = tb;
-		}
-		else
-		{
-			//mat2.AlbedoColor = new Color(0, 0, 0);
-		}
-		
-		mat2.AlbedoTexture = vt2;
-		
-		_backSurface.MaterialOverride = mat2;
-
-		YHeight = Thickness;
-		
-		Scale = new Vector3(Width, Thickness, Height);
-		
 		return true;
 	}
 
@@ -207,4 +264,14 @@ public partial class VcToken : VisualComponentBase
 	private float Thickness;
 	private string FrontImage;
 	private string BackImage;
+	private int Shape;
+	private int Mode;
+	private Color FrontBgColor;
+	private string FrontCaption;
+	private Color FrontCaptionColor;
+	private bool DifferentBack;
+	private Color BackBgColor;
+	private string BackCaption;
+	private Color BackCaptionColor;
+	
 }

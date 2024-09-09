@@ -20,8 +20,8 @@ public abstract partial class VisualComponentBase : Area3D
 	}
 
 	public virtual VisualComponentType ComponentType { get; set; }
-	protected VisualInstance3D mainMesh;
-	protected MeshInstance3D _highlightMesh;
+	protected GeometryInstance3D MainMesh;
+	protected MeshInstance3D HighlightMesh;
 
 	[Export] private float _highlightScale = 1.1f;
 	
@@ -35,9 +35,9 @@ public abstract partial class VisualComponentBase : Area3D
 	{
 		Visible = false;
 		_curScale = 1;
-		mainMesh = GetNode<VisualInstance3D>("ObjectMesh");
-		_highlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
-		if (_highlightMesh != null) UpdateHighlight();
+		MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
+		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
+		if (HighlightMesh != null) UpdateHighlight();
 		IsMouseSelected = false;
 
 		this.MouseEntered += _on_mouse_entered;
@@ -131,12 +131,12 @@ public abstract partial class VisualComponentBase : Area3D
 	
 	protected virtual void UpdateHighlight()
 	{
-		if (_highlightMesh == null) return;
+		if (HighlightMesh == null) return;
 		
-		_highlightMesh.Visible = IsSelected && !NeverHighlight;
+		HighlightMesh.Visible = IsSelected && !NeverHighlight;
 	}
 
-	public Aabb Aabb => mainMesh.GlobalTransform * mainMesh.GetAabb();
+	public Aabb Aabb => MainMesh.GlobalTransform * MainMesh.GetAabb();
 
 	private void _on_mouse_entered()
 	{
@@ -169,7 +169,7 @@ public abstract partial class VisualComponentBase : Area3D
 
 	private bool _isDragging;
 
-	public virtual VisualInstance3D DragMesh => mainMesh;
+	public virtual GeometryInstance3D DragMesh => MainMesh;
 
 	public bool IsDragging
 	{
@@ -216,9 +216,21 @@ public abstract partial class VisualComponentBase : Area3D
 	/// <param name="enableDim"></param>
 	public virtual void DimMode(bool enableDim)
 	{
-		mainMesh = GetNode<VisualInstance3D>("ObjectMesh");
+		//MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
 		GD.Print("Dimming");
-		if (mainMesh is MeshInstance3D mi)
+		
+		if (enableDim)
+		{
+			DragMesh.Transparency = 0.5f;
+		}
+		else
+		{
+			DragMesh.Transparency = 0;
+		}
+
+		return;
+		
+		if (DragMesh is MeshInstance3D mi)
 		{
 			GD.Print("MeshInstance3D");
 			if (mi.MaterialOverride is StandardMaterial3D sm)

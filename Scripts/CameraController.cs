@@ -152,7 +152,7 @@ public partial class CameraController : Node3D, ICameraBase
 		_dragPlane.Position = new Vector3(0, _dragNode.Position.Y, 0);
 		
 		var n = _selectedObject.DragMesh.Duplicate();
-		if (n is MeshInstance3D mi)
+		if (n is GeometryInstance3D mi)
 		{
 			mi.Transparency = 0.3f;
 			_dragMesh = mi;

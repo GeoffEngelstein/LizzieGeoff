@@ -127,11 +127,13 @@ theme_override_constants/margin_bottom = 10
 layout_mode = 2
 
 [node name="CancelButton" type="Button" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins/DialogButtonLayout"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
 text = "Cancel"
 
 [node name="CreateButton" type="Button" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins/DialogButtonLayout"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
 text = "Create"

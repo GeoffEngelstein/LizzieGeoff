@@ -63,11 +63,10 @@ public partial class GameController : Node3D
 
 	public VisualComponentBase SpawnComponent(string prototype)
 	{
-		GD.Print($"Prototype: {prototype}");
 		var scene = ResourceLoader.Load<PackedScene>(prototype).Instantiate();
 
 		if (scene is VisualComponentBase vcb)
-		{ 
+		{
 			return vcb;
 		}
 		return null;
