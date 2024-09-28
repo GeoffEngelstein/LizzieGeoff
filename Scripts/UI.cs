@@ -1,6 +1,8 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 public partial class UI : CanvasLayer
 {
@@ -18,14 +20,14 @@ public partial class UI : CanvasLayer
 	private PopupMenu _helpMenu;
 
 	private PopupMenu _componentPopup;
-	
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		modeButtons = GetNode<HBoxContainer>("Mode");
 		var buttons = modeButtons.GetChildren();
 		baseFontColor = new Color(1, 1, 1, 1);
-		
+
 		SetMasterMode(MasterMode.TwoD);
 
 		_componentDefinition = GetNode<ComponentDefinition>("ComponentDefinition");
@@ -33,36 +35,113 @@ public partial class UI : CanvasLayer
 		_componentDefinition.CancelDialog += OnCancelCreate;
 
 		_insertMenu = GetNode<PopupMenu>("MenuBar/Insert");
-		_insertMenu.AddItem("Component",1);
+		_insertMenu.AddItem("Component", 1);
 		_insertMenu.AddItem("Zone", 2);
 		_insertMenu.IdPressed += OnInsertMenuSelection;
-		
+
 		_helpMenu = GetNode<PopupMenu>("MenuBar/Help");
-		_helpMenu.AddItem("Test Function",1);
+		_helpMenu.AddItem("Test Function", 1);
 		_helpMenu.IdPressed += OnHelpMenuSelection;
 
 		_componentPopup = GetNode<PopupMenu>("ComponentPopup");
 		_componentPopup.IdPressed += PopupMenuCommandSelected;
+		_componentPopup.CloseRequested += ComponentPopupClosed;
 	}
-	
-	
 
-	private const int PopupLockId = 0;
-	private const int PopupFlipId = 1;
-	private const int PopupRotateCwId = 2;
-	private const int PopupRotateCcwId = 3;
-	private const int PopupDeleteId = 4;
+	public override void _Process(double delta)
+	{
+		//Below is a hack to work around the CloseRequested signal not getting fired properly
+		
+		if (_popupShown && _componentPopup.Visible)
+		{
+			_popupShown = false;
+			ComponentPopupClosed();
+		}
+	}
+
+	private void ComponentPopupClosed()
+	{
+		GetParent<GameController>().ComponentPopupClosed();
+	}
+
+
+	private void AddItemToPopupMenu(PopupMenu popup, SceneController.VisualCommand command, string caption, string icon,
+		bool enabled = true, bool checkable = false, bool isChecked = false)
+	{
+		int index = -1;
+		int id = (int)command;
+
+		if (checkable)
+		{
+			if (!string.IsNullOrEmpty(icon))
+			{
+				popup.AddCheckItem(caption, id);
+			}
+			else
+			{
+				//TODO Enable icon
+				popup.AddCheckItem(caption, id);
+			}
+
+			index = popup.GetItemIndex(id);
+			popup.SetItemChecked(index, isChecked);
+		}
+		else
+		{
+			if (!string.IsNullOrEmpty(icon))
+			{
+				popup.AddItem(caption, id);
+			}
+			else
+			{
+				//TODO Enable icon
+				popup.AddItem(caption, id);
+			}
+
+			index = popup.GetItemIndex(id);
+		}
+
+		popup.SetItemDisabled(index, !enabled);
+	}
+
+	//we need to save which components are being affected by the right-click menu when it pops up
+	private List<VisualComponentBase> _popupComponents;
 	
+	public void BuildPopupMenu(List<VisualComponentBase> components)
+	{
+		if (components.Count == 0) return;  //TODO Right click menu for table surface?
+
+		_popupComponents = components;
+		
+		var commands = components[0].GetMenuCommands();
+		
+		_componentPopup.Clear();
+
+		if (commands.Any(x => x.Command == SceneController.VisualCommand.ToggleLock))
+		{
+			var isChecked = (commands.First(x => x.Command == SceneController.VisualCommand.ToggleLock)).IsChecked;
+			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.ToggleLock, "Frozen", string.Empty, true, true, isChecked);
+		}
+
+		if (commands.Any(x => x.Command == SceneController.VisualCommand.Roll))
+			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Roll, "Roll", string.Empty);
+
+		if (commands.Any(x => x.Command == SceneController.VisualCommand.Flip))
+			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Flip, "Flip", string.Empty);
+
+		if (commands.Any(x => x.Command == SceneController.VisualCommand.Delete))
+			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Delete, "Delete", string.Empty);
+	}
+
 	private void PopupMenuCommandSelected(long id)
 	{
-		GD.Print($"Manu {id}");
-		if (id == PopupFlipId)
+		
+		if (id >= (int)SceneController.VisualCommand.MaximumVC) return;
+
+		SceneController.VisualCommand vc = (SceneController.VisualCommand)id;
+		if (GetParent() is GameController gc)
 		{
-			if (GetParent() is GameController gc)
-			{
-				GD.Print("Flipping");
-				gc.ProcessCommand(SceneController.VisualCommand.Flip);
-			}
+			gc.ProcessPopupCommand(vc, _popupComponents);
 		}
 	}
 
@@ -74,7 +153,6 @@ public partial class UI : CanvasLayer
 	}
 
 
-	
 	private void OnInsertMenuSelection(long id)
 	{
 		if (id == 1) _componentDefinition.Visible = true;
@@ -86,6 +164,7 @@ public partial class UI : CanvasLayer
 	}
 
 	public event EventHandler<CreateObjectEventArgs> CreateObject;
+
 	private void OnCreateObject(object sender, CreateObjectEventArgs args)
 	{
 		_componentDefinition.Visible = false;
@@ -97,12 +176,14 @@ public partial class UI : CanvasLayer
 		_componentDefinition.Visible = false;
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
 
+	private bool _popupShown;
+	
 	public void ShowComponentPopup(Vector2I position)
 	{
 		_componentPopup.Visible = true;
 		_componentPopup.Position = position;
+		_popupShown = true;
 	}
 
 	public void HideComponentPopup()
@@ -118,6 +199,7 @@ public partial class UI : CanvasLayer
 	};
 
 	public MasterMode CurMasterMode { get; set; }
+
 	private void SetMasterMode(MasterMode mode)
 	{
 		GD.Print($"Set Master Mode {mode}");
@@ -132,7 +214,7 @@ public partial class UI : CanvasLayer
 		}
 
 		var buttonNum = 0;
-		
+
 		switch (mode)
 		{
 			case MasterMode.TwoD:
@@ -150,14 +232,13 @@ public partial class UI : CanvasLayer
 
 		if (buttons[buttonNum] is Button target)
 		{
-			target.AddThemeColorOverride("font_color",highlightFontColor);
-			target.AddThemeColorOverride("font_focus_color",highlightFontColor);
+			target.AddThemeColorOverride("font_color", highlightFontColor);
+			target.AddThemeColorOverride("font_focus_color", highlightFontColor);
 		}
-		
-		CurMasterMode = mode;
-		MasterModeChange?.Invoke(this, new MasterModeChangeArgs{NewMode =mode});
-	}
 
+		CurMasterMode = mode;
+		MasterModeChange?.Invoke(this, new MasterModeChangeArgs { NewMode = mode });
+	}
 
 
 	private void _on_play_2d_pressed()
@@ -187,16 +268,11 @@ public partial class UI : CanvasLayer
 		target.Texture = t;
 	}
 
-	
-	public const int LongClickTime = 1000;
 
+	public const int LongClickTime = 1000;
 }
 
 public class MasterModeChangeArgs : EventArgs
 {
 	public UI.MasterMode NewMode { get; set; }
 }
-
-
-
-

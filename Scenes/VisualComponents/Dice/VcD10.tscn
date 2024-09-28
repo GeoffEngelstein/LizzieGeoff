@@ -1,0 +1,15 @@
+[gd_scene load_steps=5 format=3 uid="uid://bqpyf610qvykw"]
+
+[ext_resource type="PackedScene" uid="uid://it83grh0p70a" path="res://Scenes/VisualComponents/Dice/d10.glb" id="1_7uahp"]
+[ext_resource type="Script" path="res://Scripts/VisualComponents/VcDie.cs" id="2_k5wwe"]
+[ext_resource type="Texture2D" uid="uid://b50c2g4jsrkr8" path="res://Scenes/VisualComponents/Dice/d10uv.png" id="3_hscel"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eauq6"]
+albedo_texture = ExtResource("3_hscel")
+
+[node name="VcD10" instance=ExtResource("1_7uahp")]
+script = ExtResource("2_k5wwe")
+_sides = 10
+
+[node name="Cone" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_eauq6")

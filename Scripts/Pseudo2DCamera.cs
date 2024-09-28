@@ -20,7 +20,7 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 	private bool _spawnMode;
 	private VisualComponentBase _spawnComponent;
 
-	private bool _stackingUpdateRequired;
+	
 	
 	[Export] private float ZoomSpeed { get; set; } = 2f;
 	[Export] private float YawSpeed { get; set; } = 1;
@@ -185,9 +185,6 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 		}
 
 		_isDragging = false;
-		_stackingUpdateRequired = true;
-
-		
 	}
 
 	public void ProcessDrag(Vector2 axis)
@@ -196,12 +193,23 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 
 		var deltaPos = new Vector3(targetPos.X - _mouseStartDragPos.X, 0, targetPos.Z - _mouseStartDragPos.Y);
 
-		foreach (var v in GetSelectedObjects())
+		foreach (var v in GetDraggingObjects())
 		{
 			v.Position += deltaPos;
 		}
 
 		_mouseStartDragPos = new Vector2(targetPos.X, targetPos.Z);	//reset starting point for next move
+	}
+	
+	private IEnumerable<VisualComponentBase> GetDraggingObjects()
+	{
+		foreach (var n in _gameObjects.GetChildren())
+		{
+			if (n is VisualComponentBase { IsDragging: true } p)
+			{
+				yield return p;
+			}
+		}
 	}
 
 	private Vector3 ShootRay(Vector2 position)

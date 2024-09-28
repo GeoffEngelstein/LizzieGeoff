@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://b1ijg1er07n50"]
+[gd_scene load_steps=11 format=3 uid="uid://b1ijg1er07n50"]
 
 [ext_resource type="Script" path="res://Scripts/VisualComponents/VcCard.cs" id="1_vqwa3"]
 [ext_resource type="Texture2D" uid="uid://r8l25si7dbtm" path="res://Textures/queen_of_spades.jpg" id="2_0l6m6"]
@@ -25,9 +25,6 @@ orientation = 1
 [sub_resource type="BoxShape3D" id="BoxShape3D_bjoi2"]
 size = Vector3(1, 0.05, 1)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_mesye"]
-size = Vector3(1, 100, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_fkh8s"]
 material = ExtResource("4_r38yb")
 size = Vector3(1, 0.05, 1)
@@ -47,12 +44,6 @@ skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_bjoi2")
-
-[node name="Area3D" type="Area3D" parent="."]
-input_ray_pickable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-shape = SubResource("BoxShape3D_mesye")
 
 [node name="HighlightMesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_fkh8s")

@@ -27,7 +27,8 @@ public partial class SceneController : Node3D
 		Normal,
 		Spawn,
 		Drag,
-		DragSelect
+		DragSelect,
+		PopupMenu
 	}
 
 	private CursorMode _uiMode = CursorMode.Normal;
@@ -50,24 +51,7 @@ public partial class SceneController : Node3D
 	}
 
 
-	public override void _Process(double delta)
-	{
-		return;
 
-		//Code below was used for testing the 'popup' hamburger menu for options instead 
-		//of right-click. Leaving here for now in case we go back.
-		var obj = GetSelectedObject();
-		if (obj == null)
-		{
-			GetParent<GameController>().HideComponentPopup();
-			return;
-		}
-
-		var m = GetViewport().GetMousePosition();
-
-		Vector2I v = new Vector2I((int)Math.Floor(m.X), (int)Math.Floor(m.Y));
-		GetParent<GameController>().ShowComponentPopup(v);
-	}
 
 
 	private Vector2 UpperLeftCorner(VisualComponentBase obj)
@@ -124,30 +108,33 @@ public partial class SceneController : Node3D
 			case CursorMode.DragSelect:
 				HandleDragSelect();
 				break;
+			
+			case CursorMode.PopupMenu:
+				HandlePopupMenu();
+				break;
 
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
 
 
-		CheckForCommands();
+		//do not process commands or rotate/zoom while in Drag Select or Popup modes
+		if (_uiMode != CursorMode.DragSelect && _uiMode != CursorMode.PopupMenu)
+		{
+			CheckForCommands();
 
-		//check for zoom
-		if (@event.IsActionPressed("zoom_in")) _currentCamera.ZoomIn();
-		if (@event.IsActionPressed("zoom_out")) _currentCamera.ZoomOut();
+			_currentCamera.ProcessViewEvent(@event);
 
-		//process rotations
-		_currentCamera.ProcessViewEvent(@event);
+			//check for zoom
+			if (@event.IsActionPressed("zoom_in")) _currentCamera.ZoomIn();
+			if (@event.IsActionPressed("zoom_out")) _currentCamera.ZoomOut();
+			if (@event.IsActionPressed("reset_view")) _currentCamera.ResetView();
+			if (@event.IsActionPressed("move_to_top")) MoveToTop();
+			if (@event.IsActionPressed("move_to_bottom")) MoveToBottom();
+			if (@event.IsActionPressed("exit_mode")) ResetModes();
+			if (@event.IsActionPressed("ui_undo")) ProcessUndo();
+		}
 
-		if (@event.IsActionPressed("reset_view")) _currentCamera.ResetView();
-
-		if (@event.IsActionPressed("move_to_top")) MoveToTop();
-		if (@event.IsActionPressed("move_to_bottom")) MoveToBottom();
-
-		if (@event.IsActionPressed("exit_mode")) ResetModes();
-
-		if (@event.IsActionPressed("ui_undo")) ProcessUndo();
-		
 		base._Input(@event);
 	}
 
@@ -177,12 +164,9 @@ public partial class SceneController : Node3D
 	{
 		if (@event is InputEventMouseButton mb)
 		{
-			if (mb.ButtonIndex == MouseButton.Right && IsObjectSelected())
+			if (mb.ButtonIndex == MouseButton.Right && IsObjectHovered())
 			{
-				var m = GetViewport().GetMousePosition();
-
-				Vector2I v = new Vector2I((int)Math.Floor(m.X), (int)Math.Floor(m.Y));
-				GetParent<GameController>().ShowComponentPopup(v);
+				StartPopupMenu();
 			}
 
 			if (mb.ButtonIndex == MouseButton.Left)
@@ -205,7 +189,7 @@ public partial class SceneController : Node3D
 	}
 
 	private Change _dragChange;
-	
+
 	private void StartDragUndo(VisualComponentBase go)
 	{
 		//TODO Handle multiple items being dragged
@@ -221,11 +205,39 @@ public partial class SceneController : Node3D
 		_dragChange.End = _dragChange.Component.Transform;
 		_undoService.Add(_dragChange);
 	}
-	
 
 	#endregion
 
+	#region PopupMenu
 
+	private void StartPopupMenu()
+	{
+		_uiMode = CursorMode.PopupMenu;
+		
+		var m = GetViewport().GetMousePosition();
+
+		Vector2I v = new Vector2I((int)Math.Floor(m.X), (int)Math.Floor(m.Y));
+		var vch = new List<VisualComponentBase> { GetHoveredObject() };
+		GetParent<GameController>().ShowComponentPopup(v, vch);
+	}
+
+	private void EndPopupMenu()
+	{
+		if (_uiMode == CursorMode.PopupMenu) _uiMode = CursorMode.Normal;
+	}
+
+	public void PopupClosed()
+	{
+		EndPopupMenu();
+	}
+
+	private void HandlePopupMenu()
+	{
+		//
+	}
+
+	#endregion
+	
 	#region DragSelect
 
 	private void HandleDragSelect()
@@ -357,7 +369,7 @@ public partial class SceneController : Node3D
 	}
 
 	private bool _spawnDebounce;
-	
+
 	private void SpawnComponent()
 	{
 		if (_spawnComponent == null || _spawnDebounce) return;
@@ -384,6 +396,7 @@ public partial class SceneController : Node3D
 
 	public enum VisualCommand
 	{
+		None,
 		ToggleLock,
 		Flip,
 		ScaleUp,
@@ -397,17 +410,34 @@ public partial class SceneController : Node3D
 		MoveToBottom,
 		MoveUp,
 		MoveToTop,
-		Num1, Num2, Num3, Num4, Num5, Num6, Num7, Num8, Num9, Num10,
-		Num11, Num12, Num13, Num14, Num15, Num16, Num17, Num18, Num19, Num20,
-		Roll
+		Num1,
+		Num2,
+		Num3,
+		Num4,
+		Num5,
+		Num6,
+		Num7,
+		Num8,
+		Num9,
+		Num10,
+		Num11,
+		Num12,
+		Num13,
+		Num14,
+		Num15,
+		Num16,
+		Num17,
+		Num18,
+		Num19,
+		Num20,
+		Roll,
+		MaximumVC
 	}
 
 	private void CheckForCommands()
 	{
-		if (Input.IsActionJustPressed("flip"))
-		{
-			SendCommandToSelected(VisualCommand.Flip);
-		}
+		if (Input.IsActionJustPressed("flip")) SendCommandToSelected(VisualCommand.Flip);
+		if (Input.IsActionPressed("lock")) SendCommandToSelected(VisualCommand.ToggleLock);
 
 		if (Input.IsActionPressed("num_1")) SendCommandToSelected(VisualCommand.Num1);
 		if (Input.IsActionPressed("num_2")) SendCommandToSelected(VisualCommand.Num2);
@@ -435,20 +465,25 @@ public partial class SceneController : Node3D
 
 	public bool SendCommandToSelected(VisualCommand command)
 	{
+		return SendCommandToComponents(command, SelectedObjects());
+	}
+	
+	public bool SendCommandToComponents(VisualCommand command, IEnumerable<VisualComponentBase> components)
+	{
 		bool result = false;
 
 		Update _update = new();
-		
-		foreach (var c in SelectedObjects())
+
+		foreach (var c in components)
 		{
 			var change = c.ProcessCommand(command);
-			if (!change.Consumed) continue;
-			
+			if (!change.Consumed) return false;
+
 			//accumulate changes for undo across multiple objects
 			if (change.UndoAction != null) _update.Add(change.UndoAction);
 			result = true;
 		}
-		
+
 		//if any actions were performed, add the to the Undo stack
 		if (_update.Count != 0)
 		{
@@ -457,6 +492,7 @@ public partial class SceneController : Node3D
 
 		return result;
 	}
+	
 
 	private IEnumerable<VisualComponentBase> SelectedObjects()
 	{
@@ -538,6 +574,32 @@ public partial class SceneController : Node3D
 		}
 
 		return false;
+	}
+	
+	private bool IsObjectHovered()
+	{
+		foreach (var n in _gameObjects.GetChildren())
+		{
+			if (n is VisualComponentBase { IsHovered: true } )
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private VisualComponentBase GetHoveredObject()
+	{
+		foreach (var n in _gameObjects.GetChildren())
+		{
+			if (n is VisualComponentBase { IsHovered: true } p)
+			{
+				return p;
+			}
+		}
+
+		return null;
 	}
 
 	private VisualComponentBase GetSelectedObject()
@@ -628,36 +690,38 @@ public partial class SceneController : Node3D
 		{
 			var ci = children[i] as VisualComponentBase;
 
-			if (ci.StackingCollider == null)
+			if (ci == null)
 			{
-				GD.PrintErr($"Null StackingCollider on {i}");
+				GD.PrintErr($"{children[i].Name} not VCB");
 				continue;
 			}
 
+			if (ci.ShapeProfiles.Count == 0) continue;
+			
 			for (int j = 0; j < children.Count; j++)
 			{
 				var cj = children[j] as VisualComponentBase;
 
-				if (cj.StackingCollider != null)
+				if (cj == null)
 				{
-					if (cj.ZOrder < ci.ZOrder && ci.OverlapsArea(cj)) //lower zOrders are below other items
+					GD.PrintErr($"{children[j].Name} not VCB");
+					continue;
+				}
+
+				if (cj.ZOrder < ci.ZOrder && CheckOverlap(ci, cj)) //lower zOrders are below other items
+				{
+					//GD.PrintErr($"Area {i} overlaps Area {j}");
+					//add to dictionary
+					if (underneath.ContainsKey(i))
 					{
-						GD.Print($"Area {i} overlaps Area {j}");
-						//add to dictionary
-						if (underneath.ContainsKey(i))
-						{
-							underneath[i].Add(j);
-						}
-						else
-						{
-							underneath.Add(i, new List<int> { j });
-						}
+						underneath[i].Add(j);
+					}
+					else
+					{
+						underneath.Add(i, new List<int> { j });
 					}
 				}
-				else
-				{
-					GD.PrintErr($"Null stacking collider on {j}");
-				}
+				
 			}
 		}
 
@@ -665,6 +729,7 @@ public partial class SceneController : Node3D
 
 		//uncomment the below to get a printout of the Underneath dictionary
 
+		/*
 		foreach (var r in underneath)
 		{
 			string s = String.Empty;
@@ -673,9 +738,9 @@ public partial class SceneController : Node3D
 				s += $"{q} ";
 			}
 
-			GD.Print($"{r.Key} is above {s}");
+			GD.PrintErr($"{r.Key} is above {s}");
 		}
-
+		*/
 
 		//loop through all the objects and check the dictionary (which is in Z order) and stack
 		//The y coordinate is set to the sum of all of the YHeight values below it.
@@ -698,8 +763,22 @@ public partial class SceneController : Node3D
 				}
 			}
 
-			GD.Print($"New pos for {i}: {floor + (ci.YHeight / 2f)}");
+			//GD.Print($"New pos for {i}: {floor + (ci.YHeight / 2f)}");
 			ci.Position = new Vector3(ci.Position.X, floor + (ci.YHeight / 2f), ci.Position.Z);
 		}
+	}
+
+	private bool CheckOverlap(VisualComponentBase comp1, VisualComponentBase comp2)
+	{
+		Transform2D t1 = new Transform2D(comp1.Rotation.Y, new Vector2(comp1.Position.X, comp1.Position.Z));
+		Transform2D t2 = new Transform2D(comp2.Rotation.Y, new Vector2(comp2.Position.X, comp2.Position.Z));
+
+		foreach (var s1 in comp1.ShapeProfiles)
+		foreach (var s2 in comp2.ShapeProfiles)
+		{
+			if (s1.Collide(t1, s2, t2)) return true;
+		}
+
+		return false;
 	}
 }

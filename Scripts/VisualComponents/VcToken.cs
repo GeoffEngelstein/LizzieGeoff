@@ -18,8 +18,8 @@ public partial class VcToken : VisualComponentBase
 		base._Ready();
 		Visible = true;
 		ComponentType = VisualComponentType.Token;
-		StackingCollider = GetNode<Area3D>("Area3D");
-
+		
+		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
 		_frontSprite = GetNode<Sprite3D>("FrontSprite");
 		_backSprite = GetNode<Sprite3D>("BackSprite");
 	}
@@ -45,6 +45,19 @@ public partial class VcToken : VisualComponentBase
 		return base.ProcessCommand(command);
 	}
 	
+	public override List<MenuCommand> GetMenuCommands()
+	{
+		var l = new List<MenuCommand>();
+
+		foreach (var i in base.GetMenuCommands())
+		{
+			l.Add(i);
+		}
+
+		l.Add(new MenuCommand(SceneController.VisualCommand.Flip));
+		
+		return l;
+	}
 
 	private float _flipRate = 720;	//degrees per second
 	private bool _showFace = true;
@@ -124,10 +137,82 @@ public partial class VcToken : VisualComponentBase
 		YHeight = Thickness;
 		
 		Scale = new Vector3(Width, Thickness, Height);
+
+		var shape = (TokenTextureSubViewport.TokenShape)Shape;
+
+		switch (shape)
+		{
+			case TokenTextureSubViewport.TokenShape.Square:
+				var r = new RectangleShape2D();
+				r.Size = new Vector2(Width, Height);
+				ShapeProfiles.Add(r);
+				break;
+			
+			case TokenTextureSubViewport.TokenShape.Circle:
+				var c = new CircleShape2D();
+				c.Radius = Width / 2f;
+				ShapeProfiles.Add(c);
+				break;
+			
+			case TokenTextureSubViewport.TokenShape.HexPoint:
+				var hp = new ConvexPolygonShape2D();
+				hp.Points = CalcHexPointVertices();
+				ShapeProfiles.Add(hp);
+				break;
+			
+			case TokenTextureSubViewport.TokenShape.HexFlat:
+				var hf = new ConvexPolygonShape2D();
+				hf.Points = CalcHexPointVertices();
+				ShapeProfiles.Add(hf);
+				break;
+			
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+		
+		
 		
 		return true;
 	}
 
+	private Vector2[] CalcHexPointVertices()
+	{
+		Vector2[] arr = new Vector2[6];
+
+		var x = (Width/ 4f) * Mathf.Sqrt(3) / 2f;
+		var y = (Height / 4f);
+
+		arr[0] = new Vector2(0, y * 2);
+		arr[1] = new Vector2(-x, y);
+		arr[2] = new Vector2(-x, -y);
+		arr[3] = new Vector2(0, -y * 2);
+		arr[4] = new Vector2(-x, -y);
+		arr[5] = new Vector2(-x, y);
+
+		foreach (var p in arr)
+		{
+			GD.Print(p);
+		}
+		
+		return arr;
+	}
+
+	private Vector2[] CalcHexFlatVertices()
+	{
+		Vector2[] arr = new Vector2[6];
+
+		var x = (Width / 4f);
+		var y = (Height/ 4f) * Mathf.Sqrt(3) / 2f;
+
+		arr[0] = new Vector2(x*2, 0);
+		arr[1] = new Vector2(x, y);
+		arr[2] = new Vector2(-x, y);
+		arr[3] = new Vector2(-x *2, 0);
+		arr[4] = new Vector2(-x, -y);
+		arr[5] = new Vector2(x, -y);
+		
+		return arr;
+	}
 	private void BuildQuick()
 	{
 		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
@@ -325,6 +410,8 @@ public partial class VcToken : VisualComponentBase
 
 		return ret;
 	}
+	
+	
 
 	private float Height;
 	private float Width;

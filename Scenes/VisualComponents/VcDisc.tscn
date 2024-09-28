@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://o48b616rvqqo"]
+[gd_scene load_steps=6 format=3 uid="uid://o48b616rvqqo"]
 
 [ext_resource type="Script" path="res://Scripts/VisualComponents/VcDisc.cs" id="1_p1c41"]
 [ext_resource type="Material" uid="uid://bgmgc3682qest" path="res://Materials/Highlight.material" id="2_ii3k4"]
@@ -10,9 +10,6 @@ height = 0.95
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_gnioe"]
 height = 1.0
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_psgbq"]
-height = 100.0
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_3p202"]
 material = ExtResource("2_ii3k4")
@@ -28,12 +25,6 @@ skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CylinderShape3D_gnioe")
-
-[node name="Area3D" type="Area3D" parent="."]
-input_ray_pickable = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
-shape = SubResource("CylinderShape3D_psgbq")
 
 [node name="HighlightMesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_3p202")

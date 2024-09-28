@@ -1,0 +1,14 @@
+[gd_scene load_steps=5 format=3 uid="uid://bmanti5q0gk2i"]
+
+[ext_resource type="PackedScene" uid="uid://d0lnuwrqae8k3" path="res://Scenes/VisualComponents/Dice/d12a.glb" id="1_pivvi"]
+[ext_resource type="Script" path="res://Scripts/VisualComponents/VcDie.cs" id="2_vxow7"]
+[ext_resource type="Texture2D" uid="uid://cc18yvwknwe15" path="res://Scenes/VisualComponents/Dice/d12a-numbers.png" id="3_u30h3"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mu76u"]
+albedo_texture = ExtResource("3_u30h3")
+
+[node name="VcD12" instance=ExtResource("1_pivvi")]
+script = ExtResource("2_vxow7")
+
+[node name="Solid" parent="." index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_mu76u")

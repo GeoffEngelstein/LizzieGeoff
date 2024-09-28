@@ -21,7 +21,20 @@ public abstract partial class VisualComponentBase : Area3D
 
 	public virtual VisualComponentType ComponentType { get; set; }
 	protected GeometryInstance3D MainMesh;
-	protected MeshInstance3D HighlightMesh;
+
+	private MeshInstance3D _highlightMesh;
+
+	public List<Shape2D> ShapeProfiles { get; set; } = new();
+
+	protected MeshInstance3D HighlightMesh
+	{
+		get => _highlightMesh;
+		set
+		{
+			_highlightMesh = value;
+			if (_highlightMesh != null) UpdateHighlight();
+		}
+	}
 
 	[Export] private float _highlightScale = 1.1f;
 	
@@ -35,13 +48,11 @@ public abstract partial class VisualComponentBase : Area3D
 	{
 		Visible = false;
 		_curScale = 1;
-		MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
-		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
-		if (HighlightMesh != null) UpdateHighlight();
+		
 		IsMouseSelected = false;
 
-		this.MouseEntered += _on_mouse_entered;
-		this.MouseExited += _on_mouse_exited;
+		MouseEntered += _on_mouse_entered;
+		MouseExited += _on_mouse_exited;
 		
 		base._Ready();
 	}
@@ -57,8 +68,7 @@ public abstract partial class VisualComponentBase : Area3D
 
 		return true;
 	}
-
-	public virtual Area3D StackingCollider { get; set; }
+	
 
 	/// <summary>
 	/// Checks the parameter dictionary to make sure that everything required for this
@@ -77,14 +87,30 @@ public abstract partial class VisualComponentBase : Area3D
 
 	public virtual CommandResponse ProcessCommand(SceneController.VisualCommand command)
 	{
+		if (command == SceneController.VisualCommand.ToggleLock)
+		{
+			Locked = !Locked;
+			
+			return new CommandResponse(true, null);
+		}
 		return new CommandResponse(false, null);
+	}
+	
+	public virtual List<MenuCommand> GetMenuCommands()
+	{
+		var l = new List<MenuCommand>();
+		
+		l.Add(new MenuCommand(SceneController.VisualCommand.ToggleLock, Locked));
+		l.Add(new MenuCommand(SceneController.VisualCommand.Delete));
+
+		return l;
 	}
 
 	public virtual string InstanceName { get; set; }
 	public virtual Polygon2D YProjection { get; private set; }
 
 	public virtual float YHeight { get; protected set; }
-
+	
 	/// <summary>
 	/// Sets the Z-order for stacking. A "0" is the lowest - on the table.
 	/// If two items have the same Z-Order (should never happen), then
@@ -112,6 +138,28 @@ public abstract partial class VisualComponentBase : Area3D
 		}
 	}
 
+	protected bool _locked;
+	public virtual bool Locked
+	{
+		get => _locked;
+		set
+		{
+			if (_locked != value)
+			{
+				_locked = value;
+				LockChanged();
+			}
+		}
+	}
+
+	protected void LockChanged()
+	{
+		UpdateHighlight();
+		IsClickSelected = false;
+	}
+
+	public virtual bool IsHovered { get; protected set; }
+	
 	private bool _isClickSelected;
 
 	public virtual bool IsClickSelected
@@ -121,19 +169,20 @@ public abstract partial class VisualComponentBase : Area3D
 		{
 			if (_isClickSelected == value) return;
 
-			_isClickSelected = value;
+			_isClickSelected = !Locked && value;
 
 			UpdateHighlight();
 		}
 	}
-
+	
 	public bool IsSelected => IsMouseSelected || IsClickSelected;
 	
 	protected virtual void UpdateHighlight()
 	{
 		if (HighlightMesh == null) return;
-		
-		HighlightMesh.Visible = IsSelected && !NeverHighlight;
+
+	
+		HighlightMesh.Visible = IsSelected && !NeverHighlight && !Locked;
 	}
 
 	public Aabb Aabb => MainMesh.GlobalTransform * MainMesh.GetAabb();
@@ -141,6 +190,7 @@ public abstract partial class VisualComponentBase : Area3D
 	private void _on_mouse_entered()
 	{
 		IsMouseSelected = true;
+		IsHovered = true;
 	}
 
 	private void _on_mouse_exited()
@@ -148,6 +198,7 @@ public abstract partial class VisualComponentBase : Area3D
 		if (!IsDragging)
 		{
 			IsMouseSelected = false;
+			IsHovered = false;
 		}
 	}
 
@@ -169,7 +220,7 @@ public abstract partial class VisualComponentBase : Area3D
 
 	private bool _isDragging;
 
-	public virtual GeometryInstance3D DragMesh => MainMesh;
+	public abstract GeometryInstance3D DragMesh { get; }
 
 	public bool IsDragging
 	{

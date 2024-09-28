@@ -13,9 +13,11 @@ public partial class VcDie : VisualComponentBase
 	{
 		base._Ready();
 		Visible = true;
+		
 		_mainMesh = GetNode<MeshInstance3D>("ObjectMesh");
+		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
+		
 		ComponentType = VisualComponentType.Die;
-		StackingCollider = GetNode<Area3D>("Area3D");
 	}
 
 	private bool _rollInProcess;
@@ -74,6 +76,7 @@ public partial class VcDie : VisualComponentBase
 				break;
 			case SceneController.VisualCommand.MoveToTop:
 				break;
+			
 			case SceneController.VisualCommand.Num1:
 				ShowSide(1);
 				break;
@@ -147,6 +150,20 @@ public partial class VcDie : VisualComponentBase
 
 		return cr;
 	}
+	
+	public override List<MenuCommand> GetMenuCommands()
+	{
+		var l = new List<MenuCommand>();
+
+		foreach (var i in base.GetMenuCommands())
+		{
+			l.Add(i);
+		}
+
+		l.Add(new MenuCommand(SceneController.VisualCommand.Roll));
+		
+		return l;
+	}
 
 	private void Roll()
 	{
@@ -176,6 +193,17 @@ public partial class VcDie : VisualComponentBase
 			{
 				if (h <= 0) return false;
 				size = h / 10f;
+			}
+		}
+
+		if (parameters.ContainsKey("Color"))
+		{
+			if (parameters["Color"] is Color color)
+			{
+				if (_mainMesh.GetSurfaceOverrideMaterial(0) is StandardMaterial3D material)
+				{
+					material.AlbedoColor = color;
+				}
 			}
 		}
 

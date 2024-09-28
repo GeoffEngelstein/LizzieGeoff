@@ -15,8 +15,11 @@ public partial class VcCard : VisualComponentBase
 		ComponentType = VisualComponentType.Card;
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
-		StackingCollider = GetNode<Area3D>("Area3D");
+		
 	
+		MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
+		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
+
 	}
 
 	public override void _Process(double delta)
@@ -37,6 +40,8 @@ public partial class VcCard : VisualComponentBase
 		
 		return base.ProcessCommand(command);
 	}
+
+	public override GeometryInstance3D DragMesh => MainMesh;
 
 	private float _flipRate = 720;	//degrees per second
 	private bool _showFace = true;
@@ -94,6 +99,7 @@ public partial class VcCard : VisualComponentBase
 	{
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
+		MainMesh = _frontSurface;
 	
 		base.Build(parameters);
 
@@ -130,6 +136,11 @@ public partial class VcCard : VisualComponentBase
 		
 		//create card
 		Scale = new Vector3(Width, Scale.Y, Height);
+		
+		var r = new RectangleShape2D();
+		r.Size = new Vector2(Width, Height);
+		
+		ShapeProfiles.Add(r);
 		
 		return true;
 	}

@@ -16,9 +16,16 @@ public partial class DiePanelDialogResult : ComponentPanelDialogResult
 		_nameInput = GetNode<LineEdit>("%ComponentName");
 		_diameterInput = GetNode<LineEdit>("%Diameter");
 		_sidesInput = GetNode<OptionButton>("%Sides");
+		_sidesInput.ItemSelected += SidesInputOnItemSelected;
 		_dieColor = GetNode<ColorPickerButton>("%DieColor");
+		PrototypeIndex = 1;
 	}
-	
+
+	private void SidesInputOnItemSelected(long index)
+	{
+		PrototypeIndex = (int)index;
+	}
+
 	public override List<string> Validity()
 	{
 		return new List<string>();
@@ -30,7 +37,6 @@ public partial class DiePanelDialogResult : ComponentPanelDialogResult
 
 		d.Add("ComponentName", _nameInput.Text);
 		d.Add("Size", ParamToFloat(_diameterInput.Text));
-		d.Add("Sides", ParamToFloat(_sidesInput.Text));
 		d.Add("Color", _dieColor.Color);
 
 		return d;

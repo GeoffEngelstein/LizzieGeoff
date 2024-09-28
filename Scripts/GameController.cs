@@ -72,19 +72,29 @@ public partial class GameController : Node3D
 		return null;
 	}
 
-	public void ShowComponentPopup(Vector2I position)
+	public void ShowComponentPopup(Vector2I position, List<VisualComponentBase> selected)
 	{
+		_uiController.BuildPopupMenu(selected);
 		_uiController.ShowComponentPopup(position);
 	}
 
+	/*
 	public void HideComponentPopup()
 	{
 		_uiController.HideComponentPopup();
 	}
+*/
 	
-	public bool ProcessCommand(SceneController.VisualCommand command)
+	public void ComponentPopupClosed()
 	{
-		return _mainScene.SendCommandToSelected(command);
+		_mainScene.PopupClosed();
+	}
+	
+	public bool ProcessPopupCommand(SceneController.VisualCommand command, List<VisualComponentBase> components)
+	{
+		var result = _mainScene.SendCommandToComponents(command, components);
+		ComponentPopupClosed();
+		return result;
 	}
 	
 	//test function

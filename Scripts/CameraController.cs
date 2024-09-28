@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 public partial class CameraController : Node3D, ICameraBase
 {
@@ -24,6 +25,8 @@ public partial class CameraController : Node3D, ICameraBase
 	private float _totYaw;
 
 	private Node3D _dragNode;
+
+	private Vector2 _mouseStartDragPos;
 	private VisualComponentBase _dragSource;
 	private VisualInstance3D _dragMesh;
 	private StaticBody3D _dragPlane;
@@ -124,6 +127,7 @@ public partial class CameraController : Node3D, ICameraBase
 
 	public void StartDrag()
 	{
+		/*
 		_selectedObject = GetSelectedObject();
 		if (_selectedObject == null)
 		{
@@ -156,10 +160,34 @@ public partial class CameraController : Node3D, ICameraBase
 			_dragMesh = mi;
 			_dragNode.AddChild(mi);
 		}
+		*/
+		if (!GetSelectedObjects().Any()) return;
+
+		var o = GetMouseSelectedObject();
+		if (o == null) return;
+		
+		foreach (var v in GetSelectedObjects())
+		{
+			v.IsDragging = true;
+		}
+		_isDragging = true;
+		
+		
+		//Get mouse position
+		var rc = ShootRay(GetViewport().GetMousePosition());
+		_mouseStartDragPos = new Vector2(rc.X, rc.Z);
 	}
 
 	public void StopDrag()
 	{
+		foreach(var v in GetSelectedObjects())
+		{
+			v.IsDragging = false;
+		}
+
+		_isDragging = false;
+		
+		/*
 		if (_selectedObject != null)
 		{
 			_selectedObject.IsDragging = false;
@@ -183,10 +211,12 @@ public partial class CameraController : Node3D, ICameraBase
 		}
 
 		_dragSource = null;
+		*/
 	}
 
 	public void ProcessDrag(Vector2 axis)
 	{
+		/*
 		if (_selectedObject == null) return;
 		
 		var rotAxis = axis.Rotated(-Rotation.Y);
@@ -203,8 +233,57 @@ public partial class CameraController : Node3D, ICameraBase
 		//GD.Print(targetPos);
 		
 		_dragNode.Position = targetPos;
+		*/
+		
+		var targetPos = ShootRay(GetViewport().GetMousePosition());
+
+		var deltaPos = new Vector3(targetPos.X - _mouseStartDragPos.X, 0, targetPos.Z - _mouseStartDragPos.Y);
+
+		foreach (var v in GetSelectedObjects())
+		{
+			v.Position += deltaPos;
+		}
+
+		_mouseStartDragPos = new Vector2(targetPos.X, targetPos.Z);	//reset starting point for next move
+	}
+	
+	
+	
+	private VisualComponentBase GetMouseSelectedObject()
+	{
+		foreach (var n in _gameObjects.GetChildren())
+		{
+			if (n is VisualComponentBase { IsMouseSelected: true } p)
+			{
+				return p;
+			}
+		}
+
+		return null;
+	}
+	
+	private IEnumerable<VisualComponentBase> GetSelectedObjects()
+	{
+		foreach (var n in _gameObjects.GetChildren())
+		{
+			if (n is VisualComponentBase { IsSelected: true } p)
+			{
+				yield return p;
+			}
+		}
 	}
 
+	private IEnumerable<VisualComponentBase> GetDraggingObjects()
+	{
+		foreach (var n in _gameObjects.GetChildren())
+		{
+			if (n is VisualComponentBase { IsDragging: true } p)
+			{
+				yield return p;
+			}
+		}
+	}
+	
 	public void ProcessViewEvent(InputEvent @event)
 	{
 		int pitch = 0;
