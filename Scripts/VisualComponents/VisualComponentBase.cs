@@ -93,6 +93,15 @@ public abstract partial class VisualComponentBase : Area3D
 			
 			return new CommandResponse(true, null);
 		}
+
+		if (command == SceneController.VisualCommand.Delete)
+		{
+			Visible = false;
+
+			return new CommandResponse(true, 
+				new Change { Component = this, Action = Change.ChangeType.Deletion });
+		}
+		
 		return new CommandResponse(false, null);
 	}
 	
@@ -109,8 +118,18 @@ public abstract partial class VisualComponentBase : Area3D
 	public virtual string InstanceName { get; set; }
 	public virtual Polygon2D YProjection { get; private set; }
 
-	public virtual float YHeight { get; protected set; }
-	
+	protected float _yHeight;
+
+	public virtual float YHeight
+	{
+		get
+		{
+			if (Visible) return _yHeight;
+			return 0;
+		}
+		protected set => _yHeight = value;
+	}
+
 	/// <summary>
 	/// Sets the Z-order for stacking. A "0" is the lowest - on the table.
 	/// If two items have the same Z-Order (should never happen), then

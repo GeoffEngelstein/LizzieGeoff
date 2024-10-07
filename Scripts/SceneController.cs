@@ -133,6 +133,7 @@ public partial class SceneController : Node3D
 			if (@event.IsActionPressed("move_to_bottom")) MoveToBottom();
 			if (@event.IsActionPressed("exit_mode")) ResetModes();
 			if (@event.IsActionPressed("ui_undo")) ProcessUndo();
+			if (@event.IsActionPressed("component_delete")) DeleteComponents();
 		}
 
 		base._Input(@event);
@@ -217,7 +218,20 @@ public partial class SceneController : Node3D
 		var m = GetViewport().GetMousePosition();
 
 		Vector2I v = new Vector2I((int)Math.Floor(m.X), (int)Math.Floor(m.Y));
-		var vch = new List<VisualComponentBase> { GetHoveredObject() };
+
+		var vch = new List<VisualComponentBase>();
+
+		var so = SelectedObjects();
+		var visualComponentBases = so as VisualComponentBase[] ?? so.ToArray();
+		if (visualComponentBases.Any())
+		{
+			vch.AddRange(visualComponentBases);
+		}
+		else
+		{
+			vch.Add(GetHoveredObject());
+		}
+		
 		GetParent<GameController>().ShowComponentPopup(v, vch);
 	}
 
@@ -477,7 +491,7 @@ public partial class SceneController : Node3D
 		foreach (var c in components)
 		{
 			var change = c.ProcessCommand(command);
-			if (!change.Consumed) return false;
+			if (!change.Consumed) continue;
 
 			//accumulate changes for undo across multiple objects
 			if (change.UndoAction != null) _update.Add(change.UndoAction);
@@ -546,6 +560,26 @@ public partial class SceneController : Node3D
 		}
 
 		go.ZOrder = 1;
+		QueueStackingUpdate();
+	}
+
+	private void DeleteComponents()
+	{
+		Update update = new();
+
+		//make everything invisible
+		foreach (var g in SelectedObjects())
+		{
+			g.Visible = false;
+			var c = new Change
+			{
+				Component = g,
+				Action = Change.ChangeType.Deletion
+			};
+			update.Add(c);
+		}
+
+		if (update.Count > 0) _undoService.Add(update);
 		QueueStackingUpdate();
 	}
 

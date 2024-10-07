@@ -1,9 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://bifubswbhqkkp"]
+[gd_scene load_steps=3 format=3 uid="uid://bifubswbhqkkp"]
 
 [ext_resource type="Texture2D" uid="uid://dn6uytmhm5r7q" path="res://Textures/UI/folder_open_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="1_8qg10"]
+[ext_resource type="PackedScene" uid="uid://b576dfm4886tw" path="res://Scenes/ComponentPanels/TokenTextureSubViewport.tscn" id="2_tsawk"]
 
 [node name="DeckPanel" type="MarginContainer"]
-visible = false
 offset_right = 40.0
 offset_bottom = 40.0
 theme_override_constants/margin_left = 10
@@ -11,144 +11,325 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="GridContainer" type="GridContainer" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="Label" type="Label" parent="GridContainer"]
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Name  "
 horizontal_alignment = 2
 
-[node name="LineEdit" type="LineEdit" parent="GridContainer"]
+[node name="ItemName" type="LineEdit" parent="HBoxContainer/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 alignment = 2
 
-[node name="Label6" type="Label" parent="GridContainer"]
-layout_mode = 2
-horizontal_alignment = 2
-
-[node name="Label7" type="Label" parent="GridContainer"]
-layout_mode = 2
-horizontal_alignment = 2
-
-[node name="Label5" type="Label" parent="GridContainer"]
+[node name="Label5" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Width"
 horizontal_alignment = 2
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="GridContainer"]
+[node name="HBoxContainer4" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="GridContainer/HBoxContainer4"]
+[node name="Width" type="LineEdit" parent="HBoxContainer/VBoxContainer/GridContainer/HBoxContainer4"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "64"
 alignment = 2
 
-[node name="Label" type="Label" parent="GridContainer/HBoxContainer4"]
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer/HBoxContainer4"]
 layout_mode = 2
 text = "mm"
 
-[node name="Label4" type="Label" parent="GridContainer"]
+[node name="Label4" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 text = "Height"
 horizontal_alignment = 2
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="GridContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/GridContainer"]
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="GridContainer/HBoxContainer3"]
+[node name="Height" type="LineEdit" parent="HBoxContainer/VBoxContainer/GridContainer/HBoxContainer3"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "89"
 alignment = 2
 
-[node name="Label" type="Label" parent="GridContainer/HBoxContainer3"]
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/GridContainer/HBoxContainer3"]
 layout_mode = 2
 text = "mm"
 
-[node name="Label2" type="Label" parent="GridContainer"]
-custom_minimum_size = Vector2(80, 0)
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="TabContainer" type="TabContainer" parent="HBoxContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="Quick" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Suits"
+
+[node name="QuickSuitCount" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Count"
+
+[node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "    Back  "
+
+[node name="QuickBackColor" type="ColorPickerButton" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "BGC"
+
+[node name="QuickBackText" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Card Back Text"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="QuickSuit1Color" type="ColorPickerButton" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Color"
+color = Color(1, 0, 0, 1)
+
+[node name="QuickSuit1Contents" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "(examples: 1, 2, 3, 1-9,  J, SKIP, +2)"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="QuickSuit2Color" type="ColorPickerButton" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Color"
+color = Color(0, 1, 0, 1)
+
+[node name="QuickSuit2Contents" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "(examples: 1, 2, 3, 1-9,  J, SKIP, +2)"
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="QuickSuit3Color" type="ColorPickerButton" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Color"
+color = Color(0, 0, 1, 1)
+
+[node name="QuickSuit3Contents" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "(examples: 1, 2, 3, 1-9,  J, SKIP, +2)"
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="QuickSuit4Color" type="ColorPickerButton" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer5"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Color"
+color = Color(0.87451, 1, 0, 1)
+
+[node name="quickSuit4Contents" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Quick/MarginContainer/VBoxContainer/HBoxContainer5"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "(examples: 1, 2, 3, 1-9,  J, SKIP, +2)"
+
+[node name="Grid Image" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer5"]
+layout_mode = 2
+size_flags_horizontal = 0
 text = "Front  "
 horizontal_alignment = 2
 
-[node name="HBoxContainer5" type="HBoxContainer" parent="GridContainer"]
+[node name="GridFront" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer5"]
 layout_mode = 2
-
-[node name="LineEdit" type="LineEdit" parent="GridContainer/HBoxContainer5"]
-layout_mode = 2
-text = "(file)"
+size_flags_horizontal = 3
+placeholder_text = "(file)"
 alignment = 2
 
-[node name="Button" type="Button" parent="GridContainer/HBoxContainer5"]
+[node name="GridFrontButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer5"]
 layout_mode = 2
 icon = ExtResource("1_8qg10")
 
-[node name="Label3" type="Label" parent="GridContainer"]
-custom_minimum_size = Vector2(80, 0)
+[node name="HBoxContainer6" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer"]
 layout_mode = 2
+
+[node name="Label3" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer6"]
+layout_mode = 2
+size_flags_horizontal = 0
 text = "Back  "
 horizontal_alignment = 2
 
-[node name="HBoxContainer6" type="HBoxContainer" parent="GridContainer"]
+[node name="GridBack" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer6"]
 layout_mode = 2
-
-[node name="LineEdit" type="LineEdit" parent="GridContainer/HBoxContainer6"]
-layout_mode = 2
-text = "(file)"
+size_flags_horizontal = 3
+placeholder_text = "(file)"
 alignment = 2
 
-[node name="Button" type="Button" parent="GridContainer/HBoxContainer6"]
+[node name="GridBackButton" type="Button" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer/HBoxContainer6"]
 layout_mode = 2
 icon = ExtResource("1_8qg10")
 
-[node name="Label11" type="Label" parent="GridContainer"]
-custom_minimum_size = Vector2(80, 0)
+[node name="GridSingleBack" type="CheckButton" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer/VBoxContainer"]
 layout_mode = 2
-horizontal_alignment = 2
+size_flags_horizontal = 0
+text = "Single Back"
 
-[node name="HBoxContainer7" type="HBoxContainer" parent="GridContainer"]
+[node name="MarginContainer2" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer7" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2"]
 layout_mode = 2
 
-[node name="CheckButton" type="CheckButton" parent="GridContainer/HBoxContainer7"]
-layout_mode = 2
-text = "Single?"
-
-[node name="Label8" type="Label" parent="GridContainer"]
-layout_mode = 2
-horizontal_alignment = 2
-
-[node name="Label9" type="Label" parent="GridContainer"]
-layout_mode = 2
-horizontal_alignment = 2
-
-[node name="Label10" type="Label" parent="GridContainer"]
+[node name="Label10" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2/HBoxContainer7"]
 layout_mode = 2
 text = "Cols  "
 horizontal_alignment = 2
 
-[node name="LineEdit2" type="LineEdit" parent="GridContainer"]
+[node name="GridCols" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2/HBoxContainer7"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 alignment = 2
 
-[node name="Label12" type="Label" parent="GridContainer"]
+[node name="HBoxContainer8" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Label12" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2/HBoxContainer8"]
 layout_mode = 2
 text = "Rows  "
 horizontal_alignment = 2
 
-[node name="LineEdit3" type="LineEdit" parent="GridContainer"]
+[node name="GridRows" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2/HBoxContainer8"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 alignment = 2
 
-[node name="Label13" type="Label" parent="GridContainer"]
+[node name="HBoxContainer9" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Label13" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2/HBoxContainer9"]
 layout_mode = 2
 text = "# Cards  "
 horizontal_alignment = 2
 
-[node name="LineEdit4" type="LineEdit" parent="GridContainer"]
+[node name="GridCardCount" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer/Grid Image/MarginContainer2/VBoxContainer2/HBoxContainer9"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 alignment = 2
+
+[node name="Template" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="CheckBox" type="CheckBox" parent="HBoxContainer/PanelContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+button_pressed = true
+text = "Preview Front"
+
+[node name="Panel" type="Panel" parent="HBoxContainer/PanelContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="HBoxContainer/PanelContainer/VBoxContainer/Panel"]
+custom_minimum_size = Vector2(179, 250)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -64.0
+offset_top = -64.0
+offset_right = 64.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopPreview" parent="HBoxContainer/PanelContainer/VBoxContainer/Panel/SubViewportContainer" instance=ExtResource("2_tsawk")]
+unique_name_in_owner = true

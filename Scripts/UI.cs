@@ -51,7 +51,7 @@ public partial class UI : CanvasLayer
 	public override void _Process(double delta)
 	{
 		//Below is a hack to work around the CloseRequested signal not getting fired properly
-		
+
 		if (_popupShown && _componentPopup.Visible)
 		{
 			_popupShown = false;
@@ -106,36 +106,60 @@ public partial class UI : CanvasLayer
 
 	//we need to save which components are being affected by the right-click menu when it pops up
 	private List<VisualComponentBase> _popupComponents;
-	
+
 	public void BuildPopupMenu(List<VisualComponentBase> components)
 	{
-		if (components.Count == 0) return;  //TODO Right click menu for table surface?
+		if (components.Count == 0) return; //TODO Right click menu for table surface?
 
 		_popupComponents = components;
-		
-		var commands = components[0].GetMenuCommands();
-		
-		_componentPopup.Clear();
 
-		if (commands.Any(x => x.Command == SceneController.VisualCommand.ToggleLock))
+		var comDic = new Dictionary<SceneController.VisualCommand, int>();
+
+		var fullCommands = new List<MenuCommand>();
+
+		foreach (var c in components)
 		{
-			var isChecked = (commands.First(x => x.Command == SceneController.VisualCommand.ToggleLock)).IsChecked;
-			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.ToggleLock, "Frozen", string.Empty, true, true, isChecked);
+			var cList = c.GetMenuCommands();
+			foreach (var m in cList)
+			{
+				fullCommands.Add(m);
+				if (comDic.ContainsKey(m.Command))
+				{
+					comDic[m.Command]++;
+				}
+				else
+				{
+					comDic.Add(m.Command, 1);
+				}
+			}
 		}
 
-		if (commands.Any(x => x.Command == SceneController.VisualCommand.Roll))
+		//only include menu commands that are valid for all selected items
+		var commands = comDic.Where(x => x.Value == components.Count)
+			.Select(y => y.Key);
+
+		_componentPopup.Clear();
+
+		if (commands.Any(x => x == SceneController.VisualCommand.ToggleLock))
+		{
+			var isChecked = fullCommands.Where(x => x.Command == SceneController.VisualCommand.ToggleLock)
+				.All(y => y.IsChecked);
+			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.ToggleLock, "Frozen", string.Empty, true,
+				true, isChecked);
+		}
+
+		if (commands.Any(x => x == SceneController.VisualCommand.Roll))
 			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Roll, "Roll", string.Empty);
 
-		if (commands.Any(x => x.Command == SceneController.VisualCommand.Flip))
+		if (commands.Any(x => x == SceneController.VisualCommand.Flip))
 			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Flip, "Flip", string.Empty);
 
-		if (commands.Any(x => x.Command == SceneController.VisualCommand.Delete))
+		if (commands.Any(x => x == SceneController.VisualCommand.Delete))
 			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Delete, "Delete", string.Empty);
 	}
 
 	private void PopupMenuCommandSelected(long id)
 	{
-		
 		if (id >= (int)SceneController.VisualCommand.MaximumVC) return;
 
 		SceneController.VisualCommand vc = (SceneController.VisualCommand)id;
@@ -178,7 +202,7 @@ public partial class UI : CanvasLayer
 
 
 	private bool _popupShown;
-	
+
 	public void ShowComponentPopup(Vector2I position)
 	{
 		_componentPopup.Visible = true;

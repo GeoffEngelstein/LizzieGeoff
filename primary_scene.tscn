@@ -169,6 +169,7 @@ visible = false
 layout_mode = 2
 
 [node name="Deck" parent="UI/ComponentTabs" instance=ExtResource("17_mgf4o")]
+visible = false
 layout_mode = 2
 
 [node name="Token" parent="UI/ComponentTabs" instance=ExtResource("18_c5hxe")]

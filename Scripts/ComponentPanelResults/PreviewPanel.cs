@@ -1,43 +1,23 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Data;
 
-public partial class TokenTextureSubViewport : SubViewport
+public partial class PreviewPanel : Panel
 {
 	[Export] private string[] _shapes;
-
 	private List<Texture2D> _shapeTextures;
-	
-	private ColorRect _square;
-	private Label _label;
-	private TextureRect _hexPoint;
-	private TextureRect _hexFlat;
-	private TextureRect _circle;
-	private LabelSettings _labelSettings;
 
 	private TextureRect _clipRect;
 	private TextureRect _textureRect;
-
-	private Color _bgColor = Colors.White;
+	private Label _label;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		//_square = GetNode<ColorRect>("ColorRect");
-		
-		_label = GetNode<Label>("Label");
-		_labelSettings = new LabelSettings();
-		_labelSettings.FontSize = 24;
-		_labelSettings.FontColor = Colors.Black;
-		_label.LabelSettings = _labelSettings;
-
-		_clipRect = GetNode<TextureRect>("ClipRect");
 		_textureRect = GetNode<TextureRect>("ClipRect/TextureRect");
-		
-		
+		_label = GetNode<Label>("ClipRect/Label");
+		_clipRect = GetNode<TextureRect>("ClipRect");
 		LoadShapeTextures();
-		SetShape(TokenShape.Square);
 	}
 
 	private void LoadShapeTextures()
@@ -53,7 +33,7 @@ public partial class TokenTextureSubViewport : SubViewport
 	{
 		var image = new Image();
 		var err = image.Load(filename);
-		
+
 		if (err == Error.Ok)
 		{
 			var texture = new ImageTexture();
@@ -64,9 +44,15 @@ public partial class TokenTextureSubViewport : SubViewport
 		return new ImageTexture();
 	}
 
-	
+	#region Viewports
+
+
+
+	private Color _bgColor = Colors.White;
+		
 	public void SetBackgroundColor(Color color)
 	{
+		
 		_clipRect.Modulate = color;
 		_bgColor = color;
 	}
@@ -81,42 +67,36 @@ public partial class TokenTextureSubViewport : SubViewport
 		_label.LabelSettings.FontColor = color;
 	}
 
-	/// <summary>
-	/// The number assignments here need to stay the same.
-	/// This is cast to an int in various places
-	/// </summary>
-	public enum TokenShape
-	{
-		Square = 0, 
-		Circle = 1, 
-		HexPoint = 2, 
-		HexFlat = 3
-	}
 
-	public void SetShape(TokenShape shape)
+
+	public void SetShape(TokenTextureSubViewport.TokenShape shape)
 	{
 		_clipRect.Texture = _shapeTextures[(int)shape];
-		
-		/*
-		_square.Visible = (shape == TokenShape.Square);
-		_circle.Visible = (shape == TokenShape.Circle);
-		_hexPoint.Visible = (shape == TokenShape.HexPoint);
-		_hexFlat.Visible = (shape == TokenShape.HexFlat);
-		*/
 	}
 
-	public void SetSize(float width, float height)
+	public void SetSize(float w, float h)
 	{
-		if (width == 0 || height == 0) return;
-		//find min - scale that to 128 pixels
-		var max = Math.Max(width, height);
-		float scale = 128f / max;
+		if (h == 0 || w == 0) return;
+				
+		var maxs = Math.Max(w, h);
 
-		var size = new Vector2I((int)(width * scale), (int)(height * scale));
-		
-		Size = size;
-		Size2DOverride = size;
+		Scale = new Vector2(w / maxs, h / maxs);
+		_label.Scale = new Vector2(maxs / w, maxs / h);		//reverse scale so text remains normal aspect
+				
+		var _previewBasePos = new Vector2(86, 11);
+		var _previewBaseSize = 128;
+				
+		//move the offset position to recenter the shape
+		float nx = _previewBasePos.X + (_previewBaseSize * (1 - Scale.X) / 2);
+		float ny = _previewBasePos.Y + (_previewBaseSize * (1 - Scale.Y) / 2);
+
+		_clipRect.Position = new Vector2(nx, ny);
+				
+		float lx = _previewBaseSize * (1 - _label.Scale.X) / 2;		//need to use the inverse scale since
+		float ly = _previewBaseSize * (1 - _label.Scale.Y) / 2;		//to match the label scale is
+		_label.Position = new Vector2(lx, ly);
 	}
+	
 	public void SetTexture(ImageTexture texture)
 	{
 		int h = (int)Math.Floor(_textureRect.Size.Y);
@@ -130,6 +110,7 @@ public partial class TokenTextureSubViewport : SubViewport
 
 	public void SetViewPortMode(ShapeViewportMode mode)
 	{
+		
 		switch (mode)
 		{
 			case ShapeViewportMode.Shape:
@@ -147,4 +128,7 @@ public partial class TokenTextureSubViewport : SubViewport
 		}
 	}
 	
+		
+		
+	#endregion
 }

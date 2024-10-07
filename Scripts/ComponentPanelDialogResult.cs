@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 public abstract partial class ComponentPanelDialogResult : Control
@@ -58,5 +59,26 @@ public abstract partial class ComponentPanelDialogResult : Control
         FileSelected(string.Empty);
     }
 
-    
+
+    public static int[] ParseValueRanges(string input)
+    {
+        var pages = new List<int>();
+        var ranges = input.Split(',');
+
+        foreach (var range in ranges)
+        {
+            if (range.Contains('-'))
+            {
+                var bounds = range.Split('-').Select(int.Parse).ToArray();
+                pages.AddRange(Enumerable.Range(bounds[0], bounds[1] - bounds[0] + 1));
+            }
+            else
+            {
+                pages.Add(int.Parse(range));
+            }
+        }
+
+        return pages.ToArray();
+    }
+
 }

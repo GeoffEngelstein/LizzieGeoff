@@ -137,6 +137,17 @@ public partial class VcToken : VisualComponentBase
 		YHeight = Thickness;
 		
 		Scale = new Vector3(Width, Thickness, Height);
+		
+		//adjust the scales for the sprites based on the textures so they don't double adjust
+		if (Width > 0 && Height > 0)
+		{
+			float scale = Math.Max(Width, Height);
+
+			var size = new Vector3(scale / Width, 1, scale / Height);
+			_frontSprite.Scale = size;
+			_backSprite.Scale = size;
+			GD.PrintErr(size);
+		}
 
 		var shape = (TokenTextureSubViewport.TokenShape)Shape;
 
@@ -251,7 +262,8 @@ public partial class VcToken : VisualComponentBase
 
 		var t = _frontView.GetTexture();
 
-		float pixelSize = 0.95f / t.GetWidth();
+		float pixelSize = PixelSize(t.GetSize());
+		GD.PrintErr($"Pixel Size: {pixelSize}");
 		_frontSprite.PixelSize = pixelSize;
 		_frontSprite.Texture = t;
 		
@@ -277,14 +289,20 @@ public partial class VcToken : VisualComponentBase
 		_backView.SetShape((TokenTextureSubViewport.TokenShape) Shape);
 		var t = _backView.GetTexture();
 
-		float pixelSize = 0.95f / t.GetWidth();
+		float pixelSize = PixelSize(t.GetSize());
 		_backSprite.PixelSize = pixelSize;
 		_backView.SetTexture(LoadTexture(BackImage));
 
 		_backSprite.Texture = _backView.GetTexture();
 		
 	}
-	
+
+	private float PixelSize(Vector2 size)
+	{
+		if (size.X == 0 || size.Y == 0) return 0;
+
+		return 0.95f / Mathf.Max(size.X, size.Y);
+	}
 	
 	private void CreateQuickFrontTexture()
 	{
@@ -292,10 +310,11 @@ public partial class VcToken : VisualComponentBase
 		_frontView.SetText(FrontCaption);
 		_frontView.SetTextColor(FrontCaptionColor);
 		_frontView.SetShape((TokenTextureSubViewport.TokenShape) Shape);
+		_frontView.SetSize(Width, Height);
 		
 		var t = _frontView.GetTexture();
 
-		float pixelSize = 0.95f / t.GetWidth();
+		float pixelSize = PixelSize(t.GetSize());
 		_frontSprite.PixelSize = pixelSize;
 		_frontSprite.Texture = t;
 
@@ -312,10 +331,11 @@ public partial class VcToken : VisualComponentBase
 		_backView.SetText(BackCaption);
 		_backView.SetTextColor(BackCaptionColor);
 		_backView.SetShape((TokenTextureSubViewport.TokenShape)Shape);
+		_backView.SetSize(Width, Height);
 		
 		var t = _backView.GetTexture();
 
-		float pixelSize = 0.95f / t.GetWidth();
+		float pixelSize = PixelSize(t.GetSize());
 		_backSprite.PixelSize = pixelSize;
 		_backSprite.Texture = t;
 	}

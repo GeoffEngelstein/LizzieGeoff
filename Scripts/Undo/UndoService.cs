@@ -7,6 +7,9 @@ public partial class UndoService
     private Stack<Update> _undoStack = new();
 
     private Stack<Update> _redoStack = new();
+    
+    private int _maxStackSize = 100;
+    private int _minStackSize = 50;
 
     public void ClearStack()
     {
@@ -15,6 +18,7 @@ public partial class UndoService
 
     public void Add(Update update)
     {
+        if (_undoStack.Count > _maxStackSize) TrimStack(_undoStack, _minStackSize);
         _undoStack.Push(update);
     }
 
@@ -23,6 +27,38 @@ public partial class UndoService
         var u = new Update();
         u.Add(change);
         Add(u);
+    }
+
+    private void TrimStack(Stack<Update> stack, int size)
+    {
+        if (size >= stack.Count) return;
+        
+        var arr = stack.ToArray();
+
+        stack.Clear();
+
+        for (int i = arr.Length; i > 0; i--)
+        {
+            if (i < size)
+            {
+                stack.Push(arr[i-1]);
+            }
+            else
+            {
+                Finalize(arr[i-1]); //mainly permanently deleting objects
+            }
+        }
+    }
+
+    private void Finalize(Update update)
+    {
+        foreach (var c in update)
+        {
+            if (c.Action == Change.ChangeType.Deletion)
+            {
+                c.Component.QueueFree();
+            }
+        }        
     }
 
     public void Add(VisualComponentBase component, Change.ChangeType changeType, object beginState,
@@ -50,8 +86,11 @@ public partial class UndoService
                     ExecuteTransform(c);
                     break;
                 case Change.ChangeType.Creation:
+                    c.Component.Visible = false;    //hide, don't delete for now. In case we have a 'redo' function
                     break;
                 case Change.ChangeType.Deletion:
+                    c.Component.Visible = true;     //do we also want to move this out of GameObjects and into a different list?
+                                                    //and do we have to adjust z-order?
                     break;
                 case Change.ChangeType.LockStatus:
                     break;

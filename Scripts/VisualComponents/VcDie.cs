@@ -78,77 +78,75 @@ public partial class VcDie : VisualComponentBase
 				break;
 			
 			case SceneController.VisualCommand.Num1:
-				ShowSide(1);
+				cr = ShowSide(1);
 				break;
 			case SceneController.VisualCommand.Num2:
-				ShowSide(2);
+				cr = ShowSide(2);
 				break;
 			case SceneController.VisualCommand.Num3:
-				ShowSide(3);
+				cr = ShowSide(3);
 				break;
 			case SceneController.VisualCommand.Num4:
-				ShowSide(4);
+				cr = ShowSide(4);
 				break;
 			case SceneController.VisualCommand.Num5:
-				ShowSide(5);
+				cr = ShowSide(5);
 				break;
 			case SceneController.VisualCommand.Num6:
-				ShowSide(6);
+				cr = ShowSide(6);
 				break;
 			case SceneController.VisualCommand.Num7:
-				ShowSide(7);
+				cr = ShowSide(7);
 				break;
 			case SceneController.VisualCommand.Num8:
-				ShowSide(8);
+				cr = ShowSide(8);
 				break;
 			case SceneController.VisualCommand.Num9:
-				ShowSide(9);
+				cr = ShowSide(9);
 				break;
 			case SceneController.VisualCommand.Num10:
-				ShowSide(10);
+				cr = ShowSide(10);
 				break;
 			case SceneController.VisualCommand.Num11:
-				ShowSide(11);
+				cr = ShowSide(11);
 				break;
 			case SceneController.VisualCommand.Num12:
-				ShowSide(12);
+				cr = ShowSide(12);
 				break;
 			case SceneController.VisualCommand.Num13:
-				ShowSide(13);
+				cr = ShowSide(13);
 				break;
 			case SceneController.VisualCommand.Num14:
-				ShowSide(14);
+				cr = ShowSide(14);
 				break;
 			case SceneController.VisualCommand.Num15:
-				ShowSide(15);
+				cr = ShowSide(15);
 				break;
 			case SceneController.VisualCommand.Num16:
-				ShowSide(16);
+				cr = ShowSide(16);
 				break;
 			case SceneController.VisualCommand.Num17:
-				ShowSide(17);
+				cr = ShowSide(17);
 				break;
 			case SceneController.VisualCommand.Num18:
-				ShowSide(18);
+				cr = ShowSide(18);
 				break;
 			case SceneController.VisualCommand.Num19:
-				ShowSide(19);
+				cr = ShowSide(19);
 				break;
 			case SceneController.VisualCommand.Num20:
-				ShowSide(20);
+				cr = ShowSide(20);
 				break;
 			
 			case SceneController.VisualCommand.Roll:
-				Roll();
+				cr = Roll();
 				break;
 
 			default:
 				throw new ArgumentOutOfRangeException(nameof(command), command, null);
 		}
 		
-		if (cr.Consumed == false) return base.ProcessCommand(command);
-
-		return cr;
+		return cr.Consumed == false ? base.ProcessCommand(command) : cr;
 	}
 	
 	public override List<MenuCommand> GetMenuCommands()
@@ -165,18 +163,46 @@ public partial class VcDie : VisualComponentBase
 		return l;
 	}
 
-	private void Roll()
+	private CommandResponse Roll()
 	{
 		_rollTarget = (int)(GD.Randi() % _sides + 1);
 		_rollInProcess = true;
 		_rollTime = 0;
+		
+		var c = new Change
+		{
+			Action = Change.ChangeType.Transform,
+			Begin = Transform,
+			Component = this
+		};
+		
+		//we are cheating to extract the end Transform from the current object. 
+		var oldRotation = Rotation;
+		
+		Rotation = _sideRotations[_rollTarget - 1] * (3.14159f / 180f);	//convert to radians
+		
+		c.End = Transform;
+
+		Rotation = oldRotation;		//restore the current rotation;
+
+		return new CommandResponse(true, c);
 	}
 
-	private void ShowSide(int side)
+	private CommandResponse ShowSide(int side)
 	{
-		if (side > _sideRotations.Length) return;
+		if (side > _sideRotations.Length) return new CommandResponse(false, null);
+
+		var c = new Change
+		{
+			Action = Change.ChangeType.Transform,
+			Begin = Transform,
+			Component = this
+		};
 
 		Rotation = _sideRotations[side - 1] * (3.14159f / 180f);	//convert to radians
+		c.End = Transform;
+
+		return new CommandResponse(true, c);
 	}
 
 	public override bool Build(Dictionary<string, object> parameters)

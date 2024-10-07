@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://dn6uytmhm5r7q" path="res://Textures/UI/folder_open_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="1_qeff1"]
 [ext_resource type="Script" path="res://Scripts/ComponentPanelResults/TokenPanelDialogResult.cs" id="1_ykbf8"]
-[ext_resource type="PackedScene" uid="uid://b576dfm4886tw" path="res://Scenes/ComponentPanels/TokenTextureSubViewport.tscn" id="3_ugaws"]
+[ext_resource type="PackedScene" uid="uid://c0y04vkcn2jbd" path="res://Scenes/ComponentPanels/preview_panel.tscn" id="3_i0743"]
 
 [sub_resource type="Theme" id="Theme_vm378"]
 
@@ -15,6 +15,7 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 script = ExtResource("1_ykbf8")
+_shapes = PackedStringArray("res://Textures/Shapes/square.png", "res://Textures/Shapes/circle.png", "res://Textures/Shapes/hex.png", "res://Textures/Shapes/hexflat.png")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
@@ -308,47 +309,12 @@ layout_mode = 2
 text = "Preview"
 horizontal_alignment = 1
 
-[node name="Panel" type="Panel" parent="HBoxContainer/PanelContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 150)
+[node name="TopPreview" parent="HBoxContainer/PanelContainer/VBoxContainer" instance=ExtResource("3_i0743")]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="HBoxContainer/PanelContainer/VBoxContainer/Panel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -64.0
-offset_top = -64.0
-offset_right = 64.0
-offset_bottom = 64.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="TopPreview" parent="HBoxContainer/PanelContainer/VBoxContainer/Panel/SubViewportContainer" instance=ExtResource("3_ugaws")]
+[node name="BottomPreview" parent="HBoxContainer/PanelContainer/VBoxContainer" instance=ExtResource("3_i0743")]
 unique_name_in_owner = true
-
-[node name="Panel2" type="Panel" parent="HBoxContainer/PanelContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 size_flags_vertical = 3
-
-[node name="BottomPreviewContainer" type="SubViewportContainer" parent="HBoxContainer/PanelContainer/VBoxContainer/Panel2"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -64.0
-offset_top = -64.0
-offset_right = 64.0
-offset_bottom = 64.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="BottomPreview" parent="HBoxContainer/PanelContainer/VBoxContainer/Panel2/BottomPreviewContainer" instance=ExtResource("3_ugaws")]
-unique_name_in_owner = true
