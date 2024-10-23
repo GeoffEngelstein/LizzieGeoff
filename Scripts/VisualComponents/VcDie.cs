@@ -42,6 +42,7 @@ public partial class VcDie : VisualComponentBase
 		}
 	}
 
+	public override float MaxAxisSize => Scale.X;
 	public override GeometryInstance3D DragMesh => _mainMesh;
 	
 	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
@@ -205,10 +206,10 @@ public partial class VcDie : VisualComponentBase
 		return new CommandResponse(true, c);
 	}
 
-	public override bool Build(Dictionary<string, object> parameters)
+	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
 	{
-		base.Build(parameters);
-
+		base.Build(parameters, sceneController);
+		
 		_mainMesh = GetNode<MeshInstance3D>("ObjectMesh");
 		
 		float size = 0;

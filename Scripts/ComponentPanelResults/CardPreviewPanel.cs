@@ -95,10 +95,20 @@ public partial class CardPreviewPanel : Panel
 		_clipRect.Size = size;
 		_clipRect.Position = pos;
 		
-		GD.PrintErr($"var Size: {size}");
-		GD.PrintErr($"var Pos: {pos}\n");
-		GD.PrintErr($"clip Size: {_clipRect.Size}");
-		GD.PrintErr($"clip Pos: {_clipRect.Position}\n\n");
+	}
+
+	public void DisplayQuickCard(QuickCardData card, bool showFront = true)
+	{
+		if (showFront)
+		{
+			_value.Text = card.Caption;
+			_colorBorder.Modulate = card.BackgroundColor;
+		}
+		else
+		{
+			_value.Text = card.CardBackValue;
+			_colorBorder.Modulate = card.CardBackColor;
+		}
 	}
 	
 	public void SetTexture(ImageTexture texture)

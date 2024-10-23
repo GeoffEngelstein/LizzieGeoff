@@ -29,7 +29,7 @@ public partial class GameController : Node3D
 			return;
 		}
 
-		if (component.Build(args.Params))
+		if (component.Build(args.Params, _mainScene))
 		{
 			_mainScene.EnterSpawnMode(component);
 		}

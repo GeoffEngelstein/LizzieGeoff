@@ -64,7 +64,21 @@ public partial class TokenTextureSubViewport : SubViewport
 		return new ImageTexture();
 	}
 
-	
+	public ViewportTexture CreateQuickTexture(TokenTextureParameters parameters)
+	{
+		SetSize(parameters.Width, parameters.Height);
+		SetShape(parameters.Shape);
+		SetBackgroundColor(parameters.BackgroundColor);
+		SetText(parameters.Caption);
+		SetTextColor(parameters.CaptionColor);
+
+		if (parameters.FontSize > 0)
+		{
+			_label.LabelSettings.FontSize = parameters.FontSize;
+		}
+		return GetTexture();
+	}
+		
 	public void SetBackgroundColor(Color color)
 	{
 		_clipRect.Modulate = color;
@@ -90,7 +104,8 @@ public partial class TokenTextureSubViewport : SubViewport
 		Square = 0, 
 		Circle = 1, 
 		HexPoint = 2, 
-		HexFlat = 3
+		HexFlat = 3,
+		RoundedRect = 4
 	}
 
 	public void SetShape(TokenShape shape)
@@ -146,5 +161,7 @@ public partial class TokenTextureSubViewport : SubViewport
 				break;
 		}
 	}
+	
+	
 	
 }

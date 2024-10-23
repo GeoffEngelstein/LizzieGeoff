@@ -20,10 +20,10 @@ public partial class VcCube : VisualComponentBase
 	
 	
 
-	public override bool Build(Dictionary<string, object> parameters)
+	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
 	{
 		
-		base.Build(parameters);
+		base.Build(parameters, sceneController);
 		
 		MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
 		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
@@ -109,6 +109,8 @@ public partial class VcCube : VisualComponentBase
 
 	public override GeometryInstance3D DragMesh => MainMesh;
 
+	public override float MaxAxisSize => Math.Max( Math.Max(Height, Width), Length);
+	
 	private float Height;
 	private float Width;
 	private float Length;

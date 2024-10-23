@@ -58,8 +58,9 @@ public abstract partial class VisualComponentBase : Area3D
 	}
 	
 
-	public virtual bool Build(Dictionary<string, object> parameters)
+	public virtual bool Build(Dictionary<string, object> parameters, SceneController sceneController)
 	{
+		SceneController = sceneController;
 		Parameters = parameters;
 		if (parameters.ContainsKey(nameof(InstanceName)))
 		{
@@ -116,6 +117,8 @@ public abstract partial class VisualComponentBase : Area3D
 	}
 
 	public virtual string InstanceName { get; set; }
+	
+	public SceneController SceneController { get; set; }
 	public virtual Polygon2D YProjection { get; private set; }
 
 	protected float _yHeight;
@@ -135,7 +138,7 @@ public abstract partial class VisualComponentBase : Area3D
 	/// If two items have the same Z-Order (should never happen), then
 	/// there is no guarantee which will go first.
 	/// </summary>
-	public int ZOrder { get; set; }
+	public virtual int ZOrder { get; set; }
 
 	/// <summary>
 	/// The set of Shape3Ds that define the collision volume. Will be a single Shape3D for most items.
@@ -206,6 +209,8 @@ public abstract partial class VisualComponentBase : Area3D
 
 	public Aabb Aabb => MainMesh.GlobalTransform * MainMesh.GetAabb();
 
+	public abstract float MaxAxisSize { get; }
+	
 	private void _on_mouse_entered()
 	{
 		IsMouseSelected = true;

@@ -47,8 +47,6 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 		}
 	}
 
-
-
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (!Current) return;
@@ -56,17 +54,6 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 
 
 	
-	private void SpawnComponent(Vector3 spawnPos, VisualComponentBase component)
-	{
-		if (component == null) return;
-
-		var newComp = (VisualComponentBase)_spawnComponent.Duplicate();
-		newComp.Build(_spawnComponent.Parameters);
-		newComp.DimMode(false);
-		newComp.Position = new Vector3(spawnPos.X, 0, spawnPos.Z);
-		
-		_gameObjects.AddChild(newComp);	//TODO this add should be handled at the scene level
-	}
 
 	private bool _isDragging = false;
 	public void StartDrag()
@@ -156,6 +143,13 @@ public partial class Pseudo2DCamera : Camera3D, ICameraBase
 		UpdateZoom(1);
 	}
 
+	public void ZoomComponent(VisualComponentBase component)
+	{
+		Position = new Vector3(component.Position.X, Position.Y, component.Position.Z);
+
+		Size = Mathf.Clamp(component.MaxAxisSize * 1.2f, 2, _tableSize * 1.1f);
+	}
+ 
 	private void UpdateZoom(float zoom)
 	{
 		var delta = (float)GetProcessDeltaTime();

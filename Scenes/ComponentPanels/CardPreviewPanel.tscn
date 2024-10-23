@@ -4,9 +4,9 @@
 [ext_resource type="Texture2D" uid="uid://c14iu7waj67i7" path="res://Textures/Shapes/RoundedRectangle.png" id="2_r8p1d"]
 [ext_resource type="Texture2D" uid="uid://73pb5eqwq0y4" path="res://Textures/Shapes/square.png" id="3_f4kuc"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_kynt8"]
-font_size = 60
-font_color = Color(0, 0, 0, 1)
+[sub_resource type="LabelSettings" id="LabelSettings_5dolj"]
+font_size = 72
+font_color = Color(0.00351917, 0.00351917, 0.00351917, 1)
 outline_size = 4
 
 [node name="Panel" type="Panel"]
@@ -26,6 +26,7 @@ script = ExtResource("1_hb16t")
 [node name="ClipRect" type="TextureRect" parent="."]
 unique_name_in_owner = true
 clip_children = 1
+layout_mode = 0
 offset_right = 256.0
 offset_bottom = 256.0
 texture = ExtResource("2_r8p1d")
@@ -60,8 +61,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-rotation = 0.00686818
 text = "99"
-label_settings = SubResource("LabelSettings_kynt8")
+label_settings = SubResource("LabelSettings_5dolj")
 horizontal_alignment = 1
 vertical_alignment = 1

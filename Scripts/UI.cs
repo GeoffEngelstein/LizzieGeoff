@@ -156,6 +156,9 @@ public partial class UI : CanvasLayer
 
 		if (commands.Any(x => x == SceneController.VisualCommand.Delete))
 			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Delete, "Delete", string.Empty);
+		
+		if (commands.Any(x => x == SceneController.VisualCommand.Shuffle))
+			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Shuffle, "Shuffle", string.Empty);
 	}
 
 	private void PopupMenuCommandSelected(long id)

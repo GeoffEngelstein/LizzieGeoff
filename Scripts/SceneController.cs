@@ -134,9 +134,16 @@ public partial class SceneController : Node3D
 			if (@event.IsActionPressed("exit_mode")) ResetModes();
 			if (@event.IsActionPressed("ui_undo")) ProcessUndo();
 			if (@event.IsActionPressed("component_delete")) DeleteComponents();
+			if (@event.IsActionPressed("component_zoom")) ZoomComponent();
 		}
 
 		base._Input(@event);
+	}
+
+	private void ZoomComponent()
+	{
+		var comp = GetMouseSelectedObject();
+		if (comp != null) _currentCamera.ZoomComponent(comp);
 	}
 
 	private void ProcessUndo()
@@ -389,23 +396,27 @@ public partial class SceneController : Node3D
 		if (_spawnComponent == null || _spawnDebounce) return;
 
 		var newComp = (VisualComponentBase)_spawnComponent.Duplicate();
-		newComp.Build(_spawnComponent.Parameters);
+		newComp.Build(_spawnComponent.Parameters, this);
 		newComp.DimMode(false);
-		newComp.ZOrder = GetMaxComponentZ() + 1;
 		newComp.NeverHighlight = false;
-		GD.Print($"New Z: {newComp.ZOrder}");
-
+		
 		var spawnPos = _currentCamera.GetSpawnPos();
 		newComp.Position = new Vector3(spawnPos.X, newComp.YHeight / 2f, spawnPos.Z);
 
-		_gameObjects.AddChild(newComp);
-		QueueStackingUpdate();
-
+		AddComponentToScene(newComp);
+		
 		_spawnDebounce = true;
 	}
 
 	#endregion
 
+	public void AddComponentToScene(VisualComponentBase component)
+	{
+		component.ZOrder = GetMaxComponentZ() + 1;
+		_gameObjects.AddChild(component);
+		QueueStackingUpdate();
+	}
+	
 	#region Commands
 
 	public enum VisualCommand
@@ -445,6 +456,7 @@ public partial class SceneController : Node3D
 		Num19,
 		Num20,
 		Roll,
+		Shuffle,
 		MaximumVC
 	}
 

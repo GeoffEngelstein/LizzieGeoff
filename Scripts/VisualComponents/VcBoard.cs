@@ -69,13 +69,13 @@ public partial class VcBoard : VisualComponentBase
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 
-	public override bool Build(Dictionary<string, object> parameters)
+	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
 	{
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		MainMesh = _frontSurface;
 	
-		base.Build(parameters);
+		base.Build(parameters, sceneController);
 
 		if (parameters.ContainsKey(nameof(Height)))
 		{
@@ -177,6 +177,7 @@ public partial class VcBoard : VisualComponentBase
 		return ret;
 	}
 
+	public override float MaxAxisSize => Math.Max(Height, Width);
 	public override GeometryInstance3D DragMesh => MainMesh;
 
 	private float Height;

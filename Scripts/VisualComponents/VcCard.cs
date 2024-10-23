@@ -2,6 +2,9 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+
+using Image = Godot.Image;
+
 public partial class VcCard : VisualComponentBase
 {
 	private MeshInstance3D _backSurface;
@@ -43,6 +46,8 @@ public partial class VcCard : VisualComponentBase
 
 	public override GeometryInstance3D DragMesh => MainMesh;
 
+	public override float MaxAxisSize => Math.Max(Height, Width);
+	
 	private float _flipRate = 720;	//degrees per second
 	private bool _showFace = true;
 	private int _rotMult = 1;
@@ -95,13 +100,13 @@ public partial class VcCard : VisualComponentBase
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 
-	public override bool Build(Dictionary<string, object> parameters)
+	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
 	{
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		MainMesh = _frontSurface;
 	
-		base.Build(parameters);
+		base.Build(parameters, sceneController);
 
 		if (parameters.ContainsKey(nameof(Height)))
 		{
@@ -121,7 +126,9 @@ public partial class VcCard : VisualComponentBase
 		BackImage = parameters["BackImage"].ToString();
 		
 		var tf = LoadTexture(FrontImage);
-		
+
+		Image i = new Image();
+	
 		var mat = new StandardMaterial3D();
 		mat.AlbedoTexture = tf;
 		_frontSurface.MaterialOverride = mat;

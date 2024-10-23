@@ -2,9 +2,10 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
+using System.Linq.Expressions;
+using Godot.Collections;
 
-public partial class VcToken : VisualComponentBase
+public partial class VcDeck : VisualGroupComponent
 {
 	private Sprite3D _frontSprite;
 	private Sprite3D _backSprite;
@@ -13,7 +14,8 @@ public partial class VcToken : VisualComponentBase
 	private TokenTextureSubViewport _frontView;
 	private TokenTextureSubViewport _backView;
 
-	private MeshInstance3D _sideMesh;
+	private VcToken _templateCard;
+	private string _templateCardPath = "res://Scenes/VisualComponents/VcToken.tscn";
 	
 	public override void _Ready()
 	{
@@ -24,12 +26,11 @@ public partial class VcToken : VisualComponentBase
 		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
 		_frontSprite = GetNode<Sprite3D>("FrontSprite");
 		_backSprite = GetNode<Sprite3D>("BackSprite");
-		_sideMesh = GetNode<MeshInstance3D>("SideMesh");
 	}
 
 	public override void _Process(double delta)
 	{
-		if (flipInProcess)
+		if (_flipInProcess)
 		{
 			ProcessFlip(delta);
 		}
@@ -37,17 +38,121 @@ public partial class VcToken : VisualComponentBase
 	}
 
 	public override GeometryInstance3D DragMesh => _frontSprite;
+
 	public override float MaxAxisSize => Math.Max(Height, Width);
+	
 	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
 	{
-		if (command == SceneController.VisualCommand.Flip)
+		var cr = new CommandResponse(false, null);
+		
+		switch (command)
 		{
-			return StartFlip();
+			case SceneController.VisualCommand.ToggleLock:
+				break;
+			case SceneController.VisualCommand.Flip:
+				cr = StartFlip();
+				break;
+			case SceneController.VisualCommand.ScaleUp:
+				break;
+			case SceneController.VisualCommand.ScaleDown:
+				break;
+			case SceneController.VisualCommand.RotateCw:
+				break;
+			case SceneController.VisualCommand.RotateCcw:
+				break;
+			case SceneController.VisualCommand.Delete:
+				break;
+			case SceneController.VisualCommand.Duplicate:
+				break;
+			case SceneController.VisualCommand.Edit:
+				break;
+			case SceneController.VisualCommand.MoveDown:
+				break;
+			case SceneController.VisualCommand.MoveToBottom:
+				break;
+			case SceneController.VisualCommand.MoveUp:
+				break;
+			case SceneController.VisualCommand.MoveToTop:
+				break;
+			
+			case SceneController.VisualCommand.Num1:
+				cr = DrawCards(1);
+				break;
+			case SceneController.VisualCommand.Num2:
+				cr = DrawCards(2);
+				break;
+			case SceneController.VisualCommand.Num3:
+				cr = DrawCards(3);
+				break;
+			case SceneController.VisualCommand.Num4:
+				cr = DrawCards(4);
+				break;
+			case SceneController.VisualCommand.Num5:
+				cr = DrawCards(5);
+				break;
+			case SceneController.VisualCommand.Num6:
+				cr = DrawCards(6);
+				break;
+			case SceneController.VisualCommand.Num7:
+				cr = DrawCards(7);
+				break;
+			case SceneController.VisualCommand.Num8:
+				cr = DrawCards(8);
+				break;
+			case SceneController.VisualCommand.Num9:
+				cr = DrawCards(9);
+				break;
+			case SceneController.VisualCommand.Num10:
+				cr = DrawCards(10);
+				break;
+			case SceneController.VisualCommand.Num11:
+				cr = DrawCards(11);
+				break;
+			case SceneController.VisualCommand.Num12:
+				cr = DrawCards(12);
+				break;
+			case SceneController.VisualCommand.Num13:
+				cr = DrawCards(13);
+				break;
+			case SceneController.VisualCommand.Num14:
+				cr = DrawCards(14);
+				break;
+			case SceneController.VisualCommand.Num15:
+				cr = DrawCards(15);
+				break;
+			case SceneController.VisualCommand.Num16:
+				cr = DrawCards(16);
+				break;
+			case SceneController.VisualCommand.Num17:
+				cr = DrawCards(17);
+				break;
+			case SceneController.VisualCommand.Num18:
+				cr = DrawCards(18);
+				break;
+			case SceneController.VisualCommand.Num19:
+				cr = DrawCards(19);
+				break;
+			case SceneController.VisualCommand.Num20:
+				cr = DrawCards(20);
+				break;
+			
+			case SceneController.VisualCommand.Shuffle:
+				cr = PerformShuffle();
+				break;
+
+			default:
+				throw new ArgumentOutOfRangeException(nameof(command), command, null);
 		}
 		
-		return base.ProcessCommand(command);
+		return cr.Consumed == false ? base.ProcessCommand(command) : cr;
 	}
-	
+
+	private CommandResponse PerformShuffle()
+	{
+		Shuffle();
+		return new CommandResponse(false, null);
+	}
+
 	public override List<MenuCommand> GetMenuCommands()
 	{
 		var l = new List<MenuCommand>();
@@ -58,7 +163,7 @@ public partial class VcToken : VisualComponentBase
 		}
 
 		l.Add(new MenuCommand(SceneController.VisualCommand.Flip));
-		
+		l.Add(new MenuCommand(SceneController.VisualCommand.Shuffle));
 		return l;
 	}
 
@@ -66,10 +171,10 @@ public partial class VcToken : VisualComponentBase
 	private bool _showFace = true;
 	private int _rotMult = 1;
 	private float _targetZ;
-	private bool flipInProcess;
+	private bool _flipInProcess;
 	private CommandResponse StartFlip()
 	{
-		flipInProcess = true;
+		_flipInProcess = true;
 		_showFace = !_showFace;
 		_rotMult = _showFace ? -1 : 1;
 		_targetZ = _showFace ? 0 : 180;
@@ -99,7 +204,7 @@ public partial class VcToken : VisualComponentBase
 			if (newZ < _targetZ)
 			{
 				newZ = _targetZ;
-				flipInProcess = false;
+				_flipInProcess = false;
 			}
 		}
 		else
@@ -107,21 +212,54 @@ public partial class VcToken : VisualComponentBase
 			if (newZ > _targetZ)
 			{
 				newZ = _targetZ;
-				flipInProcess = false;
+				_flipInProcess = false;
 			}
 		}
 
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 	
-	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	private CommandResponse DrawCards(int count)
 	{
-		SceneController = sceneController;
+		count = Math.Min(count, Children.Count);
+
+		//draw cards
+		var cards = DrawFromTop(count);
+		
+		//splay
+		var basePos = Position;
+
+		for (int i = 0; i < cards.Length; i++)
+		{
+			float deltaX = Width * (1.25f + i);
+			cards[i].Position = basePos + new Vector3(deltaX, 0, 0);
+			cards[i].ZOrder = ZOrder + i + 1;
+			GetParent().AddChild(cards[i]);
+			cards[i].Visible = true;
+		}
+		
+		var c = new Change
+		{
+			Action = Change.ChangeType.Transform,
+			Begin = Transform,
+			End = Transform,
+			Component = this
+		};
+		
+				
+
+
+
+		return new CommandResponse(true, c);
+	}
+	
+	public override bool Build(System.Collections.Generic.Dictionary<string, object> parameters, SceneController sceneController)
+	{
+		base.Build(parameters, sceneController);
 		
 		_frontSprite = GetNode<Sprite3D>("FrontSprite");
 		_backSprite = GetNode<Sprite3D>("BackSprite");
-		_sideMesh = GetNode<MeshInstance3D>("SideMesh");
-		
+
 		if (!InitializeParameters(parameters)) return false;
 
 		switch (Mode)
@@ -143,10 +281,7 @@ public partial class VcToken : VisualComponentBase
 		YHeight = Thickness;
 		
 		Scale = new Vector3(Width, Thickness, Height);
-
-		//Don't show the sidemesh if the thickness is too small
-		_sideMesh.Visible = (Thickness > 0.1);
-			
+		
 		//adjust the scales for the sprites based on the textures so they don't double adjust
 		if (Width > 0 && Height > 0)
 		{
@@ -163,6 +298,7 @@ public partial class VcToken : VisualComponentBase
 		switch (shape)
 		{
 			case TokenTextureSubViewport.TokenShape.Square:
+			case TokenTextureSubViewport.TokenShape.RoundedRect:
 				var r = new RectangleShape2D();
 				r.Size = new Vector2(Width, Height);
 				ShapeProfiles.Add(r);
@@ -235,15 +371,24 @@ public partial class VcToken : VisualComponentBase
 	}
 	private void BuildQuick()
 	{
-		_frontView = GetNode<TokenTextureSubViewport>("FrontViewport");
-		_frontView.Ready += CreateQuickFrontTexture;
+		CreateQuickCards();
+		Thickness = 0.03f * Children.Count;
 
-		if (DifferentBack)
+
+		_frontSprite.Texture = Utility.Instance.CreateQuickTexture(new TokenTextureParameters
 		{
-			GD.Print("Build Back");
-			_backView = GetNode<TokenTextureSubViewport>("BackViewport");
-			_backView.Ready += CreateQuickBackTexture;
-		}
+			Height = Height,
+			Width = Width,
+			Shape = TokenTextureSubViewport.TokenShape.RoundedRect,
+			BackgroundColor = Colors.White,
+			Caption = "HELLO",
+			CaptionColor = Colors.Black
+		});
+
+		_frontSprite.PixelSize = PixelSize(_frontSprite.Texture.GetSize());
+		
+		_backSprite.Texture = _frontSprite.Texture;
+		_backSprite.PixelSize = PixelSize(_backSprite.Texture.GetSize());
 	}
 
 	private void BuildCustom()
@@ -349,9 +494,8 @@ public partial class VcToken : VisualComponentBase
 		_backSprite.Texture = t;
 	}
 
-	private bool InitializeParameters(Dictionary<string, object> parameters)
+	private bool InitializeParameters(System.Collections.Generic.Dictionary<string, object> parameters)
 	{
-		base.Build(parameters, SceneController);
 
 		if (parameters.ContainsKey(nameof(Height)))
 		{
@@ -366,12 +510,10 @@ public partial class VcToken : VisualComponentBase
 				Width = w / 10f;
 			}
 			
-			if (parameters[nameof(Thickness)] is float t)
-			{
-				Thickness = t / 10f;
-			}
+			
 		}
-
+		
+		/*
 		FrontImage = parameters["FrontImage"].ToString();
 		BackImage = parameters["BackImage"].ToString();
 
@@ -386,11 +528,57 @@ public partial class VcToken : VisualComponentBase
 		BackBgColor = (Color)parameters["BackBgColor"];
 		BackCaption = parameters["BackCaption"].ToString();
 		BackCaptionColor = (Color)parameters["BackCaptionColor"];
+		*/
+		
+		var scene = ResourceLoader.Load<PackedScene>(_templateCardPath).Instantiate();
 
+		if (scene is not VcToken token) return false;
+
+		_templateCard = token;
+		//instantiate the cards
+		
+		
 		return true;
 	}
 
-	public override List<string> ValidateParameters(Dictionary<string, object> parameters)
+	private void CreateQuickCards()
+	{
+		Clear();
+		Color[] colors = { Colors.Red, Colors.Blue, Colors.Yellow, Colors.Green };
+		foreach (var color in colors)
+			for (int i = 0; i < 6; i++)
+			{
+				var c = CreateQuickCard((i + 1).ToString(), color);
+				
+				AddChildComponent(c);
+			}
+	}
+
+	private VcToken CreateQuickCard(string caption, Color backColor)
+	{
+		var card = (VcToken)_templateCard.Duplicate();
+		var p = new System.Collections.Generic.Dictionary<string, object>();
+
+		p.Add("Height", Height * 10);
+		p.Add("Width", Width * 10);
+		p.Add("Thickness", 0.03f);
+		p.Add("ComponentName", string.Empty); //TODO add card name
+		p.Add("FrontImage", string.Empty);
+		p.Add("BackImage", string.Empty);
+		p.Add("Shape",0);
+		p.Add("Mode", 0);
+		p.Add("FrontBgColor", backColor); 
+		p.Add("FrontCaption", caption);
+		p.Add("FrontCaptionColor", Colors.Black);
+		p.Add("DifferentBack", true);
+		p.Add("BackBgColor", Colors.White);
+		p.Add("BackCaption", "HELLO");
+		p.Add("BackCaptionColor", Colors.Black);
+		card.Build(p, SceneController);
+		return card;
+	}
+
+	public override List<string> ValidateParameters(System.Collections.Generic.Dictionary<string, object> parameters)
 	{
 		var ret = new List<string>();
 
@@ -456,5 +644,4 @@ public partial class VcToken : VisualComponentBase
 	private Color BackBgColor;
 	private string BackCaption;
 	private Color BackCaptionColor;
-	
 }

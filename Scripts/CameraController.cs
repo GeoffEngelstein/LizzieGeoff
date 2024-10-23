@@ -346,6 +346,13 @@ public partial class CameraController : Node3D, ICameraBase
 		Rotation = new Vector3(_totPitch, _totYaw, 0);
 	}
 
+	public void ZoomComponent(VisualComponentBase component)
+	{
+		GlobalPosition = new Vector3(component.Position.X, 0, component.Position.Z);
+
+		var z = Mathf.Clamp(component.MaxAxisSize * 1.2f, 2, _tableSize * 1.1f);
+		_camera.Position = new Vector3(0, 0, z);
+	}	
 	public void ZoomIn()
 	{
 		UpdateZoom(-1);
