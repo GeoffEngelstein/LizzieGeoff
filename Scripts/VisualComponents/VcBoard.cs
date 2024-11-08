@@ -69,13 +69,13 @@ public partial class VcBoard : VisualComponentBase
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 
-	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	public override bool Build(Dictionary<string, object> parameters)
 	{
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		MainMesh = _frontSurface;
 	
-		base.Build(parameters, sceneController);
+		base.Build(parameters);
 
 		if (parameters.ContainsKey(nameof(Height)))
 		{

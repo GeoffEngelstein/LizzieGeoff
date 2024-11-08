@@ -1,0 +1,84 @@
+using Godot;
+using System.ComponentModel;
+
+public abstract partial class BaseCamera : Node3D, ICamera
+{
+    [Export]
+    protected GameObjects _gameObjects;
+
+    [Export]
+    protected float RotationSpeed = 1;
+
+    [Export]
+    protected float ZoomSpeed = 2;
+
+    [Export]
+    protected float PanSpeed = 10;
+
+
+    private Transform3D _initialTransform;
+    private Transform3D _initialCameraTransform;
+
+    public bool Current
+    {
+        get => ActualCamera.Current;
+        set => ActualCamera.Current = value;
+    }
+
+    protected Camera3D ActualCamera { get; private set; }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        ActualCamera = GetCameraNode();
+        _initialTransform = Transform;
+        _initialCameraTransform = ActualCamera.Transform;
+    }
+
+    public override void _Process(double delta)
+    {
+        base._Process(delta);
+
+        if (!Current || _gameObjects.CursorMode == CursorMode.DragSelect || _gameObjects.CursorMode == CursorMode.PopupMenu) return;
+
+        // Handle Zoom
+        if (Input.IsActionJustReleased("zoom_in")) UpdateZoom(-1);
+        if (Input.IsActionJustReleased("zoom_out")) UpdateZoom(1);
+        if (Input.IsActionJustPressed("component_zoom")) ZoomComponent(_gameObjects.GetMouseSelectedObject());
+
+        // Handle Pan
+        UpdatePan(Input.GetVector("pan_left", "pan_right", "pan_up", "pan_down") * (float)delta);
+
+        // Reset
+        if (Input.IsActionPressed("reset_view")) Reset();
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        base._Input(@event);
+
+        if (!Current || _gameObjects.CursorMode == CursorMode.DragSelect || _gameObjects.CursorMode == CursorMode.PopupMenu) return;
+
+        if (Input.IsActionPressed("rotate") && @event is InputEventMouseMotion mouseMotion)
+        {
+            UpdateRotation(mouseMotion.Relative);
+        }
+    }
+
+    protected abstract Camera3D GetCameraNode();
+
+    protected abstract void UpdateZoom(float direction);
+    protected abstract void UpdateRotation(Vector2 mousePosition);
+    protected abstract void ZoomComponent(VisualComponentBase component);
+
+    protected virtual void Reset()
+    {
+        Transform = _initialTransform;
+        ActualCamera.Transform = _initialCameraTransform;
+    }
+
+    private void UpdatePan(Vector2 direction)
+    {
+        TranslateObjectLocal(new Vector3(direction.X * PanSpeed, 0, direction.Y * PanSpeed));
+    }
+}

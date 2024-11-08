@@ -65,7 +65,7 @@ public partial class UI : CanvasLayer
 	}
 
 
-	private void AddItemToPopupMenu(PopupMenu popup, SceneController.VisualCommand command, string caption, string icon,
+	private void AddItemToPopupMenu(PopupMenu popup, VisualCommand command, string caption, string icon,
 		bool enabled = true, bool checkable = false, bool isChecked = false)
 	{
 		int index = -1;
@@ -113,7 +113,7 @@ public partial class UI : CanvasLayer
 
 		_popupComponents = components;
 
-		var comDic = new Dictionary<SceneController.VisualCommand, int>();
+		var comDic = new Dictionary<VisualCommand, int>();
 
 		var fullCommands = new List<MenuCommand>();
 
@@ -140,32 +140,32 @@ public partial class UI : CanvasLayer
 
 		_componentPopup.Clear();
 
-		if (commands.Any(x => x == SceneController.VisualCommand.ToggleLock))
+		if (commands.Any(x => x == VisualCommand.ToggleLock))
 		{
-			var isChecked = fullCommands.Where(x => x.Command == SceneController.VisualCommand.ToggleLock)
+			var isChecked = fullCommands.Where(x => x.Command == VisualCommand.ToggleLock)
 				.All(y => y.IsChecked);
-			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.ToggleLock, "Frozen", string.Empty, true,
+			AddItemToPopupMenu(_componentPopup, VisualCommand.ToggleLock, "Frozen", string.Empty, true,
 				true, isChecked);
 		}
 
-		if (commands.Any(x => x == SceneController.VisualCommand.Roll))
-			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Roll, "Roll", string.Empty);
+		if (commands.Any(x => x == VisualCommand.Roll))
+			AddItemToPopupMenu(_componentPopup, VisualCommand.Roll, "Roll", string.Empty);
 
-		if (commands.Any(x => x == SceneController.VisualCommand.Flip))
-			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Flip, "Flip", string.Empty);
+		if (commands.Any(x => x == VisualCommand.Flip))
+			AddItemToPopupMenu(_componentPopup, VisualCommand.Flip, "Flip", string.Empty);
 
-		if (commands.Any(x => x == SceneController.VisualCommand.Delete))
-			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Delete, "Delete", string.Empty);
+		if (commands.Any(x => x == VisualCommand.Delete))
+			AddItemToPopupMenu(_componentPopup, VisualCommand.Delete, "Delete", string.Empty);
 		
-		if (commands.Any(x => x == SceneController.VisualCommand.Shuffle))
-			AddItemToPopupMenu(_componentPopup, SceneController.VisualCommand.Shuffle, "Shuffle", string.Empty);
+		if (commands.Any(x => x == VisualCommand.Shuffle))
+			AddItemToPopupMenu(_componentPopup, VisualCommand.Shuffle, "Shuffle", string.Empty);
 	}
 
 	private void PopupMenuCommandSelected(long id)
 	{
-		if (id >= (int)SceneController.VisualCommand.MaximumVC) return;
+		if (id >= (int)VisualCommand.MaximumVC) return;
 
-		SceneController.VisualCommand vc = (SceneController.VisualCommand)id;
+		VisualCommand vc = (VisualCommand)id;
 		if (GetParent() is GameController gc)
 		{
 			gc.ProcessPopupCommand(vc, _popupComponents);

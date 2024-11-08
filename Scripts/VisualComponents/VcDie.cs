@@ -45,101 +45,101 @@ public partial class VcDie : VisualComponentBase
 	public override float MaxAxisSize => Scale.X;
 	public override GeometryInstance3D DragMesh => _mainMesh;
 	
-	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
+	public override CommandResponse ProcessCommand(VisualCommand command)
 	{
 		var cr = new CommandResponse(false, null);
 		
 		switch (command)
 		{
-			case SceneController.VisualCommand.ToggleLock:
+			case VisualCommand.ToggleLock:
 				break;
-			case SceneController.VisualCommand.Flip:
+			case VisualCommand.Flip:
 				break;
-			case SceneController.VisualCommand.ScaleUp:
+			case VisualCommand.ScaleUp:
 				break;
-			case SceneController.VisualCommand.ScaleDown:
+			case VisualCommand.ScaleDown:
 				break;
-			case SceneController.VisualCommand.RotateCw:
+			case VisualCommand.RotateCw:
 				break;
-			case SceneController.VisualCommand.RotateCcw:
+			case VisualCommand.RotateCcw:
 				break;
-			case SceneController.VisualCommand.Delete:
+			case VisualCommand.Delete:
 				break;
-			case SceneController.VisualCommand.Duplicate:
+			case VisualCommand.Duplicate:
 				break;
-			case SceneController.VisualCommand.Edit:
+			case VisualCommand.Edit:
 				break;
-			case SceneController.VisualCommand.MoveDown:
+			case VisualCommand.MoveDown:
 				break;
-			case SceneController.VisualCommand.MoveToBottom:
+			case VisualCommand.MoveToBottom:
 				break;
-			case SceneController.VisualCommand.MoveUp:
+			case VisualCommand.MoveUp:
 				break;
-			case SceneController.VisualCommand.MoveToTop:
+			case VisualCommand.MoveToTop:
 				break;
 			
-			case SceneController.VisualCommand.Num1:
+			case VisualCommand.Num1:
 				cr = ShowSide(1);
 				break;
-			case SceneController.VisualCommand.Num2:
+			case VisualCommand.Num2:
 				cr = ShowSide(2);
 				break;
-			case SceneController.VisualCommand.Num3:
+			case VisualCommand.Num3:
 				cr = ShowSide(3);
 				break;
-			case SceneController.VisualCommand.Num4:
+			case VisualCommand.Num4:
 				cr = ShowSide(4);
 				break;
-			case SceneController.VisualCommand.Num5:
+			case VisualCommand.Num5:
 				cr = ShowSide(5);
 				break;
-			case SceneController.VisualCommand.Num6:
+			case VisualCommand.Num6:
 				cr = ShowSide(6);
 				break;
-			case SceneController.VisualCommand.Num7:
+			case VisualCommand.Num7:
 				cr = ShowSide(7);
 				break;
-			case SceneController.VisualCommand.Num8:
+			case VisualCommand.Num8:
 				cr = ShowSide(8);
 				break;
-			case SceneController.VisualCommand.Num9:
+			case VisualCommand.Num9:
 				cr = ShowSide(9);
 				break;
-			case SceneController.VisualCommand.Num10:
+			case VisualCommand.Num10:
 				cr = ShowSide(10);
 				break;
-			case SceneController.VisualCommand.Num11:
+			case VisualCommand.Num11:
 				cr = ShowSide(11);
 				break;
-			case SceneController.VisualCommand.Num12:
+			case VisualCommand.Num12:
 				cr = ShowSide(12);
 				break;
-			case SceneController.VisualCommand.Num13:
+			case VisualCommand.Num13:
 				cr = ShowSide(13);
 				break;
-			case SceneController.VisualCommand.Num14:
+			case VisualCommand.Num14:
 				cr = ShowSide(14);
 				break;
-			case SceneController.VisualCommand.Num15:
+			case VisualCommand.Num15:
 				cr = ShowSide(15);
 				break;
-			case SceneController.VisualCommand.Num16:
+			case VisualCommand.Num16:
 				cr = ShowSide(16);
 				break;
-			case SceneController.VisualCommand.Num17:
+			case VisualCommand.Num17:
 				cr = ShowSide(17);
 				break;
-			case SceneController.VisualCommand.Num18:
+			case VisualCommand.Num18:
 				cr = ShowSide(18);
 				break;
-			case SceneController.VisualCommand.Num19:
+			case VisualCommand.Num19:
 				cr = ShowSide(19);
 				break;
-			case SceneController.VisualCommand.Num20:
+			case VisualCommand.Num20:
 				cr = ShowSide(20);
 				break;
 			
-			case SceneController.VisualCommand.Roll:
+			case VisualCommand.Roll:
 				cr = Roll();
 				break;
 
@@ -159,7 +159,7 @@ public partial class VcDie : VisualComponentBase
 			l.Add(i);
 		}
 
-		l.Add(new MenuCommand(SceneController.VisualCommand.Roll));
+		l.Add(new MenuCommand(VisualCommand.Roll));
 		
 		return l;
 	}
@@ -206,9 +206,9 @@ public partial class VcDie : VisualComponentBase
 		return new CommandResponse(true, c);
 	}
 
-	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	public override bool Build(Dictionary<string, object> parameters)
 	{
-		base.Build(parameters, sceneController);
+		base.Build(parameters);
 		
 		_mainMesh = GetNode<MeshInstance3D>("ObjectMesh");
 		

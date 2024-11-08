@@ -58,9 +58,8 @@ public abstract partial class VisualComponentBase : Area3D
 	}
 	
 
-	public virtual bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	public virtual bool Build(Dictionary<string, object> parameters)
 	{
-		SceneController = sceneController;
 		Parameters = parameters;
 		if (parameters.ContainsKey(nameof(InstanceName)))
 		{
@@ -86,16 +85,16 @@ public abstract partial class VisualComponentBase : Area3D
 	/// <returns>true if action consumed by object. Else false</returns>
 
 
-	public virtual CommandResponse ProcessCommand(SceneController.VisualCommand command)
+	public virtual CommandResponse ProcessCommand(VisualCommand command)
 	{
-		if (command == SceneController.VisualCommand.ToggleLock)
+		if (command == VisualCommand.ToggleLock)
 		{
 			Locked = !Locked;
 			
 			return new CommandResponse(true, null);
 		}
 
-		if (command == SceneController.VisualCommand.Delete)
+		if (command == VisualCommand.Delete)
 		{
 			Visible = false;
 
@@ -110,8 +109,8 @@ public abstract partial class VisualComponentBase : Area3D
 	{
 		var l = new List<MenuCommand>();
 		
-		l.Add(new MenuCommand(SceneController.VisualCommand.ToggleLock, Locked));
-		l.Add(new MenuCommand(SceneController.VisualCommand.Delete));
+		l.Add(new MenuCommand(VisualCommand.ToggleLock, Locked));
+		l.Add(new MenuCommand(VisualCommand.Delete));
 
 		return l;
 	}
@@ -126,7 +125,6 @@ public abstract partial class VisualComponentBase : Area3D
 	/// </summary>
 	public virtual Guid Parent { get; set; }
 	
-	public SceneController SceneController { get; set; }
 	public virtual Polygon2D YProjection { get; private set; }
 
 	protected float _yHeight;

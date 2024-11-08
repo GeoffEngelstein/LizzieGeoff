@@ -258,3 +258,4 @@ access = 2
 [connection signal="pressed" from="UI/Mode/Play3D" to="UI" method="_on_play_3d_pressed"]
 [connection signal="pressed" from="UI/Mode/Designer" to="UI" method="_on_designer_pressed"]
 [connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
+[connection signal="ShowComponentPopup" from="3DSceneNoPhysics" to="." method="ShowComponentPopup"]

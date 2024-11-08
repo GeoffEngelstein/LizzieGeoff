@@ -2,14 +2,25 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class UndoService
+public partial class UndoService: Node
 {
+    // Singleton Pattern
+    private static UndoService _instance;
+    public static UndoService Instance => _instance;
+
+
     private Stack<Update> _undoStack = new();
 
     private Stack<Update> _redoStack = new();
     
     private int _maxStackSize = 100;
     private int _minStackSize = 50;
+
+    public override void _Ready()
+    {
+        base._Ready();
+        _instance = this;
+    }
 
     public void ClearStack()
     {

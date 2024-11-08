@@ -15,10 +15,10 @@ public partial class VcDisc : VisualComponentBase
 
 	}
 
-	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	public override bool Build(Dictionary<string, object> parameters)
 	{
 		
-		base.Build(parameters, sceneController);
+		base.Build(parameters);
 		
 		MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
 		HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");

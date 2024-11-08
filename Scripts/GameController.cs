@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Runtime.Loader;
+using System.Linq;
 
 public partial class GameController : Node3D
 {
@@ -12,7 +12,7 @@ public partial class GameController : Node3D
 	public override void _Ready()
 	{
 		_mainScene = GetNode<SceneController>("3DSceneNoPhysics");
-		_mainScene.SetMode(SceneController.SceneMode.TwoD);
+		_mainScene.SetMode(SceneMode.TwoD);
 
 		_uiController = GetNode<UI>("UI");
 		_uiController.MasterModeChange += OnMasterModeChange;
@@ -29,7 +29,7 @@ public partial class GameController : Node3D
 			return;
 		}
 
-		if (component.Build(args.Params, _mainScene))
+		if (component.Build(args.Params))
 		{
 			_mainScene.EnterSpawnMode(component);
 		}
@@ -44,10 +44,10 @@ public partial class GameController : Node3D
 		switch (e.NewMode)
 		{
 			case UI.MasterMode.TwoD:
-				_mainScene.SetMode(SceneController.SceneMode.TwoD);
+				_mainScene.SetMode(SceneMode.TwoD);
 				break;
 			case UI.MasterMode.ThreeD:
-				_mainScene.SetMode(SceneController.SceneMode.ThreeDFixed);
+				_mainScene.SetMode(SceneMode.ThreeDFixed);
 				break;
 			case UI.MasterMode.Designer:
 				break;
@@ -72,9 +72,9 @@ public partial class GameController : Node3D
 		return null;
 	}
 
-	public void ShowComponentPopup(Vector2I position, List<VisualComponentBase> selected)
+	public void ShowComponentPopup(Vector2I position, Godot.Collections.Array<VisualComponentBase> selected)
 	{
-		_uiController.BuildPopupMenu(selected);
+		_uiController.BuildPopupMenu(selected.ToList());
 		_uiController.ShowComponentPopup(position);
 	}
 
@@ -90,7 +90,7 @@ public partial class GameController : Node3D
 		_mainScene.PopupClosed();
 	}
 	
-	public bool ProcessPopupCommand(SceneController.VisualCommand command, List<VisualComponentBase> components)
+	public bool ProcessPopupCommand(VisualCommand command, List<VisualComponentBase> components)
 	{
 		var result = _mainScene.SendCommandToComponents(command, components);
 		ComponentPopupClosed();

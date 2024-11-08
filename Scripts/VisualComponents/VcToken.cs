@@ -38,9 +38,9 @@ public partial class VcToken : VisualComponentBase
 
 	public override GeometryInstance3D DragMesh => _frontSprite;
 	public override float MaxAxisSize => Math.Max(_height, _width);
-	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
+	public override CommandResponse ProcessCommand(VisualCommand command)
 	{
-		if (command == SceneController.VisualCommand.Flip)
+		if (command == VisualCommand.Flip)
 		{
 			return StartFlip();
 		}
@@ -57,7 +57,7 @@ public partial class VcToken : VisualComponentBase
 			l.Add(i);
 		}
 
-		l.Add(new MenuCommand(SceneController.VisualCommand.Flip));
+		l.Add(new MenuCommand(VisualCommand.Flip));
 		
 		return l;
 	}
@@ -114,10 +114,8 @@ public partial class VcToken : VisualComponentBase
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 	
-	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	public override bool Build(Dictionary<string, object> parameters)
 	{
-		SceneController = sceneController;
-		
 		_frontSprite = GetNode<Sprite3D>("FrontSprite");
 		_backSprite = GetNode<Sprite3D>("BackSprite");
 		_sideMesh = GetNode<MeshInstance3D>("SideMesh");
@@ -351,7 +349,7 @@ public partial class VcToken : VisualComponentBase
 
 	private bool InitializeParameters(Dictionary<string, object> parameters)
 	{
-		base.Build(parameters, SceneController);
+		base.Build(parameters);
 
 		if (parameters.ContainsKey(nameof(_height)))
 		{

@@ -34,9 +34,9 @@ public partial class VcCard : VisualComponentBase
 		base._Process(delta);
 	}
 	
-	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
+	public override CommandResponse ProcessCommand(VisualCommand command)
 	{
-		if (command == SceneController.VisualCommand.Flip)
+		if (command == VisualCommand.Flip)
 		{
 			return StartFlip();
 		}
@@ -100,13 +100,13 @@ public partial class VcCard : VisualComponentBase
 		RotationDegrees = new Vector3(RotationDegrees.X, RotationDegrees.Y, newZ);
 	}
 
-	public override bool Build(Dictionary<string, object> parameters, SceneController sceneController)
+	public override bool Build(Dictionary<string, object> parameters)
 	{
 		_backSurface = GetNode<MeshInstance3D>("BackMesh");
 		_frontSurface = GetNode<MeshInstance3D>("ObjectMesh");
 		MainMesh = _frontSurface;
 	
-		base.Build(parameters, sceneController);
+		base.Build(parameters);
 
 		if (parameters.ContainsKey(nameof(Height)))
 		{

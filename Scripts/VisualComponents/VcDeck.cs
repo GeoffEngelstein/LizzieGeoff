@@ -41,102 +41,102 @@ public partial class VcDeck : VisualGroupComponent
 
 	public override float MaxAxisSize => Math.Max(Height, Width);
 	
-	public override CommandResponse ProcessCommand(SceneController.VisualCommand command)
+	public override CommandResponse ProcessCommand(VisualCommand command)
 	{
 		var cr = new CommandResponse(false, null);
 		
 		switch (command)
 		{
-			case SceneController.VisualCommand.ToggleLock:
+			case VisualCommand.ToggleLock:
 				break;
-			case SceneController.VisualCommand.Flip:
+			case VisualCommand.Flip:
 				cr = StartFlip();
 				break;
-			case SceneController.VisualCommand.ScaleUp:
+			case VisualCommand.ScaleUp:
 				break;
-			case SceneController.VisualCommand.ScaleDown:
+			case VisualCommand.ScaleDown:
 				break;
-			case SceneController.VisualCommand.RotateCw:
+			case VisualCommand.RotateCw:
 				break;
-			case SceneController.VisualCommand.RotateCcw:
+			case VisualCommand.RotateCcw:
 				break;
-			case SceneController.VisualCommand.Delete:
+			case VisualCommand.Delete:
 				break;
-			case SceneController.VisualCommand.Duplicate:
+			case VisualCommand.Duplicate:
 				break;
-			case SceneController.VisualCommand.Edit:
+			case VisualCommand.Edit:
 				break;
-			case SceneController.VisualCommand.MoveDown:
+			case VisualCommand.MoveDown:
 				break;
-			case SceneController.VisualCommand.MoveToBottom:
+			case VisualCommand.MoveToBottom:
 				break;
-			case SceneController.VisualCommand.MoveUp:
+			case VisualCommand.MoveUp:
 				break;
-			case SceneController.VisualCommand.MoveToTop:
+			case VisualCommand.MoveToTop:
 				break;
 			
-			case SceneController.VisualCommand.Num1:
+			case VisualCommand.Num1:
 				cr = DrawCards(1);
 				break;
-			case SceneController.VisualCommand.Num2:
+			case VisualCommand.Num2:
 				cr = DrawCards(2);
 				break;
-			case SceneController.VisualCommand.Num3:
+			case VisualCommand.Num3:
 				cr = DrawCards(3);
 				break;
-			case SceneController.VisualCommand.Num4:
+			case VisualCommand.Num4:
 				cr = DrawCards(4);
 				break;
-			case SceneController.VisualCommand.Num5:
+			case VisualCommand.Num5:
 				cr = DrawCards(5);
 				break;
-			case SceneController.VisualCommand.Num6:
+			case VisualCommand.Num6:
 				cr = DrawCards(6);
 				break;
-			case SceneController.VisualCommand.Num7:
+			case VisualCommand.Num7:
 				cr = DrawCards(7);
 				break;
-			case SceneController.VisualCommand.Num8:
+			case VisualCommand.Num8:
 				cr = DrawCards(8);
 				break;
-			case SceneController.VisualCommand.Num9:
+			case VisualCommand.Num9:
 				cr = DrawCards(9);
 				break;
-			case SceneController.VisualCommand.Num10:
+			case VisualCommand.Num10:
 				cr = DrawCards(10);
 				break;
-			case SceneController.VisualCommand.Num11:
+			case VisualCommand.Num11:
 				cr = DrawCards(11);
 				break;
-			case SceneController.VisualCommand.Num12:
+			case VisualCommand.Num12:
 				cr = DrawCards(12);
 				break;
-			case SceneController.VisualCommand.Num13:
+			case VisualCommand.Num13:
 				cr = DrawCards(13);
 				break;
-			case SceneController.VisualCommand.Num14:
+			case VisualCommand.Num14:
 				cr = DrawCards(14);
 				break;
-			case SceneController.VisualCommand.Num15:
+			case VisualCommand.Num15:
 				cr = DrawCards(15);
 				break;
-			case SceneController.VisualCommand.Num16:
+			case VisualCommand.Num16:
 				cr = DrawCards(16);
 				break;
-			case SceneController.VisualCommand.Num17:
+			case VisualCommand.Num17:
 				cr = DrawCards(17);
 				break;
-			case SceneController.VisualCommand.Num18:
+			case VisualCommand.Num18:
 				cr = DrawCards(18);
 				break;
-			case SceneController.VisualCommand.Num19:
+			case VisualCommand.Num19:
 				cr = DrawCards(19);
 				break;
-			case SceneController.VisualCommand.Num20:
+			case VisualCommand.Num20:
 				cr = DrawCards(20);
 				break;
 			
-			case SceneController.VisualCommand.Shuffle:
+			case VisualCommand.Shuffle:
 				cr = PerformShuffle();
 				break;
 
@@ -162,8 +162,8 @@ public partial class VcDeck : VisualGroupComponent
 			l.Add(i);
 		}
 
-		l.Add(new MenuCommand(SceneController.VisualCommand.Flip));
-		l.Add(new MenuCommand(SceneController.VisualCommand.Shuffle));
+		l.Add(new MenuCommand(VisualCommand.Flip));
+		l.Add(new MenuCommand(VisualCommand.Shuffle));
 		return l;
 	}
 
@@ -253,9 +253,9 @@ public partial class VcDeck : VisualGroupComponent
 		return new CommandResponse(true, c);
 	}
 	
-	public override bool Build(System.Collections.Generic.Dictionary<string, object> parameters, SceneController sceneController)
+	public override bool Build(System.Collections.Generic.Dictionary<string, object> parameters)
 	{
-		base.Build(parameters, sceneController);
+		base.Build(parameters);
 		
 		_frontSprite = GetNode<Sprite3D>("FrontSprite");
 		_backSprite = GetNode<Sprite3D>("BackSprite");
@@ -574,7 +574,7 @@ public partial class VcDeck : VisualGroupComponent
 		p.Add("BackBgColor", Colors.White);
 		p.Add("BackCaption", "HELLO");
 		p.Add("BackCaptionColor", Colors.Black);
-		card.Build(p, SceneController);
+		card.Build(p);
 		return card;
 	}
 
