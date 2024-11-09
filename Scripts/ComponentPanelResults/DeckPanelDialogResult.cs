@@ -46,10 +46,12 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 	private Button _lastCardPreview;
 	private Label _curCardPreview;
 
-	private ColorPickerButton[] _quickSuitColors = new ColorPickerButton[4];
-	private LineEdit[] _quickSuitValues = new LineEdit[4];
-	private LineEdit _quickSuitCount;
-	private const int MaxQuickSuitCount = 4;
+	private const int MaxQuickSuitCount = 8;
+	private ColorPickerButton[] _quickSuitColors = new ColorPickerButton[MaxQuickSuitCount];
+	private LineEdit[] _quickSuitValues = new LineEdit[MaxQuickSuitCount];
+	private HBoxContainer[] _quickSuitRows = new HBoxContainer[MaxQuickSuitCount];
+	private OptionButton _quickSuitCount;
+	
 	private ColorPickerButton _quickBackColor;
 	private LineEdit _quickBackText;
 
@@ -63,16 +65,51 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 	public override void _Ready()
 	{
 		InitializeBinding();
+		InitializeStandardSizes();
 		
 		HeightWidthChange(string.Empty); //just to start
 
+		QuickSuitCountChanged(_quickSuitCount.Selected);
 		GenerateCards();
 		ChangePreviewCard(0);
 	}
 
-	private void StandardSizeChanged()
+	private Dictionary<string, (float, float)> _standardSizes;
+
+	private void InitializeStandardSizes()
 	{
+		_standardSizes = new();
+		_standardSizes.Add("Poker", (2.5f, 3.5f));
+		_standardSizes.Add("Bridge", (2.25f, 3.5f));
+		_standardSizes.Add("Mini Euro", (1.75f, 2.5f));
+		_standardSizes.Add("Tarot", (2.75f, 4.75f));
+		_standardSizes.Add("Custom", (0,0));
+
+		_cardSizes.Clear();
+		foreach (var kv in _standardSizes)
+		{
+			_cardSizes.AddItem(kv.Key);
+		}
+	}
+	
+	
+	private void StandardSizeChanged(long index)
+	{
+		var cardType = _cardSizes.Text;
+
+		if (!_standardSizes.TryGetValue(cardType, out var size)) return;
+
+		var w = size.Item1;
+		var h = size.Item2;
+
+		if (w == 0 || h == 0) return;
 		
+		float conversion = 25.4f;
+
+		_heightInput.Text = (h * conversion).ToString("f1");
+		_widthInput.Text = (w * conversion).ToString("f1");
+
+		HeightWidthChange(string.Empty);
 	}
 
 	private bool _isBound;
@@ -110,20 +147,21 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
 		_tabs = GetNode<TabContainer>("%TabContainer");
 		_cardSizes = GetNode<OptionButton>("%StandardSize");
-		_cardSizes.Pressed += StandardSizeChanged;
+		_cardSizes.ItemSelected += StandardSizeChanged;
 		
 		//Quick suit selections - There's a better way to do this, (instantiating the lines), but for now...
 		for (int i = 0; i < MaxQuickSuitCount; i++)
 		{
 			_quickSuitColors[i] = GetNode<ColorPickerButton>($"%QuickSuit{i + 1}Color");
 			_quickSuitValues[i] = GetNode<LineEdit>($"%QuickSuit{i + 1}Contents");
+			_quickSuitRows[i] = GetNode<HBoxContainer>($"%QSRow{i + 1}");
 
 			_quickSuitColors[i].ColorChanged += color => GenerateCards();
 			_quickSuitValues[i].TextChanged += t => GenerateCards();
 		}
 
-		_quickSuitCount = GetNode<LineEdit>("%QuickSuitCount");
-		_quickSuitCount.TextChanged += t => GenerateCards();
+		_quickSuitCount = GetNode<OptionButton>("%QuickSuitCount");
+		_quickSuitCount.ItemSelected += QuickSuitCountChanged;
 		
 		_quickBackColor = GetNode<ColorPickerButton>("%QuickBackColor");
 		_quickBackColor.ColorChanged += c => GenerateCards();
@@ -132,6 +170,9 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		_quickBackText.TextChanged += t => GenerateCards();
 
 	}
+
+
+
 
 	private int _curCard = 0;
 	private List<QuickCardData> _quickCards = new();
@@ -179,7 +220,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
 	private void GenerateCards()
 	{
-		if (!int.TryParse(_quickSuitCount.Text, out _suitCount)) return;
+		_suitCount = _quickSuitCount.Selected + 1;
 
 		_quickCards.Clear();
 
@@ -228,11 +269,21 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		return d;
 	}
 
+	private void QuickSuitCountChanged(long suitCount)
+	{
+		for (int i = 0; i < _quickSuitRows.Length; i++)
+		{
+			_quickSuitRows[i].Visible = (suitCount > i - 1);
+		}
+		
+		GenerateCards();
+	}
+	
 	private void LoadQuickSuits()
 	{
 		_quickSuits.Clear();
-		
-		if (!int.TryParse(_quickSuitCount.Text, out _suitCount)) return;
+
+		_suitCount = _quickSuitCount.Selected + 1;
 		
 		for (int i = 0; i < _suitCount; i++)
 		{
