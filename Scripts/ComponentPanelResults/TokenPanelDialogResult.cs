@@ -333,7 +333,7 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 			case 2: return VcToken.TokenBuildMode.Grid;
 		}
 
-		throw new Exception("Unknow Tab Type in TokenPanelDialogResult");
+		throw new Exception("Unknown Tab Type in TokenPanelDialogResult");
 	}
 	
 	private void UpdatePreview()
@@ -363,7 +363,7 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 		d.Add("FrontImage", _frontImage.Text);
 		d.Add("BackImage", _backImage.Text);
 		d.Add("Shape", _shapePicker.Selected);
-		d.Add("Mode", _tabs.CurrentTab);
+		d.Add("Mode", TabToBuildMode(_tabs.CurrentTab));
 		d.Add("FrontBgColor", _quickBackgroundColor.Color);
 		d.Add("FrontCaption", _quickText.Text);
 		d.Add("FrontCaptionColor", _quickTextColor.Color);

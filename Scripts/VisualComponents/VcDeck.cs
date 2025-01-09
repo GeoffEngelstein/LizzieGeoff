@@ -354,10 +354,17 @@ public partial class VcDeck : VisualGroupComponent
 		_frontView.Ready += RegisterInitializedViews;
 		_backView.Ready += RegisterInitializedViews;
 		
-		
+		//place all cards below the table so they get rendered;
+
+		int h = (int)Math.Floor(_height * 20);
+		int w = (int)Math.Floor(_width * 20);
+		var fs = TextureBuilder.Build(new Color(1, 0.7f, 0.7f, 1), "DECK", new Color(0,0,0,1), h, w );
+		_frontSprite.Texture = fs;
+		_fs = fs;
 		return true;
 	}
-	
+
+	private ImageTexture _fs;
 
 	
 
@@ -462,60 +469,6 @@ public partial class VcDeck : VisualGroupComponent
 
 
 	
-	private void CreateQuickFrontTexture()
-	{
-		//the front of the deck is the back of the first child
-		if (Children.Count == 0) return;
-
-		var p = Children.First().Parameters;
-		
-		
-			var textureParameters = new TokenTextureParameters
-			{
-				BackgroundColor = (Color)p["BackBgColor"],
-				Caption = p["BackCaption"].ToString(),
-				CaptionColor =(Color)p["BackCaptionColor"],
-				Shape = (TokenTextureSubViewport.TokenShape)p["Shape"],
-				Height = _height,
-				Width = _width,
-				FontSize = (int)p["BackFontSize"]
-			};
-		
-			var t = _frontView.CreateQuickTexture(textureParameters);
-		
-			float pixelSize = Utility.PixelSize(t.GetSize());
-			_frontSprite.PixelSize = pixelSize;
-			_frontSprite.Texture = t;
-			
-	}
-	
-	private void CreateQuickBackTexture()
-	{
-
-		//The back texture is the face of the bottom card
-		
-		if (Children.Count == 0) return;
-
-		var p = Children.Last().Parameters;
-		
-		var textureParameters = new TokenTextureParameters
-		{
-			BackgroundColor = (Color)p["FrontBgColor"],
-			Caption = p["FrontCaption"].ToString(),
-			CaptionColor =(Color)p["FrontCaptionColor"],
-			Shape = (TokenTextureSubViewport.TokenShape)p["Shape"],
-			Height = _height,
-			Width = _width,
-			FontSize = (int)p["FrontFontSize"]
-		};
-		
-		var t = _backView.CreateQuickTexture(textureParameters);
-		
-		float pixelSize = Utility.PixelSize(t.GetSize());
-		_backSprite.PixelSize = pixelSize;
-		_backSprite.Texture = t;
-
-	}
 
 	private bool InitializeParameters(System.Collections.Generic.Dictionary<string, object> parameters)
 	{
@@ -713,10 +666,28 @@ public partial class VcDeck : VisualGroupComponent
 	private void UpdateDeckSprites()
 	{
 		//set the top and bottom sprites. 
+		
+		//The top of the deck displays the back of the first card. 
+		//The bottom of the deck displays the face of the last card.
+		
 		//TODO Handle if there are no cards in the deck?
 		if (Children.Count > 0)
 		{
-			switch (_mode)
+			if (Children.First() is VisualComponentFlat vcf)
+			{
+				_frontSprite.PixelSize = Utility.PixelSize(_fs.GetSize());
+				_frontSprite.Texture = _fs;
+			}
+
+			if (Children.Last() is VisualComponentFlat vcb)
+			{
+				_backSprite.PixelSize = vcb.FaceSprite.PixelSize;
+				_backSprite.Texture = vcb.FaceSprite.Texture;
+			}
+		
+
+		/*
+		switch (_mode)
 			{
 				case VcToken.TokenBuildMode.Quick:
 					CreateQuickFrontTexture();
@@ -731,6 +702,8 @@ public partial class VcDeck : VisualGroupComponent
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+			*/
+		
 		}
 	}
 
