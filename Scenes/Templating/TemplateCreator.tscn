@@ -1,10 +1,13 @@
-[gd_scene load_steps=7 format=3 uid="uid://0wsvxlpthnkp"]
+[gd_scene load_steps=10 format=3 uid="uid://0wsvxlpthnkp"]
 
 [ext_resource type="Theme" uid="uid://cgw83xinre6u" path="res://Themes/bluetheme.tres" id="1_hnkns"]
 [ext_resource type="Script" uid="uid://blvugxyae05ee" path="res://Scripts/Templating/TemplateCreator.cs" id="1_wn7e0"]
 [ext_resource type="Texture2D" uid="uid://73pb5eqwq0y4" path="res://Textures/Shapes/square.png" id="2_cvjoa"]
-[ext_resource type="Texture2D" uid="uid://y2nvpeccqyo8" path="res://Textures/UI/add16.png" id="3_4cjo0"]
+[ext_resource type="Texture2D" uid="uid://t7ascv1jxv5n" path="res://Textures/UI/text.png" id="3_5nlvd"]
+[ext_resource type="Texture2D" uid="uid://cc44r4l4uo3o4" path="res://Textures/UI/image16.png" id="4_oqooe"]
 [ext_resource type="Script" uid="uid://bl1v61t413ui2" path="res://Scripts/Templating/BoundsRect.cs" id="5_4cjo0"]
+[ext_resource type="Texture2D" uid="uid://cetgsjrqd6vjj" path="res://Textures/UI/trash-can.png" id="5_si24g"]
+[ext_resource type="Texture2D" uid="uid://cugnc5143oecw" path="res://Textures/UI/pencil.png" id="6_6qm3h"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hnkns"]
 bg_color = Color(0.99736375, 0.793054, 0.8017672, 1)
@@ -21,7 +24,7 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 script = ExtResource("1_wn7e0")
-_preview = NodePath("Panel/VBoxContainer/HBoxContainer/Panel/TextureRect")
+_preview = NodePath("Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview")
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 2
@@ -50,6 +53,11 @@ text = "Save"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Duplicate"
+
+[node name="Zoom" type="Button" parent="Panel/VBoxContainer/Toolbar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Zoom"
 
 [node name="Panel" type="Panel" parent="Panel/VBoxContainer/Toolbar"]
 layout_mode = 2
@@ -149,14 +157,24 @@ layout_mode = 2
 [node name="TextButton" type="Button" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Text"
-icon = ExtResource("3_4cjo0")
+tooltip_text = "Add Text Element"
+icon = ExtResource("3_5nlvd")
 
 [node name="ImageButton" type="Button" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Image"
-icon = ExtResource("3_4cjo0")
+tooltip_text = "Add Image Element"
+icon = ExtResource("4_oqooe")
+
+[node name="Button" type="Button" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Delete Current Element"
+icon = ExtResource("5_si24g")
+
+[node name="Button2" type="Button" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+tooltip_text = "Rename Current Element"
+icon = ExtResource("6_6qm3h")
 
 [node name="TemplateTree" type="Tree" parent="Panel/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer"]
 unique_name_in_owner = true
@@ -174,12 +192,15 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Panel" type="Panel" parent="Panel/VBoxContainer/HBoxContainer"]
+[node name="PreviewWindow" type="Panel" parent="Panel/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_hnkns")
 
-[node name="TextureRect" type="TextureRect" parent="Panel/VBoxContainer/HBoxContainer/Panel"]
+[node name="TemplatePreview" type="TextureRect" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(250, 350)
 layout_mode = 1
 anchors_preset = 8
@@ -195,7 +216,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_cvjoa")
 
-[node name="BoundsRect" type="MarginContainer" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect"]
+[node name="BoundsRect" type="MarginContainer" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -204,18 +225,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+pivot_offset = Vector2(125, 175)
 theme_override_constants/margin_left = 50
 theme_override_constants/margin_top = 50
 theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 script = ExtResource("5_4cjo0")
 
-[node name="ReferenceRect" type="ReferenceRect" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect"]
+[node name="ReferenceRect" type="ReferenceRect" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 editor_only = false
 
-[node name="TopLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="TopLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 0
 offset_left = -8.0
 offset_top = -8.0
@@ -223,7 +245,7 @@ mouse_default_cursor_shape = 12
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="TopCenter" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="TopCenter" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -236,7 +258,7 @@ mouse_default_cursor_shape = 9
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="TopRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="TopRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -248,7 +270,7 @@ mouse_default_cursor_shape = 11
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="MiddleLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="MiddleLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
@@ -261,7 +283,7 @@ mouse_default_cursor_shape = 10
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="MiddleRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="MiddleRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -277,7 +299,7 @@ mouse_default_cursor_shape = 10
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="BottomLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="BottomLeft" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -289,7 +311,7 @@ mouse_default_cursor_shape = 11
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="BottomCenter" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="BottomCenter" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -305,7 +327,7 @@ mouse_default_cursor_shape = 9
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="BottomRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/Panel/TextureRect/BoundsRect/ReferenceRect"]
+[node name="BottomRight" type="Button" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -319,6 +341,36 @@ grow_vertical = 0
 mouse_default_cursor_shape = 12
 action_mode = 0
 keep_pressed_outside = true
+
+[node name="PreviewHScroll" type="HScrollBar" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -8.0
+offset_right = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+step = 1.0
+page = 1.0
+value = 50.0
+
+[node name="PreviewVScroll" type="VScrollBar" parent="Panel/VBoxContainer/HBoxContainer/PreviewWindow"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_bottom = -17.0
+grow_horizontal = 0
+grow_vertical = 2
+step = 1.0
+page = 1.0
+value = 50.0
 
 [node name="NewTemplateDialog" type="MarginContainer" parent="Panel"]
 unique_name_in_owner = true

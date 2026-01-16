@@ -47,7 +47,9 @@ public partial class TemplateCreator : MarginContainer
     private Button _newButton;
     public Button _saveButton;
     public Button _duplicateButton;
-
+    public Button _zoomButton;
+    public Panel _previewWindow;
+    
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -62,6 +64,8 @@ public partial class TemplateCreator : MarginContainer
         InitializeNewTemplateDialog();
         
         _textureContext.ParentSize = _preview.GetSize();
+        
+        this.VisibilityChanged += UpdateScrollBarVisibility;
     }
 
 
@@ -92,8 +96,13 @@ public partial class TemplateCreator : MarginContainer
         _cardSizes.ItemSelected += StandardSizeChanged;
         InitializeStandardSizes();
         StandardSizeChanged(0);
+        
+        _zoomButton = GetNode<Button>("%Zoom");
+        _zoomButton.Pressed += ZoomIn;
     }
-    
+
+
+
     private Template _currentTemplate;
 
     public Template CurrentTemplate
@@ -109,10 +118,26 @@ public partial class TemplateCreator : MarginContainer
         //change sizes
         
         //set up element tree
+        _elementTree.Clear();
+        _rootItem = _elementTree.CreateItem(); //create root item
         
-        
+        _templateElements.Clear();
+
+        ClearParameterBox();
+
+        foreach (var t in CurrentTemplate.Elements)
+        {
+            var te = BuildTemplateElement(t);
+            
+            var ni = _elementTree.CreateItem(_rootItem);
+            ni.SetMetadata(0, te.Id);
+            ni.SetText(0, te.ElementName);
+            
+            _templateElements.Add(te);
+        }
         
         //update preview
+        _updateRequired = true;
     }
 
     private void ChangeTemplate(long index)
@@ -122,6 +147,9 @@ public partial class TemplateCreator : MarginContainer
         if (Templates.ContainsKey(name)) CurrentTemplate = Templates[name];
     }
 
+    private ScrollBar _previewHScroll;
+    private ScrollBar _previewVScroll;
+    
     private void InitPreview()
     {
         _boundsRect = GetNode<BoundsRect>("%BoundsRect");
@@ -131,7 +159,22 @@ public partial class TemplateCreator : MarginContainer
         _updateTimer = GetNode<Timer>("Timer");
         _updateTimer.Timeout += UpdateTimerExpired;
         _updateTimer.Start();
+        
+        _previewWindow = GetNode<Panel>("%PreviewWindow");
+        _windowSize = _previewWindow.GetSize();
+        
+        _previewHScroll = GetNode<ScrollBar>("%PreviewHScroll");
+        _previewHScroll.ValueChanged += OnScroll;
+        
+        _previewVScroll = GetNode<ScrollBar>("%PreviewVScroll");
+        _previewVScroll.ValueChanged += OnScroll;
+        
+        UpdateScrollBarVisibility();
+
     }
+
+
+
 
     private void InitElementTree()
     {
@@ -226,6 +269,18 @@ public partial class TemplateCreator : MarginContainer
             _boundsRect.Show();
             UpdateBoundsRect();
         }
+    }
+
+    private void ClearParameterBox()
+    {
+        foreach (var p in _paramContainer.GetChildren())
+        {
+            if (p is IParamControl pc) pc.ParameterUpdated -= OnTextureUpdate;
+            p.QueueFree();
+        }
+        
+        _selectedElement = null;
+        _boundsRect.Hide();
     }
 
     private void AddTextureElement(ITemplateElement.TemplateElementType type)
@@ -620,7 +675,9 @@ public partial class TemplateCreator : MarginContainer
         }
         
         te.ElementName = parameters.TryGetValue("Name", out var name) ? name : string.Empty;
-
+        te.Id = parameters.TryGetValue("Id", out var id) ? int.Parse(id) : 0;
+        
+        
         foreach (var kv in parameters)
         {
             te.SetParameterValue(kv.Key, kv.Value);
@@ -645,6 +702,86 @@ public partial class TemplateCreator : MarginContainer
         return parameters;
     }
     
+    private ProjectManager _projectManager;
+
+    public void SetProjectManager(ProjectManager pm)
+    {
+        _projectManager = pm;
+        
+        _templateNameSelector.Clear();
+        foreach (var kv in _projectManager.CurrentProject.Templates)
+        {
+            _templateNameSelector.AddItem(kv.Key);
+        }
+
+        _templateNameSelector.Select(0);
+        CurrentTemplate = _projectManager.CurrentProject.Templates[_templateNameSelector.GetItemText(0)];
+
+
+    }
+    
+    
+    
+    
+    
+    #endregion
+    
+    #region Zoom
+    
+    private Vector2 _windowSize = new(256, 256);
+
+    private Vector2 _topLeftMargin = Vector2.Zero;
+    
+    
+    private void ZoomIn()
+    {
+        //check to see if we have saved the _topLeftMargin. If not, cache it
+        if (_topLeftMargin == Vector2.Zero)
+        {
+            _topLeftMargin = _preview.Position;
+        }
+        
+        var v = _preview.GetScale();
+        if (v.X > 1.1f)
+        {
+            _preview.SetScale(new Vector2(1,1));
+        }
+        else
+        {
+            _preview.SetScale(new Vector2(1.5f, 1.5f));
+        }
+
+        UpdateScrollBarVisibility();
+        OnScroll(0);
+
+    }
+
+    private void UpdateScrollBarVisibility()
+    {
+        _previewHScroll.Visible = _preview.Position.X + (_preview.Size.X * _preview.Scale.X) > _previewWindow.Size.X;
+
+        _previewVScroll.Visible = _preview.Position.Y + (_preview.Size.Y * _preview.Scale.Y) > _previewWindow.Size.Y;
+        
+        //_previewHScroll.Page = 100 * _previewWindow.Size.X / (_preview.Size.X * _preview.Scale.X + _preview.Position.X);
+        //_previewVScroll.Page = 100 * _previewWindow.Size.Y / (_preview.Size.Y * _preview.Scale.Y + _preview.Position.Y);
+
+        _previewVScroll.Page = 10;
+    }
+    
+    private void OnScroll(double value)
+    {
+        var vv = _previewVScroll.Value / 100;
+        
+        var fullHeight = (2 * _topLeftMargin.Y) + (_preview.Size.Y * _preview.Scale.Y);
+
+        var zeroPos = _topLeftMargin.Y;
+        var fullPos = -2 * _topLeftMargin.Y;
+
+        //var newPos = zeroPos + (fullPos - zeroPos) * vv;
+        float newPos =(float)( -2 * _topLeftMargin.Y * vv * _preview.Scale.Y);
+
+        _preview.Position = _topLeftMargin + new Vector2(0, newPos);
+    }
     
     #endregion
 }

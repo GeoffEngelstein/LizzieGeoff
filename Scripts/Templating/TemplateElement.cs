@@ -25,6 +25,8 @@ public class TemplateElement : ITemplateElement
     }
 
     public int Id { get; set; }
+    public int Parent { get; set; }
+
     public void SetParameterValue(string name, string value)
     {
         var p = GetParameterByName(name);
@@ -53,7 +55,6 @@ public class TemplateElement : ITemplateElement
     }
     
     
-    public TemplateElementPosition Position { get; set; }
     
     public event EventHandler<EventArgs> ElementUpdated;
 
@@ -183,12 +184,13 @@ public interface ITemplateElement
     TemplateElementType ElementType { get; }
 
     string ElementName { get; set; }
-
+    
     IList<TemplateParameter> Parameters { get; }
 
     IList<TextureFactory.TextureObject> GetElementData(TextureContext context);
     
     int Id { get; set; }
+    int Parent { get; set; }
 
     void SetParameterValue(string name, string value);
 }

@@ -55,12 +55,15 @@ public partial class ProjectManager : Panel
 			Name = "Issue Face",
 			Description = "A face with an issue",
 			Height = 350,
-			Width = 250
+			Width = 250,
+			SizeTemplate = "Poker"
 		};
 
 		var d1 = new Dictionary<string, string>
 		{
+			{"Id", "1"},
 			{ "Name", "Header" },
+			{ "Type", "Text" },
 			{"X", "20"},
 			{"Y", "20"},
 			{ "Width", "100" },
@@ -70,7 +73,9 @@ public partial class ProjectManager : Panel
 		
 		var d2 = new Dictionary<string, string>
 		{
+			{"Id", "2"},
 			{ "Name", "Image" },
+			{ "Type", "Image" },
 			{"X", "20"},
 			{"Y", "20"},
 			{ "Width", "100" },

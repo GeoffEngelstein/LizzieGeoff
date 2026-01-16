@@ -11,7 +11,7 @@ public class ImageElement : TemplateElement
     {
         ElementType = ITemplateElement.TemplateElementType.Text;
 
-        Parameters.Add(new TemplateParameter { Name = "Name", Value = "Circle", Type = TemplateParameter.TemplateParameterType.Image });
+        Parameters.Add(new TemplateParameter { Name = "Image", Value = "Circle", Type = TemplateParameter.TemplateParameterType.Image });
         Parameters.Add(new TemplateParameter
         {
             Name = "Foreground",
@@ -41,7 +41,7 @@ public class ImageElement : TemplateElement
 
         UpdateCoreParameterData(t, context);
         t.Type = TextureFactory.TextureObjectType.CoreShape;
-        t.Text = EvaluateTextParameter(Parameters, "Name", context);
+        t.Text = EvaluateTextParameter(Parameters, "Image", context);
         t.ForegroundColor = EvaluateColorParameter(Parameters, "Foreground", context);
         t.Stretch = EvaluateBooleanParameter(Parameters, "Stretch", context);
         l.Add(t);

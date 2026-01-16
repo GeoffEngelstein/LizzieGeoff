@@ -15,6 +15,8 @@ public partial class GameController : Node3D
 	[Export]
 	private TemplateCreator _templateCreator;
 	
+	private ProjectManager _projectManager;
+	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -27,6 +29,10 @@ public partial class GameController : Node3D
 		_uiController = GetNode<UI>("UI");
 		_uiController.MasterModeChange += OnMasterModeChange;
 		_uiController.CreateObject += OnCreateObject;
+		
+		_projectManager = GetNode<ProjectManager>("%ProjectManager");
+		_projectManager.CurrentProject = _projectManager.CreateTestProject();
+		_templateCreator.SetProjectManager( _projectManager);
 
 		var commandDic = new CommandDictionary(_mainScene);
 		
