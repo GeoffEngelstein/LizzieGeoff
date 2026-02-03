@@ -58,5 +58,6 @@ public enum VisualCommand
     Num20,
     Roll,
     Shuffle,
+    Refresh,
     MaximumVC
 }

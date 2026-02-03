@@ -42,7 +42,11 @@ public class TemplateElement : ITemplateElement
     {
         return new List<TextureFactory.TextureObject>();
     }
+    
+    public List<ITemplateElement> Children { get; } = new();
 
+    
+    
     protected void UpdateCoreParameterData(TextureFactory.TextureObject to, TextureContext context)
     {
         to.CenterX = EvaluateNumberParameter(_parameters, "X", context);
@@ -124,8 +128,10 @@ public class TemplateElement : ITemplateElement
     {
         var p = parameters.FirstOrDefault(x => x.Name == key);
         if (p == null) return Colors.Black;
+
+        var s = ProcessKeywords(p.Value, context);
         
-        return new Color(ProcessKeywords(p.Value, context));
+        return Color.FromString(s, Colors.Black);
     }
     
     public bool EvaluateBooleanParameter(IList<TemplateParameter> parameters, string key, TextureContext context)
@@ -135,8 +141,12 @@ public class TemplateElement : ITemplateElement
         
         var o = ProcessKeywords(p.Value, context);
         
-        _ = bool.TryParse(o, out var result) && result;
-        return result;
+        if  (string.IsNullOrWhiteSpace(o)) return false;
+
+        var c = o.ToUpper()[0];
+
+        return (c == 'T' || c == 'Y' || c == '1');
+        
     }
     
     public TextureFactory.TextureObject.AnchorPoint EvaluateAnchorParameter(IList<TemplateParameter> parameters, string key, TextureContext context)
@@ -218,6 +228,8 @@ public interface ITemplateElement
     
     int Id { get; set; }
     int Parent { get; set; }
+
+    List<ITemplateElement> Children { get; } 
 
     void SetParameterValue(string name, string value);
 }

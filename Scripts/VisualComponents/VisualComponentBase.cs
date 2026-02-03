@@ -144,7 +144,8 @@ public abstract partial class VisualComponentBase : Area3D
 		}
 		
 		l.Add(new MenuCommand(VisualCommand.Delete));
-
+		l.Add(new MenuCommand(VisualCommand.Refresh));
+		l.Add(new MenuCommand(VisualCommand.Duplicate));
 		return l;
 	}
 

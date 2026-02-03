@@ -1,20 +1,24 @@
-[gd_scene load_steps=3 format=3 uid="uid://h1wb2ioo55p7"]
+[gd_scene format=3 uid="uid://h1wb2ioo55p7"]
 
 [ext_resource type="Script" uid="uid://yxil8pcf210o" path="res://Scripts/Templating/BooleanParamControl.cs" id="1_efdri"]
 [ext_resource type="Texture2D" uid="uid://cip23cunm7y51" path="res://Textures/UI/menu16.png" id="2_e0iat"]
 
-[node name="BooleanParam" type="HBoxContainer"]
+[node name="BooleanParam" type="HBoxContainer" unique_id=919273609]
 script = ExtResource("1_efdri")
 
-[node name="Caption" type="Label" parent="."]
+[node name="Caption" type="Label" parent="." unique_id=1966456141]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Foreground"
 
-[node name="CheckButton" type="CheckButton" parent="."]
+[node name="LineEdit" type="LineEdit" parent="." unique_id=424022127]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CheckButton" type="CheckButton" parent="." unique_id=308302028]
 layout_mode = 2
 
-[node name="Formula" type="Button" parent="."]
+[node name="Formula" type="Button" parent="." unique_id=208718928]
 custom_minimum_size = Vector2(16, 0)
 layout_mode = 2
 icon = ExtResource("2_e0iat")

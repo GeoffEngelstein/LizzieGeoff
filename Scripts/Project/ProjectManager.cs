@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using TTSS.Scripts.Templating;
@@ -118,7 +119,20 @@ public partial class ProjectManager : Panel
 
 		var s = saveFile.GetAsText();
 		
-		return JsonSerializer.Deserialize<Project>(s);	
+		var p = JsonSerializer.Deserialize<Project>(s);
+
+		/*
+		var d = p.Datasets.First().Value;
+		d.Columns.Add("IconColor");
+
+		var colors = new string[] { "Red","Blue", "Yellow", "Gray", "Purple", "Green" };
+		int i = 0;
+		foreach (var dc in d.Rows)
+		{
+			dc.Value.Data.Add(colors[i++]);
+		}
+		*/
+		return p;
 	}
 
 	public bool SaveProject(Project project, string fileName)

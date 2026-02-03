@@ -48,32 +48,43 @@ public static class TemplateEngine
             Shape = TextureFactory.TokenShape.Square
         };
 
+        
         foreach (var element in templateElements)
         {
-            foreach (var l in element.GetElementData(_textureContext))
-            {
-                td.Objects.Add(new TextureFactory.TextureObject
-                {
-                    Width = l.Width,
-                    Height = l.Height,
-                    CenterX = l.CenterX,
-                    CenterY = l.CenterY,
-                    Anchor = l.Anchor,
-                    Multiline = true,
-                    Text = l.Text,
-                    ForegroundColor = l.ForegroundColor,
-                    Font = new SystemFont(),
-                    FontSize = l.FontSize,
-                    Autosize = l.Autosize,
-                    HorizontalAlignment = l.HorizontalAlignment,
-                    VerticalAlignment = l.VerticalAlignment,
-                    Type = l.Type,
-                    Stretch = l.Stretch
-                });
-            }
+            MapElementToObject(td, element, _textureContext);
         }
 
         return td;
+    }
+
+    private static void MapElementToObject(TextureFactory.TextureDefinition td, ITemplateElement element, TextureContext _textureContext)
+    {
+        foreach (var l in element.GetElementData(_textureContext))
+        {
+            td.Objects.Add(new TextureFactory.TextureObject
+            {
+                Width = l.Width,
+                Height = l.Height,
+                CenterX = l.CenterX,
+                CenterY = l.CenterY,
+                Anchor = l.Anchor,
+                Multiline = true,
+                Text = l.Text,
+                ForegroundColor = l.ForegroundColor,
+                Font = new SystemFont(),
+                FontSize = l.FontSize,
+                Autosize = l.Autosize,
+                HorizontalAlignment = l.HorizontalAlignment,
+                VerticalAlignment = l.VerticalAlignment,
+                Type = l.Type,
+                Stretch = l.Stretch
+            });
+
+            foreach (var c in element.Children)
+            {
+                MapElementToObject(td, c, _textureContext);
+            }
+        }
     }
 
     public static ITemplateElement BuildTemplateElement(Dictionary<string, string> parameters)

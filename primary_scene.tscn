@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://caj4d7v430lhp"]
+[gd_scene format=3 uid="uid://caj4d7v430lhp"]
 
 [ext_resource type="Script" uid="uid://cb04ev3xy2y8r" path="res://Scripts/GameController.cs" id="1_hibmt"]
 [ext_resource type="Script" uid="uid://caw45erf0ap1j" path="res://Scripts/UI.cs" id="2_a0mv7"]
@@ -27,6 +27,7 @@
 [ext_resource type="PackedScene" uid="uid://0wsvxlpthnkp" path="res://Scenes/Templating/TemplateCreator.tscn" id="24_f3vmv"]
 [ext_resource type="Script" uid="uid://rkus14o3uk6n" path="res://Scripts/TextureFactory.cs" id="25_461bj"]
 [ext_resource type="PackedScene" uid="uid://bqbaakftpue7u" path="res://Scenes/project_manager.tscn" id="25_urt8w"]
+[ext_resource type="PackedScene" uid="uid://dbskxotmh6h06" path="res://Scenes/DataSet/DatasetEditor.tscn" id="26_kgdam"]
 
 [sub_resource type="Theme" id="Theme_a3w6s"]
 
@@ -35,16 +36,16 @@ font_size = 32
 font_color = Color(0, 0, 0, 1)
 outline_size = 1
 
-[node name="PrimaryScene" type="Node3D" node_paths=PackedStringArray("_textureFactory", "_templateCreator")]
+[node name="PrimaryScene" type="Node3D" unique_id=410470090 node_paths=PackedStringArray("_textureFactory", "_templateCreator")]
 script = ExtResource("1_hibmt")
 _textureFactory = NodePath("SubViewportContainer/TextureFactory")
 _templateCreator = NodePath("UI/TemplateCreator")
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=309296479]
 script = ExtResource("2_a0mv7")
 highlightFontColor = Color(0.54902, 0.694118, 1, 1)
 
-[node name="Hand" type="Panel" parent="UI"]
+[node name="Hand" type="Panel" parent="UI" unique_id=1988859394]
 custom_minimum_size = Vector2(0, 200)
 anchors_preset = 12
 anchor_top = 1.0
@@ -55,7 +56,7 @@ grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("3_h6pmi")
 
-[node name="TextureRect" type="TextureRect" parent="UI/Hand"]
+[node name="TextureRect" type="TextureRect" parent="UI/Hand" unique_id=946244927]
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
@@ -64,7 +65,7 @@ offset_bottom = 180.0
 texture = ExtResource("4_vbm5h")
 expand_mode = 5
 
-[node name="Mode" type="HBoxContainer" parent="UI"]
+[node name="Mode" type="HBoxContainer" parent="UI" unique_id=1351550218]
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
@@ -75,23 +76,23 @@ grow_horizontal = 2
 size_flags_horizontal = 4
 alignment = 1
 
-[node name="Play2D" type="Button" parent="UI/Mode"]
+[node name="Play2D" type="Button" parent="UI/Mode" unique_id=1870421792]
 layout_mode = 2
 text = "Play 2D"
 
-[node name="Play3D" type="Button" parent="UI/Mode"]
+[node name="Play3D" type="Button" parent="UI/Mode" unique_id=1596224388]
 layout_mode = 2
 text = "Play 3D"
 
-[node name="Designer" type="Button" parent="UI/Mode"]
+[node name="Designer" type="Button" parent="UI/Mode" unique_id=1292178749]
 layout_mode = 2
 text = "Designer"
 
-[node name="MenuBar" type="MenuBar" parent="UI"]
+[node name="MenuBar" type="MenuBar" parent="UI" unique_id=672250976]
 offset_right = 183.0
 offset_bottom = 31.0
 
-[node name="File" type="PopupMenu" parent="UI/MenuBar"]
+[node name="File" type="PopupMenu" parent="UI/MenuBar" unique_id=709451553]
 title = "File"
 item_count = 3
 item_0/text = "Project Manager"
@@ -101,16 +102,16 @@ item_1/id = 1
 item_2/text = "Save Project"
 item_2/id = 2
 
-[node name="Edit" type="PopupMenu" parent="UI/MenuBar"]
+[node name="Edit" type="PopupMenu" parent="UI/MenuBar" unique_id=1056068936]
 title = "Edit"
 
-[node name="Insert" type="PopupMenu" parent="UI/MenuBar"]
+[node name="Insert" type="PopupMenu" parent="UI/MenuBar" unique_id=1536859569]
 title = "Insert"
 
-[node name="Help" type="PopupMenu" parent="UI/MenuBar"]
+[node name="Help" type="PopupMenu" parent="UI/MenuBar" unique_id=1339962661]
 title = "Help"
 
-[node name="ComponentDefinition" type="HBoxContainer" parent="UI" node_paths=PackedStringArray("_textureFactory")]
+[node name="ComponentDefinition" type="HBoxContainer" parent="UI" unique_id=294287419 node_paths=PackedStringArray("_textureFactory")]
 visible = false
 anchors_preset = 8
 anchor_left = 0.5
@@ -128,15 +129,15 @@ script = ExtResource("4_eclwi")
 _components = Array[Resource]([ExtResource("12_6reuv"), ExtResource("13_5qcje"), ExtResource("7_la08l"), ExtResource("8_dwpay"), ExtResource("9_56ys6"), ExtResource("10_711is"), ExtResource("11_14nhc"), ExtResource("12_ccm2a")])
 _textureFactory = NodePath("../../SubViewportContainer/TextureFactory")
 
-[node name="ButtonStrip" type="VBoxContainer" parent="UI/ComponentDefinition"]
+[node name="ButtonStrip" type="VBoxContainer" parent="UI/ComponentDefinition" unique_id=1002884338]
 layout_mode = 2
 
-[node name="ComponentPanel" type="Panel" parent="UI/ComponentDefinition"]
+[node name="ComponentPanel" type="Panel" parent="UI/ComponentDefinition" unique_id=1190035524]
 custom_minimum_size = Vector2(800, 450)
 layout_mode = 2
 theme_override_styles/panel = ExtResource("12_3v46o")
 
-[node name="DialogButtonMargins" type="MarginContainer" parent="UI/ComponentDefinition/ComponentPanel"]
+[node name="DialogButtonMargins" type="MarginContainer" parent="UI/ComponentDefinition/ComponentPanel" unique_id=1307991246]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -152,22 +153,22 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="DialogButtonLayout" type="HBoxContainer" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins"]
+[node name="DialogButtonLayout" type="HBoxContainer" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins" unique_id=1759523305]
 layout_mode = 2
 
-[node name="CancelButton" type="Button" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins/DialogButtonLayout"]
+[node name="CancelButton" type="Button" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins/DialogButtonLayout" unique_id=1011401775]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
 text = "Cancel"
 
-[node name="CreateButton" type="Button" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins/DialogButtonLayout"]
+[node name="CreateButton" type="Button" parent="UI/ComponentDefinition/ComponentPanel/DialogButtonMargins/DialogButtonLayout" unique_id=1775715509]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
 text = "Create"
 
-[node name="ComponentTabs" type="TabContainer" parent="UI"]
+[node name="ComponentTabs" type="TabContainer" parent="UI" unique_id=36789732]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(450, 450)
@@ -184,42 +185,42 @@ grow_horizontal = 2
 grow_vertical = 2
 current_tab = 0
 
-[node name="Cube" parent="UI/ComponentTabs" instance=ExtResource("13_gbiwn")]
+[node name="Cube" parent="UI/ComponentTabs" unique_id=2088067474 instance=ExtResource("13_gbiwn")]
 layout_mode = 2
 metadata/_tab_index = 0
 
-[node name="Disc" parent="UI/ComponentTabs" instance=ExtResource("14_u4hc7")]
+[node name="Disc" parent="UI/ComponentTabs" unique_id=59727215 instance=ExtResource("14_u4hc7")]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 1
 
-[node name="Die" parent="UI/ComponentTabs" node_paths=PackedStringArray("_quickSideEntries") instance=ExtResource("15_mybtt")]
+[node name="Die" parent="UI/ComponentTabs" unique_id=1033476331 node_paths=PackedStringArray("_quickSideEntries") instance=ExtResource("15_mybtt")]
 visible = false
 layout_mode = 2
 _quickSideEntries = []
 metadata/_tab_index = 2
 
-[node name="Card" parent="UI/ComponentTabs" instance=ExtResource("16_j3qli")]
+[node name="Card" parent="UI/ComponentTabs" unique_id=651939893 instance=ExtResource("16_j3qli")]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 3
 
-[node name="Deck" parent="UI/ComponentTabs" instance=ExtResource("17_mgf4o")]
+[node name="Deck" parent="UI/ComponentTabs" unique_id=818290636 instance=ExtResource("17_mgf4o")]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 4
 
-[node name="Token" parent="UI/ComponentTabs" instance=ExtResource("18_c5hxe")]
+[node name="Token" parent="UI/ComponentTabs" unique_id=239034979 instance=ExtResource("18_c5hxe")]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 5
 
-[node name="Mesh Panel" parent="UI/ComponentTabs" instance=ExtResource("19_xcrb0")]
+[node name="Mesh Panel" parent="UI/ComponentTabs" unique_id=829532857 instance=ExtResource("19_xcrb0")]
 visible = false
 layout_mode = 2
 metadata/_tab_index = 6
 
-[node name="ComponentPopup" type="PopupMenu" parent="UI"]
+[node name="ComponentPopup" type="PopupMenu" parent="UI" unique_id=1851200208]
 oversampling_override = 1.0
 size = Vector2i(163, 174)
 item_count = 7
@@ -241,10 +242,10 @@ item_5/separator = true
 item_6/text = "Delete"
 item_6/id = 4
 
-[node name="SubViewport" type="SubViewport" parent="UI"]
+[node name="SubViewport" type="SubViewport" parent="UI" unique_id=691097972]
 size = Vector2i(128, 128)
 
-[node name="ColorRect" type="ColorRect" parent="UI/SubViewport"]
+[node name="ColorRect" type="ColorRect" parent="UI/SubViewport" unique_id=916366187]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -252,7 +253,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 0.32549, 1, 1)
 
-[node name="Label" type="Label" parent="UI/SubViewport"]
+[node name="Label" type="Label" parent="UI/SubViewport" unique_id=986361349]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -269,7 +270,7 @@ label_settings = SubResource("LabelSettings_xnkas")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TestRect" type="TextureRect" parent="UI"]
+[node name="TestRect" type="TextureRect" parent="UI" unique_id=802082010]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -282,7 +283,7 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ComponentName" type="Label" parent="UI"]
+[node name="ComponentName" type="Label" parent="UI" unique_id=843150342]
 unique_name_in_owner = true
 anchors_preset = 1
 anchor_left = 1.0
@@ -292,15 +293,19 @@ offset_bottom = 23.0
 grow_horizontal = 0
 horizontal_alignment = 2
 
-[node name="TemplateCreator" parent="UI" instance=ExtResource("24_f3vmv")]
+[node name="TemplateCreator" parent="UI" unique_id=402841994 instance=ExtResource("24_f3vmv")]
 unique_name_in_owner = true
 visible = false
 
-[node name="ProjectManager" parent="UI" instance=ExtResource("25_urt8w")]
+[node name="ProjectManager" parent="UI" unique_id=2053799146 instance=ExtResource("25_urt8w")]
 unique_name_in_owner = true
 visible = false
 
-[node name="FileDialog" type="FileDialog" parent="."]
+[node name="DatasetEditor" parent="UI" unique_id=1239742681 instance=ExtResource("26_kgdam")]
+unique_name_in_owner = true
+visible = false
+
+[node name="FileDialog" type="FileDialog" parent="." unique_id=350939739]
 oversampling_override = 1.0
 title = "Open a File"
 initial_position = 2
@@ -309,13 +314,13 @@ ok_button_text = "Open"
 file_mode = 0
 access = 2
 
-[node name="3DSceneNoPhysics" parent="." instance=ExtResource("3_6khan")]
+[node name="3DSceneNoPhysics" parent="." unique_id=325671090 instance=ExtResource("3_6khan")]
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1519249467]
 offset_left = -512.0
 offset_bottom = 512.0
 
-[node name="TextureFactory" type="SubViewport" parent="SubViewportContainer"]
+[node name="TextureFactory" type="SubViewport" parent="SubViewportContainer" unique_id=1184539869]
 unique_name_in_owner = true
 handle_input_locally = false
 render_target_update_mode = 4

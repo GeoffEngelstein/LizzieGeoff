@@ -3,19 +3,23 @@ using System;
 using System.Collections.Generic;
 using TTSS.Scripts.Templating;
 
-public partial class GroupElement : Node
+public class GroupElement : TemplateElement
 {
-	
 
-	[Export] private VBoxContainer _groupElements;
-	
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+	public GroupElement()
 	{
-		base._Ready();
-		
+		ElementType = ITemplateElement.TemplateElementType.Container;
+
+		Initialize();	
 	}
 
+	private void Initialize()
+	{
+		SetParameterValue("Width", "100");
+		SetParameterValue("Height", "100");
+		SetParameterValue("X", "70");
+		SetParameterValue("Y", "70");
+	}
 
-
+	
 }

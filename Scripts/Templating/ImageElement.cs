@@ -47,11 +47,6 @@ public class ImageElement : TemplateElement
         l.Add(t);
         return l;
     }
-
-    private static int ForceParse(string s)
-    {
-        if (int.TryParse(s, out var i)) return i;
-        return 0;
-    }
+    
 }
 

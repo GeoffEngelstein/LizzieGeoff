@@ -8,6 +8,7 @@ public partial class BooleanParamControl : HBoxContainer, IParamControl
 	private Label _label;
 	private CheckButton _value;
 	private Button _script;
+	private LineEdit _text;
 	
 	private TemplateParameter _parameter;
 	private bool _readyComplete;
@@ -18,6 +19,9 @@ public partial class BooleanParamControl : HBoxContainer, IParamControl
 		_label = GetNode<Label>("Caption");
 		_value = GetNode<CheckButton>("CheckButton");
 		
+		_text = GetNode<LineEdit>("LineEdit");
+		_text.TextChanged += _ => RaiseParameterUpdated();
+		
 		_script = GetNode<Button>("Formula");
 		
 		
@@ -26,14 +30,16 @@ public partial class BooleanParamControl : HBoxContainer, IParamControl
 			MapParam();
 		}
 
-		_value.Pressed += RaiseParameterUpdated;
+		_value.Pressed += OnOptionSelected;
 
 		_readyComplete = true;
 	}
 
-	private void OnOptionSelected(long index)
+	private void OnOptionSelected()
 	{
 		_parameter.Value = _value.ButtonPressed.ToString();
+		_text.Text = _value.ButtonPressed ? "Y" : "N";
+		
 		RaiseParameterUpdated();
 	}
 
@@ -46,10 +52,12 @@ public partial class BooleanParamControl : HBoxContainer, IParamControl
 		if (bool.TryParse(_parameter.Value, out bool value))
 		{
 			_value.ButtonPressed = value;
+			_text.Text = value ? "Y" : "N";
 		}
 		else
 		{
 			_value.ButtonPressed = false;
+			_text.Text = "N";
 		}
 		
 		_initializing = false;
@@ -72,7 +80,7 @@ public partial class BooleanParamControl : HBoxContainer, IParamControl
 
 	public TemplateParameter GetParameter()
 	{
-		_parameter.Value = _value.ButtonPressed.ToString();
+		_parameter.Value = _text.Text;
 		return _parameter;
 	}
 

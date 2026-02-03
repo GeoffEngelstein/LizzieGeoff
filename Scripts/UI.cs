@@ -34,6 +34,8 @@ public partial class UI : CanvasLayer
 
     private TextureFactory _textureFactory;
     
+    private DatasetEditor _datasetEditor;
+    
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -51,6 +53,7 @@ public partial class UI : CanvasLayer
 
         _editMenu = GetNode<PopupMenu>("MenuBar/Edit");
         _editMenu.AddItem("Templates", 1);
+        _editMenu.AddItem("Datasets", 2);
         _editMenu.IdPressed += OnEditMenuSelection;
 
         _insertMenu = GetNode<PopupMenu>("MenuBar/Insert");
@@ -72,6 +75,8 @@ public partial class UI : CanvasLayer
         _templateCreator = GetNode<TemplateCreator>("%TemplateCreator");
 
         _textureFactory = GetNode<TextureFactory>("%TextureFactory");
+        _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
+        
         _projectManager = GetNode<ProjectManager>("%ProjectManager");
         _projectManager.ProjectChanged += ProjectChanged;
         UpdateComponentTabs();
@@ -260,6 +265,12 @@ public partial class UI : CanvasLayer
         if (id == 1)
         {
             _templateCreator.Visible = true;
+        }
+
+        if (id == 2)
+        {
+            _datasetEditor.SetProject(_projectManager.CurrentProject);
+            _datasetEditor.Visible = true;
         }
     }
 

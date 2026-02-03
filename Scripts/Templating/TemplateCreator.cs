@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net.Mime;
 using TTSS.Scripts.Templating;
 
 public partial class TemplateCreator : MarginContainer
@@ -55,6 +54,8 @@ public partial class TemplateCreator : MarginContainer
     private OptionButton _dataSetSelector;
     
     private PageControl _pageControl;
+
+    private AcceptDialog _acceptDialog;
     
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -72,6 +73,8 @@ public partial class TemplateCreator : MarginContainer
         _textureContext.ParentSize = _preview.GetSize();
 
         InitializeFit();
+        
+        _acceptDialog = (AcceptDialog)GetNode("ConfirmationDialog");
         
         this.VisibilityChanged += UpdateScrollBarVisibility;
     }
@@ -160,10 +163,41 @@ public partial class TemplateCreator : MarginContainer
         //dataset
         MapDataset();
         
+        MapTreeToElements();
         
         //update preview
         _updateRequired = true;
     }
+
+    private void MapTreeToElements()
+    {
+        _hierarchicalElements.Clear();
+
+        var r = _elementTree.GetRoot();
+
+        foreach (var item in r.GetChildren())
+        {
+            var parent = GetElementByTreeItem(item);
+            _hierarchicalElements.Add(parent);
+            
+            MapChildrenToElements(item, parent);
+        }
+    }
+
+    private void MapChildrenToElements(TreeItem item, ITemplateElement parent)
+    {
+        parent.Children.Clear();
+        
+        foreach (var c in item.GetChildren())
+        {
+            var child = GetElementByTreeItem(c);
+            parent.Children.Add(child);
+            
+            MapChildrenToElements(c, child);
+        }
+    }
+    
+    private List<ITemplateElement> _hierarchicalElements = new();
 
     private void ChangeTemplate(long index)
     {
@@ -240,7 +274,7 @@ public partial class TemplateCreator : MarginContainer
         _duplicateElementButton = GetNode<Button>("%DuplicateElement");
         _duplicateElementButton.Pressed += DuplicateCurrentElement;
         
-        //EnableTreeDragAndDrop();
+        EnableTreeDragAndDrop();
     }
 
     private void InitParamTypes()
@@ -268,7 +302,7 @@ public partial class TemplateCreator : MarginContainer
         if (_updateRequired)
         {
             _updateRequired = false;
-            UpdateTexture(false);
+            UpdateTexture(false, false);
         }
     }
 
@@ -311,11 +345,7 @@ public partial class TemplateCreator : MarginContainer
 
     private void TreeItemSelected()
     {
-        //get the Id
-        var id = _elementTree.GetSelected().GetMetadata(0).AsInt32();
-
-        //matching param
-        var p = _templateElements.FirstOrDefault(x => x.Id == id);
+        var p = GetElementByTreeItem(_elementTree.GetSelected());
         if (p != null)
         {
             _selectedElement = p;
@@ -323,6 +353,15 @@ public partial class TemplateCreator : MarginContainer
             _boundsRect.Show();
             UpdateBoundsRect();
         }
+    }
+
+    private ITemplateElement GetElementByTreeItem(TreeItem ti)
+    {
+        var id = ti.GetMetadata(0).AsInt32();
+
+        //matching param
+        var p = _templateElements.FirstOrDefault(x => x.Id == id);
+        return p;
     }
     
     #region Element Tools
@@ -333,6 +372,9 @@ public partial class TemplateCreator : MarginContainer
         var ti = _elementTree.GetSelected();
 
         if (ti.GetMetadata(0).AsInt32() != _selectedElement.Id) return;
+        
+        _acceptDialog.DialogText = $"Are you sure you want to delete element {_selectedElement.ElementName}?";
+        _acceptDialog.Show();
         
         //_elementTree.
         
@@ -394,6 +436,8 @@ public partial class TemplateCreator : MarginContainer
         _templateElements.Add(t);
 
         _elementTree.SetSelected(ni, 0);
+        
+        MapTreeToElements();
     }
 
     /// <summary>
@@ -477,12 +521,14 @@ public partial class TemplateCreator : MarginContainer
 
     private void OnTextureUpdate(object sender, EventArgs e)
     {
-        UpdateTexture(true);
+        UpdateTexture(true, false);
     }
 
-    private void UpdateTexture(bool updateBounds)
+    private void UpdateTexture(bool updateBounds, bool updateTree)
     {
-        var td = TemplateEngine.GenerateTextureDefinition(_templateElements, _textureContext);
+        if (updateTree) MapTreeToElements();
+        
+        var td = TemplateEngine.GenerateTextureDefinition(_hierarchicalElements, _textureContext);
         
         TextureFactory.GenerateTexture(td, UpdatePreview);
 
@@ -525,13 +571,13 @@ public partial class TemplateCreator : MarginContainer
     private void AddText()
     {
         AddTextureElement(ITemplateElement.TemplateElementType.Text);
-        UpdateTexture(true);
+        UpdateTexture(true, true);
     }
 
     private void AddImage()
     {
         AddTextureElement(ITemplateElement.TemplateElementType.Image);
-        UpdateTexture(true);
+        UpdateTexture(true, true);
     }
 
     private void UpdatePreview(ImageTexture texture)
@@ -857,6 +903,8 @@ public partial class TemplateCreator : MarginContainer
             { "item_text", selectedItem.GetText(0) }
         };
 
+        _elementTree.DropModeFlags = (int)Tree.DropModeFlagsEnum.Inbetween; 
+
         return dragData;
     }
 
@@ -896,6 +944,8 @@ public partial class TemplateCreator : MarginContainer
         var draggedId = dragData["item_id"].AsInt32();
         var draggedItem = FindTreeItemById(_rootItem, draggedId);
 
+        _elementTree.DropModeFlags = (int)Tree.DropModeFlagsEnum.Disabled; 
+        
         if (draggedItem == null)
             return;
 
@@ -939,7 +989,7 @@ public partial class TemplateCreator : MarginContainer
 
         var oldParent = draggedItem.GetParent();
 
-        var newItem = _elementTree.CreateItem(newParent, insertBefore == null ? -1 : -1); //newParent.GetChildIndex(insertBefore));
+        var newItem = _elementTree.CreateItem(newParent, GetChildIndex(newParent, insertBefore)); //newParent.GetChildIndex(insertBefore));
         newItem.SetMetadata(0, draggedElement.Id);
         newItem.SetText(0, draggedElement.ElementName);
 
@@ -961,7 +1011,24 @@ public partial class TemplateCreator : MarginContainer
 
         _elementTree.SetSelected(newItem, 0);
         
+        MapTreeToElements();
         _updateRequired = true;
+    }
+
+    private int GetChildIndex(TreeItem parent, TreeItem child)
+    {
+        if (parent == null || child == null) return -1;
+        
+        var index = 0;
+        var current = parent.GetFirstChild();
+        while (current != null)
+        {
+            if (current == child) return index;
+            index++;
+            current = current.GetNext();
+        }
+
+        return index;
     }
 
     private void MoveTreeItemRecursive(TreeItem source, TreeItem newParent)

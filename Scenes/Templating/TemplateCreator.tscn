@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://0wsvxlpthnkp"]
+[gd_scene format=3 uid="uid://0wsvxlpthnkp"]
 
 [ext_resource type="Script" uid="uid://blvugxyae05ee" path="res://Scripts/Templating/TemplateCreator.cs" id="1_wn7e0"]
 [ext_resource type="Texture2D" uid="uid://73pb5eqwq0y4" path="res://Textures/Shapes/square.png" id="2_cvjoa"]
@@ -17,7 +17,7 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hnkns"]
 bg_color = Color(0.99736375, 0.793054, 0.8017672, 1)
 
-[node name="TemplateCreator" type="MarginContainer" node_paths=PackedStringArray("_preview")]
+[node name="TemplateCreator" type="MarginContainer" unique_id=1230360177 node_paths=PackedStringArray("_preview")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -30,10 +30,10 @@ theme_override_constants/margin_bottom = 20
 script = ExtResource("1_wn7e0")
 _preview = NodePath("Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="Panel" parent="." unique_id=2088514366]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+[node name="MarginContainer" type="MarginContainer" parent="Panel" unique_id=1747040156]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -45,45 +45,45 @@ theme_override_constants/margin_top = 9
 theme_override_constants/margin_right = 9
 theme_override_constants/margin_bottom = 9
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer" unique_id=997114139]
 layout_mode = 2
 
-[node name="Toolbar" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+[node name="Toolbar" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer" unique_id=1139119206]
 layout_mode = 2
 
-[node name="NewButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar"]
+[node name="NewButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar" unique_id=2052799139]
 unique_name_in_owner = true
 layout_mode = 2
 text = "New"
 
-[node name="SaveButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar"]
+[node name="SaveButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar" unique_id=1142011880]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Save"
 
-[node name="DuplicateButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar"]
+[node name="DuplicateButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar" unique_id=2000048517]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Duplicate"
 
-[node name="Panel" type="Panel" parent="Panel/MarginContainer/VBoxContainer/Toolbar"]
+[node name="Panel" type="Panel" parent="Panel/MarginContainer/VBoxContainer/Toolbar" unique_id=72002178]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CloseButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar"]
+[node name="CloseButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/Toolbar" unique_id=385841374]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Close"
 
-[node name="InfoBar" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+[node name="InfoBar" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer" unique_id=116647639]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="Panel/MarginContainer/VBoxContainer/InfoBar"]
+[node name="MarginContainer" type="MarginContainer" parent="Panel/MarginContainer/VBoxContainer/InfoBar" unique_id=64964042]
 custom_minimum_size = Vector2(300, 1)
 layout_mode = 2
 theme_override_constants/margin_left = 12
 
-[node name="TemplateName" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer"]
+[node name="TemplateName" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer" unique_id=350514162]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
@@ -107,15 +107,15 @@ popup/item_3/id = 3
 popup/item_4/text = "Player Mat"
 popup/item_4/id = 4
 
-[node name="MarginContainer2" type="MarginContainer" parent="Panel/MarginContainer/VBoxContainer/InfoBar"]
+[node name="MarginContainer2" type="MarginContainer" parent="Panel/MarginContainer/VBoxContainer/InfoBar" unique_id=966560231]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/margin_left = 12
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2" unique_id=1059870005]
 layout_mode = 2
 
-[node name="StandardSize" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer"]
+[node name="StandardSize" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" unique_id=199992706]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
@@ -132,27 +132,27 @@ popup/item_3/id = 3
 popup/item_4/text = "Custom"
 popup/item_4/id = 4
 
-[node name="Width" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer"]
+[node name="Width" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" unique_id=731191474]
 unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "Width"
 
-[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer"]
+[node name="Label" type="Label" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" unique_id=679380961]
 layout_mode = 2
 text = "x"
 
-[node name="Height" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer"]
+[node name="Height" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" unique_id=172540522]
 unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "Height"
 
-[node name="Label2" type="Label" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer"]
+[node name="Label2" type="Label" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" unique_id=1183180324]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Dataset:  "
 horizontal_alignment = 2
 
-[node name="Dataset" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer"]
+[node name="Dataset" type="OptionButton" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" unique_id=16413708]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
@@ -161,79 +161,79 @@ item_count = 1
 popup/item_0/text = "(none)"
 popup/item_0/id = 0
 
-[node name="PageControl" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" instance=ExtResource("3_275yv")]
+[node name="PageControl" parent="Panel/MarginContainer/VBoxContainer/InfoBar/MarginContainer2/HBoxContainer" unique_id=202467306 instance=ExtResource("3_275yv")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="HBoxContainer" type="HSplitContainer" parent="Panel/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HSplitContainer" parent="Panel/MarginContainer/VBoxContainer" unique_id=1603705456]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="VSplitContainer" type="VSplitContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="VSplitContainer" type="VSplitContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=839217314]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer" unique_id=2060883511]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer" unique_id=1454566715]
 layout_mode = 2
 
-[node name="TextButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
+[node name="TextButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=333098827]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Add Text Element"
 icon = ExtResource("3_5nlvd")
 
-[node name="ImageButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
+[node name="ImageButton" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=1261537353]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Add Image Element"
 icon = ExtResource("4_oqooe")
 
-[node name="DeleteElement" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
+[node name="DeleteElement" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=732652496]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Delete Current Element"
 icon = ExtResource("5_si24g")
 
-[node name="RenameElement" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
+[node name="RenameElement" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=414048732]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Rename Current Element"
 icon = ExtResource("6_6qm3h")
 
-[node name="DuplicateElement" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer"]
+[node name="DuplicateElement" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=88913103]
 unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Duplicate"
 icon = ExtResource("7_5a5fc")
 
-[node name="TemplateTree" type="Tree" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer"]
+[node name="TemplateTree" type="Tree" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer" unique_id=727587189]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 hide_root = true
 
-[node name="ScrollContainer2" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer"]
+[node name="ScrollContainer2" type="ScrollContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer" unique_id=307900320]
 layout_mode = 2
 size_flags_vertical = 3
 size_flags_stretch_ratio = 2.0
 
-[node name="TemplateParams" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer2"]
+[node name="TemplateParams" type="VBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/ScrollContainer2" unique_id=2079630710]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PreviewWindow" type="Panel" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="PreviewWindow" type="Panel" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1171717480]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_hnkns")
 
-[node name="TemplatePreview" type="TextureRect" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow"]
+[node name="TemplatePreview" type="TextureRect" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow" unique_id=752990848]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(250, 350)
 layout_mode = 1
@@ -250,7 +250,7 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_cvjoa")
 
-[node name="BoundsRect" type="MarginContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview"]
+[node name="BoundsRect" type="MarginContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview" unique_id=1974649870]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -266,12 +266,12 @@ theme_override_constants/margin_right = 50
 theme_override_constants/margin_bottom = 50
 script = ExtResource("5_4cjo0")
 
-[node name="ReferenceRect" type="ReferenceRect" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect"]
+[node name="ReferenceRect" type="ReferenceRect" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect" unique_id=934616259]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 editor_only = false
 
-[node name="TopLeft" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="TopLeft" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=973930516]
 layout_mode = 0
 offset_left = -8.0
 offset_top = -8.0
@@ -279,7 +279,7 @@ mouse_default_cursor_shape = 12
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="TopCenter" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="TopCenter" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=112757518]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -292,7 +292,7 @@ mouse_default_cursor_shape = 9
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="TopRight" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="TopRight" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=1733645840]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -304,7 +304,7 @@ mouse_default_cursor_shape = 11
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="MiddleLeft" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="MiddleLeft" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=1852530963]
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
@@ -317,7 +317,7 @@ mouse_default_cursor_shape = 10
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="MiddleRight" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="MiddleRight" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=1298073062]
 layout_mode = 1
 anchors_preset = 6
 anchor_left = 1.0
@@ -333,7 +333,7 @@ mouse_default_cursor_shape = 10
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="BottomLeft" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="BottomLeft" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=1869811184]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -345,7 +345,7 @@ mouse_default_cursor_shape = 11
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="BottomCenter" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="BottomCenter" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=1253562390]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -361,7 +361,7 @@ mouse_default_cursor_shape = 9
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="BottomRight" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect"]
+[node name="BottomRight" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/TemplatePreview/BoundsRect/ReferenceRect" unique_id=912392567]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -376,7 +376,7 @@ mouse_default_cursor_shape = 12
 action_mode = 0
 keep_pressed_outside = true
 
-[node name="PreviewHScroll" type="HScrollBar" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow"]
+[node name="PreviewHScroll" type="HScrollBar" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow" unique_id=1654616097]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 1
@@ -392,7 +392,7 @@ step = 1.0
 page = 10.0
 value = 50.0
 
-[node name="PreviewVScroll" type="VScrollBar" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow"]
+[node name="PreviewVScroll" type="VScrollBar" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow" unique_id=134300196]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 1
@@ -408,44 +408,44 @@ step = 1.0
 page = 10.0
 value = 50.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow" unique_id=212251706]
 layout_mode = 0
 offset_left = 10.0
 offset_top = 10.0
 offset_right = 90.0
 offset_bottom = 41.0
 
-[node name="ZoomOut" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer"]
+[node name="ZoomOut" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer" unique_id=832464892]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("9_6qm3h")
 
-[node name="ZoomFit" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer"]
+[node name="ZoomFit" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer" unique_id=990652090]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("10_5a5fc")
 
-[node name="ZoomIn" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer"]
+[node name="ZoomIn" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/PreviewWindow/HBoxContainer" unique_id=249994562]
 unique_name_in_owner = true
 layout_mode = 2
 icon = ExtResource("11_275yv")
 
-[node name="Timer" type="Timer" parent="."]
+[node name="Timer" type="Timer" parent="." unique_id=234808723]
 wait_time = 0.1
 
-[node name="NewTemplateDialog" type="MarginContainer" parent="."]
+[node name="NewTemplateDialog" type="MarginContainer" parent="." unique_id=1866524226]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="Panel" type="Panel" parent="NewTemplateDialog"]
+[node name="Panel" type="Panel" parent="NewTemplateDialog" unique_id=886510993]
 custom_minimum_size = Vector2(400, 200)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_styles/panel = ExtResource("13_275yv")
 
-[node name="MarginContainer" type="MarginContainer" parent="NewTemplateDialog/Panel"]
+[node name="MarginContainer" type="MarginContainer" parent="NewTemplateDialog/Panel" unique_id=801215613]
 layout_mode = 0
 offset_right = 399.0
 offset_bottom = 199.0
@@ -454,31 +454,31 @@ theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 12
 
-[node name="VBoxContainer" type="VBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer" unique_id=710151936]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Label" type="Label" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer"]
+[node name="Label" type="Label" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer" unique_id=1788075330]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 0.45882353, 1)
 text = "New Template"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer" unique_id=764958472]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="Label" type="Label" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1116497558]
 layout_mode = 2
 text = "Template Name:"
 
-[node name="NTName" type="LineEdit" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer2"]
+[node name="NTName" type="LineEdit" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer2" unique_id=1241371229]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer" unique_id=1645653496]
 layout_mode = 2
 
-[node name="NTSize" type="OptionButton" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="NTSize" type="OptionButton" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1628140982]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
@@ -495,31 +495,34 @@ popup/item_3/id = 3
 popup/item_4/text = "Custom"
 popup/item_4/id = 4
 
-[node name="NTWidth" type="LineEdit" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="NTWidth" type="LineEdit" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=595419660]
 unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "Width"
 
-[node name="Label" type="Label" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=1031830595]
 layout_mode = 2
 text = "x"
 
-[node name="NTHeight" type="LineEdit" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="NTHeight" type="LineEdit" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer" unique_id=345043771]
 unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "Height"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer" unique_id=1435365704]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 10
 
-[node name="NTOK" type="Button" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer3"]
+[node name="NTOK" type="Button" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer3" unique_id=99234768]
 unique_name_in_owner = true
 layout_mode = 2
 text = "OK"
 
-[node name="NTCancel" type="Button" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer3"]
+[node name="NTCancel" type="Button" parent="NewTemplateDialog/Panel/MarginContainer/VBoxContainer/HBoxContainer3" unique_id=611392166]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Cancel"
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="." unique_id=1991483538]
+initial_position = 2
