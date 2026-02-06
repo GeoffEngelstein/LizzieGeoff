@@ -82,7 +82,17 @@ public abstract partial class VisualComponentBase : Area3D
 
 		return true;
 	}
-	
+
+	/// <summary>
+	/// Updates the textures, size, etc, without recreating any child objects.
+	/// </summary>
+	/// <param name="parameters"></param>
+	/// <param name="textureFactory"></param>
+	/// <returns></returns>
+    public virtual bool Refresh(Dictionary<string, object> parameters, TextureFactory textureFactory)
+    {
+        return Build(parameters, textureFactory);
+    }
 
 	/// <summary>
 	/// Checks the parameter dictionary to make sure that everything required for this
@@ -122,13 +132,15 @@ public abstract partial class VisualComponentBase : Area3D
 
         if (command == VisualCommand.Refresh)
         {
-            Build(Parameters, _textureFactory);
+            Refresh(Parameters, _textureFactory);
 			return new CommandResponse(true, null);
         }
 		
 		
 		return new CommandResponse(false, null);
 	}
+
+
 
     protected TextureFactory _textureFactory;
 

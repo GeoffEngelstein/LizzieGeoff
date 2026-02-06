@@ -212,7 +212,7 @@ public partial class TemplateCreator : MarginContainer
 
     private void SaveTemplate()
     {
-        _projectManager.SaveProject(_projectManager.CurrentProject, "TestProject");
+        ProjectService.Instance.SaveProject(ProjectService.Instance.CurrentProject, "TestProject");
     }
 
     private ScrollBar _previewHScroll;
@@ -640,7 +640,7 @@ public partial class TemplateCreator : MarginContainer
 
         var i = 1;
 
-        foreach (var d in _projectManager.CurrentProject.Datasets)
+        foreach (var d in ProjectService.Instance.CurrentProject.Datasets)
         {
             _dataSetSelector.AddItem(d.Key, i);
             i++;
@@ -743,8 +743,9 @@ public partial class TemplateCreator : MarginContainer
     {
         get
         {
-            if (_projectManager == null) return new();
-            return _projectManager.CurrentProject.Templates;       
+            var p = ProjectService.Instance.CurrentProject;
+            if (p == null) return new();
+            return p.Templates;
         }
     }
 
@@ -853,13 +854,13 @@ public partial class TemplateCreator : MarginContainer
         _projectManager = pm;
         
         _templateNameSelector.Clear();
-        foreach (var kv in _projectManager.CurrentProject.Templates)
+        foreach (var kv in ProjectService.Instance.CurrentProject.Templates)
         {
             _templateNameSelector.AddItem(kv.Key);
         }
 
         _templateNameSelector.Select(0);
-        CurrentTemplate = _projectManager.CurrentProject.Templates[_templateNameSelector.GetItemText(0)];
+        CurrentTemplate = ProjectService.Instance.CurrentProject.Templates[_templateNameSelector.GetItemText(0)];
 
         InitializeDataSets();
         MapDataset();
@@ -1245,10 +1246,10 @@ public partial class TemplateCreator : MarginContainer
 
     private void UpdateTextureContext(string datasetName)
     {
-        if (_projectManager.CurrentProject.Datasets.ContainsKey(datasetName))
+        if (ProjectService.Instance.CurrentProject.Datasets.ContainsKey(datasetName))
         {
             CurrentTemplate.DataSet = datasetName;
-            _textureContext.DataSet = _projectManager.CurrentProject.Datasets[datasetName];
+            _textureContext.DataSet = ProjectService.Instance.CurrentProject.Datasets[datasetName];
             _textureContext.CurrentRowName = _textureContext.DataSet.Rows.First().Key;
         }
     }

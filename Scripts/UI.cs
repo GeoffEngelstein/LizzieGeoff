@@ -76,20 +76,22 @@ public partial class UI : CanvasLayer
 
         _textureFactory = GetNode<TextureFactory>("%TextureFactory");
         _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
-        _datasetEditor.DataSetChanged += OnDatasetRefresh;
+      
         
         _projectManager = GetNode<ProjectManager>("%ProjectManager");
-        _projectManager.ProjectChanged += ProjectChanged;
+        EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
         UpdateComponentTabs();
 
     }
 
     private void OnDatasetRefresh(object sender,string name)
     {
-        //TODO need to refresh all the objects
+        DatasetChanged?.Invoke(this, name);
     }
 
-    private void ProjectChanged(object sender, EventArgs e)
+    public event EventHandler<string> DatasetChanged;
+
+    private void ProjectChanged(ProjectChangedEvent projectChangedEvent)
     {
         UpdateComponentTabs();
     }
@@ -101,7 +103,7 @@ public partial class UI : CanvasLayer
             if (c is ComponentPanelDialogResult cpdr)
             {
                 cpdr.TextureFactory = _textureFactory;
-                cpdr.CurrentProject = _projectManager.CurrentProject;
+                cpdr.CurrentProject = ProjectService.Instance.CurrentProject;
             }
         }
     }
@@ -114,13 +116,13 @@ public partial class UI : CanvasLayer
                 break;
             
             case 1:
-                var p = _projectManager.LoadProject("TestProj");
-                _projectManager.CurrentProject = p;
+                var p = ProjectService.Instance.LoadProject("TestProj");
+                ProjectService.Instance.CurrentProject = p;
                 break;
             
             case 2:
                 var op = _projectManager.CreateTestProject();
-                _projectManager.SaveProject(op, "TestProj");
+                ProjectService.Instance.SaveProject(op, "TestProj");
                 break;
         }
     }
@@ -262,7 +264,7 @@ public partial class UI : CanvasLayer
     {
         if (id == 1)
         {
-            _componentDefinition.Initialize(_projectManager.CurrentProject);
+            _componentDefinition.Initialize(ProjectService.Instance.CurrentProject);
         }
     }
 
@@ -275,7 +277,7 @@ public partial class UI : CanvasLayer
 
         if (id == 2)
         {
-            _datasetEditor.SetProject(_projectManager.CurrentProject);
+            _datasetEditor.SetProject(ProjectService.Instance.CurrentProject);
             _datasetEditor.Visible = true;
         }
     }

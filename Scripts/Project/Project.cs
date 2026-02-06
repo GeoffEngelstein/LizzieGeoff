@@ -13,4 +13,12 @@ public class Project
 	//all strings for now as placeholders
 	public Dictionary<string, string> Components { get; set; } = new();
 	public Dictionary<string,string> Images { get; set; } = new();
+
+    public void FixDatasetName()
+    {
+        foreach (var kv in Datasets)
+        {
+			            kv.Value.Name = kv.Key;
+        }
+    }
 }

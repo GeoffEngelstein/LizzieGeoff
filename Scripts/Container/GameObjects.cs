@@ -22,6 +22,23 @@ public partial class GameObjects : Node
 
     public CursorMode CursorMode { get; private set; }
 
+    public override void _Ready()
+    {
+        EventBus.Instance.Subscribe<DataSetChangedEvent>(OnDataSetChanged);
+    }
+
+    private void OnDataSetChanged(DataSetChangedEvent obj)
+    {
+        //naive approach for now
+        foreach (var c in this.GetChildren())
+        {
+            if (c is VisualComponentBase vc)
+            {
+                vc.ProcessCommand(VisualCommand.Refresh);
+            }
+        }
+    }
+
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);

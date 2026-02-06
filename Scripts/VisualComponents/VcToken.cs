@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text.Json;
@@ -308,10 +309,12 @@ public partial class VcToken : VisualComponentFlat
 		FaceSprite.Frame = _gridIndex;
 	}
 
-	private TextureFactory.TextureDefinition _templateFrontTextureDefinition;
-	private TextureFactory.TextureDefinition _templateBackTextureDefinition;
-	
-	private void BuildTemplate(TextureFactory textureFactory)
+	private string _frontTemplateName;
+	private string _backTemplateName;
+	private string _datasetName;
+	private string _cardReference;
+
+    private void BuildTemplate(TextureFactory textureFactory)
 	{
 		int sH = 256;
 		int sW = 256;
@@ -326,23 +329,33 @@ public partial class VcToken : VisualComponentFlat
 		{
 			sH = (int)(_height * 256 / _width);
 		}
-		
-		if (_templateFrontTextureDefinition is null) return;
 
-		_frontTextureGenerated = true;
+		if (string.IsNullOrWhiteSpace(_frontTemplateName)) return;
+
+		var curProj = ProjectService.Instance.CurrentProject;
+
+		curProj.Templates.TryGetValue(_frontTemplateName, out var ft);
+		curProj.Templates.TryGetValue(_backTemplateName, out var bt);
+		curProj.Datasets.TryGetValue(_datasetName, out var ds);
+
+		TextureContext context = new TextureContext { DataSet = ds, Dpi = 100, ParentSize = new Vector2(250,350), CurrentRowName = _cardReference };
+
+        _frontTextureGenerated = true;
 		_backTextureGenerated = true;
 
-		if (_templateFrontTextureDefinition is not null)
+		if (ft is not null)
 		{
-			_frontTextureGenerated = false;
-			textureFactory.GenerateTexture(_templateFrontTextureDefinition, FinalizeFrontTexture);
+			var ftd = TemplateEngine.GenerateTextureDefinition(ft, context);
+            _frontTextureGenerated = false;
+			textureFactory.GenerateTexture(ftd, FinalizeFrontTexture);
 		}
 		
 		
-		if (_templateBackTextureDefinition is not null)
+		if (bt is not null)
 		{
-			_backTextureGenerated = false;
-			textureFactory.GenerateTexture(_templateBackTextureDefinition, FinalizeBackTexture);
+			var btd = TemplateEngine.GenerateTextureDefinition(bt, context);
+            _backTextureGenerated = false;
+			textureFactory.GenerateTexture(btd, FinalizeBackTexture);
 		}
 	}
 	
@@ -589,9 +602,11 @@ public partial class VcToken : VisualComponentFlat
 			_tokenType = TokenType.Token;	//default
 		}
 		
-		_templateFrontTextureDefinition = Utility.GetParam<TextureFactory.TextureDefinition>(parameters, "TemplateFrontTextureDefinition");
-		_templateBackTextureDefinition = Utility.GetParam<TextureFactory.TextureDefinition>(parameters, "TemplateBackTextureDefinition");
-		
+		_frontTemplateName = Utility.GetParam<string>(parameters, "FrontTemplate");
+		_backTemplateName = Utility.GetParam<string>(parameters, "BackTemplate");
+		_datasetName = Utility.GetParam<string>(parameters, "Dataset");
+		_cardReference = Utility.GetParam<string>(parameters, "CardReference");
+
 		return true;
 	}
 

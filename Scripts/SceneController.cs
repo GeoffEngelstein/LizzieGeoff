@@ -21,9 +21,13 @@ public partial class SceneController : Node3D
 		_gameObjects.HoveredComponentChange += OnHoveredComponentChange;
 		_gameObjects.TextureFactory = _textureFactory;
 
+		
+
 	}
 
-	private void OnHoveredComponentChange(object sender, HoveredComponentChangeEventArgs e)
+
+
+    private void OnHoveredComponentChange(object sender, HoveredComponentChangeEventArgs e)
 	{
 		HoveredComponentChange?.Invoke(this, e);
 	}

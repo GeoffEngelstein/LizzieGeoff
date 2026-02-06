@@ -29,7 +29,6 @@ public partial class DatasetEditor : Control
 	private const float HeaderHeight = 30f;
 	private const float RowHeight = 30f;
 
-    public event EventHandler<string> DataSetChanged;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -154,11 +153,12 @@ public partial class DatasetEditor : Control
         }
         
         // Refresh the display to show updated data
-        MapDataSet(_currentDataSet);
+        //MapDataSet(_currentDataSet);
         
         GD.Print("Dataset saved successfully");
 
-		DataSetChanged?.Invoke(this, _currentDataSet.Name);
+		EventBus.Instance.Publish<DataSetChangedEvent>(new DataSetChangedEvent{DataSetName = _currentDataSet.Name});
+        Hide();
     }
 
     private void MapDataSet(DataSet ds)

@@ -21,8 +21,10 @@ config/icon="res://Lizzie 2.jpg"
 
 [autoload]
 
+ProjectService="*uid://cxbjtcxn44v75"
 Utility="*res://Scenes/Utility.tscn"
 UndoService="*res://Scripts/Undo/UndoService.cs"
+EventBus="*uid://dg3sv0bbkjbc2"
 
 [dotnet]
 

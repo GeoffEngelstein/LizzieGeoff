@@ -438,8 +438,9 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 		d.Add("Mode", VcToken.TokenBuildMode.Template);
 		if (_frontTemplate != null)
 		{
-			d.Add("FrontTemplateTextureDefinitions", TemplateEngine.GenerateTextureDefinitions(_frontTemplate, _textureContext));
-			d.Add("BackTemplateTextureDefinitions", TemplateEngine.GenerateTextureDefinitions(_backTemplate, _textureContext));
+			d.Add("FrontTemplate", _frontTemplate.Name);
+			d.Add("BackTemplate", _backTemplate.Name);
+			d.Add("Dataset", _textureContext.DataSet.Name );
 		}
 	}
 	
@@ -611,25 +612,24 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 			_textureContext.CurrentRowName = cardName;
 		}
 
-		TextureFactory.TextureDefinition tfd = new();
-		TextureFactory.TextureDefinition tbd = new();
-		
-		if (_frontTemplate != null)
+
+        if (_frontTemplate != null)
 		{
-			tfd = TemplateEngine.GenerateTextureDefinition(_frontTemplate, _textureContext);
-			d.Add("TemplateFrontTextureDefinition", tfd);
+			
+			d.Add("FrontTemplate", _frontTemplate.Name);
 		}
 		
 		if (_backTemplate != null)
 		{
-			tbd = TemplateEngine.GenerateTextureDefinition(_backTemplate, _textureContext);
-			d.Add("TemplateBackTextureDefinition", tbd);
+			d.Add("BackTemplate", _backTemplate.Name);
 		}
-		else if (tfd.Height != 0)
+		else if (_frontTemplate != null)
 		{
-			d.Add("TemplateBackTextureDefinition", tfd);
+			d.Add("BackTemplate", _frontTemplate.Name);
 		}
-		
+
+		d.Add("Dataset", _textureContext.DataSet?.Name);
+		d.Add("CardReference", _textureContext.CurrentRowName);
 	}
 
 	private void UpdateQuick(Dictionary<string, object> d, int card)

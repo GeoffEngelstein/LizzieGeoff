@@ -32,7 +32,7 @@ public partial class GameController : Node3D
 		
 		_projectManager = GetNode<ProjectManager>("%ProjectManager");
 		//_projectManager.CurrentProject = _projectManager.CreateTestProject();
-		_projectManager.CurrentProject = _projectManager.LoadProject("TestProject");
+		ProjectService.Instance.CurrentProject = ProjectService.Instance.LoadProject("TestProject");
 		_templateCreator.SetProjectManager( _projectManager);
 
 		var commandDic = new CommandDictionary(_mainScene);

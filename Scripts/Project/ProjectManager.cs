@@ -94,57 +94,6 @@ public partial class ProjectManager : Panel
 		return p;
 	}
 
-	private Project _currentProject;
-
-	public Project CurrentProject
-	{
-		get => _currentProject;
-		set
-		{
-			_currentProject = value;
-			ProjectChanged?.Invoke(this, EventArgs.Empty);
-		}
-	}
-
-	public event EventHandler ProjectChanged;
 	
-	public Project LoadProject(string name)
-	{
-		if (!FileAccess.FileExists($"user://{name}.proj"))
-		{
-			return null; // Error! We don't have a save to load.
-		}
-
-		using var saveFile = FileAccess.Open($"user://{name}.proj", FileAccess.ModeFlags.Read);
-
-		var s = saveFile.GetAsText();
-		
-		var p = JsonSerializer.Deserialize<Project>(s);
-
-		/*
-		var d = p.Datasets.First().Value;
-		d.Columns.Add("IconColor");
-
-		var colors = new string[] { "Red","Blue", "Yellow", "Gray", "Purple", "Green" };
-		int i = 0;
-		foreach (var dc in d.Rows)
-		{
-			dc.Value.Data.Add(colors[i++]);
-		}
-		*/
-		return p;
-	}
-
-	public bool SaveProject(Project project, string fileName)
-	{
-		using var saveFile = FileAccess.Open($"user://{fileName}.proj", FileAccess.ModeFlags.Write);
-
-		var s = JsonSerializer.Serialize<Project>(project);
-
-		saveFile.StoreString(s);
-		saveFile.Close();
-		
-		return true;
-	}
 	
 }
