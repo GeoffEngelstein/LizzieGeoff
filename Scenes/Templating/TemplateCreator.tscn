@@ -7,8 +7,11 @@
 [ext_resource type="Texture2D" uid="uid://cc44r4l4uo3o4" path="res://Textures/UI/image16.png" id="4_oqooe"]
 [ext_resource type="Script" uid="uid://bl1v61t413ui2" path="res://Scripts/Templating/BoundsRect.cs" id="5_4cjo0"]
 [ext_resource type="Texture2D" uid="uid://cetgsjrqd6vjj" path="res://Textures/UI/trash-can.png" id="5_si24g"]
+[ext_resource type="Texture2D" uid="uid://cvm5vjhh2nn2g" path="res://Textures/UI/arrowdown16.png" id="5_y48xi"]
 [ext_resource type="Texture2D" uid="uid://cugnc5143oecw" path="res://Textures/UI/pencil.png" id="6_6qm3h"]
+[ext_resource type="Texture2D" uid="uid://mi8u70je714x" path="res://Textures/UI/crop_portrait_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="6_uraoc"]
 [ext_resource type="Texture2D" uid="uid://dbkp2tyv4uxrj" path="res://Textures/UI/content_copy_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="7_5a5fc"]
+[ext_resource type="Texture2D" uid="uid://deb2r31qo50wk" path="res://Textures/UI/VerTrack.png" id="7_55du8"]
 [ext_resource type="Texture2D" uid="uid://b2dp0funivpga" path="res://Textures/UI/zoom-out.png" id="9_6qm3h"]
 [ext_resource type="Texture2D" uid="uid://b0qbv1mmnp4c4" path="res://Textures/UI/fullscreen.png" id="10_5a5fc"]
 [ext_resource type="Texture2D" uid="uid://c2xtoa1ewjtfd" path="res://Textures/UI/zoom-in.png" id="11_275yv"]
@@ -191,6 +194,22 @@ unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Add Image Element"
 icon = ExtResource("4_oqooe")
+
+[node name="OtherElements" type="MenuButton" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=1657441222]
+unique_name_in_owner = true
+layout_mode = 2
+icon = ExtResource("5_y48xi")
+item_count = 2
+popup/item_0/text = "Frame"
+popup/item_0/icon = ExtResource("6_uraoc")
+popup/item_0/id = 0
+popup/item_1/text = "Track"
+popup/item_1/icon = ExtResource("7_55du8")
+popup/item_1/id = 1
+
+[node name="SpacerPanel" type="Panel" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=1882840166]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
 
 [node name="DeleteElement" type="Button" parent="Panel/MarginContainer/VBoxContainer/HBoxContainer/VSplitContainer/VBoxContainer/HBoxContainer" unique_id=732652496]
 unique_name_in_owner = true

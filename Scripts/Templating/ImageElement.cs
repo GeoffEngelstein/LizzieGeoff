@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using Godot;
 
-namespace TTSS.Scripts.Templating;
+namespace Lizzie.Scripts.Templating;
 
 public class ImageElement : TemplateElement
 {
     // Called when the node enters the scene tree for the first time.
     public ImageElement() : base()
     {
-        ElementType = ITemplateElement.TemplateElementType.Text;
+        ElementType = ITemplateElement.TemplateElementType.Image;
 
         Parameters.Add(new TemplateParameter { Name = "Image", Value = "Circle", Type = TemplateParameter.TemplateParameterType.Image });
         Parameters.Add(new TemplateParameter

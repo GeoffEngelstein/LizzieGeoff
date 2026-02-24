@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using System.ComponentModel.Design.Serialization;
-using TTSS.Scripts.Templating;
+using Lizzie.Scripts.Templating;
 
 public partial class PopupParamControl :  HBoxContainer, IParamControl
 {

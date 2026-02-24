@@ -1,22 +1,21 @@
-[gd_scene load_steps=3 format=3 uid="uid://bu73q18jh72yk"]
+[gd_scene format=3 uid="uid://bu73q18jh72yk"]
 
 [ext_resource type="Script" uid="uid://cwlx0v6ao2cwk" path="res://Scripts/Templating/NumericParamControl.cs" id="1_k7rjq"]
 [ext_resource type="Texture2D" uid="uid://cip23cunm7y51" path="res://Textures/UI/menu16.png" id="2_m2otv"]
 
-[node name="NumericParam" type="HBoxContainer"]
+[node name="NumericParam" type="HBoxContainer" unique_id=156751581]
 script = ExtResource("1_k7rjq")
 
-[node name="Caption" type="Label" parent="."]
+[node name="Caption" type="Label" parent="." unique_id=1547839834]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 text = "Height"
 
-[node name="LineEdit" type="LineEdit" parent="."]
+[node name="LineEdit" type="LineEdit" parent="." unique_id=1628230038]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 2
 
-[node name="Formula" type="Button" parent="."]
+[node name="Formula" type="Button" parent="." unique_id=1722526566]
 custom_minimum_size = Vector2(16, 0)
 layout_mode = 2
 icon = ExtResource("2_m2otv")

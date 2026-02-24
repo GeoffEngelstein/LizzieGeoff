@@ -48,11 +48,20 @@ public partial class Utility : Node
 				var sBound = range.Split('-');
 				if (sBound.Length != 2) continue;
 
-				if (int.TryParse(sBound[0], out var low) && int.TryParse(sBound[1], out var high)
-														 && high >= low)
+				if (int.TryParse(sBound[0], out var low) && int.TryParse(sBound[1], out var high))
 				{
-					pages.AddRange(Enumerable.Range(low, high - low + 1).ToArray()
-						.Select(s => s.ToString()));
+					
+                    if (high < low)
+                    {
+                        var r = Enumerable.Range(high, low - high + 1).ToArray().Reverse();
+						pages.AddRange(r.Select(s => s.ToString()));
+                    }
+                    else
+                    {
+                        pages.AddRange(Enumerable.Range(low, high - low + 1).ToArray()
+                            .Select(s => s.ToString()));
+                    }
+
 				}
 				else if (sBound[0].Length == 1 && sBound[1].Length == 1)
 				{
@@ -87,6 +96,35 @@ public partial class Utility : Node
 		}
 
 		return pages.ToArray();
+	}
+
+	/// <summary>
+	/// Returns all pairs of positive integers whose product equals the input value.
+	/// Each pair is ordered with the smaller number first.
+	/// </summary>
+	/// <param name="input">The number to factorize.</param>
+	/// <returns>An array of tuples containing all factor pairs and their ratios.</returns>
+	public static (int f1, int f2, float ratio)[] FactorPairs(int input)
+	{
+		if (input <= 0) return Array.Empty<(int, int, float)>();
+
+		var pairs = new List<(int, int, float)>();
+
+		// Only need to check up to the square root for efficiency
+		int sqrt = (int)Math.Sqrt(input);
+
+		for (int i = 1; i <= sqrt; i++)
+		{
+			if (input % i == 0)
+			{
+				int complement = input / i;
+				
+				float ratio = (float)i / complement;
+                pairs.Add((i, complement, ratio));
+			}
+		}
+
+		return pairs.ToArray();
 	}
 
 	public static float PixelSize(Vector2 size)

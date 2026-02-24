@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Godot;
 
-namespace TTSS.Scripts.Templating;
-
+namespace Lizzie.Scripts.Templating;
 public class TextElement : TemplateElement
 {
     // Called when the node enters the scene tree for the first time.

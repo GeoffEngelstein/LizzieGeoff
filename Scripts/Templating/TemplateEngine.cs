@@ -1,6 +1,6 @@
 using Godot;
 using System.Collections.Generic;
-using TTSS.Scripts.Templating;
+using Lizzie.Scripts.Templating;
 
 public static class TemplateEngine
 {
@@ -77,7 +77,8 @@ public static class TemplateEngine
                 HorizontalAlignment = l.HorizontalAlignment,
                 VerticalAlignment = l.VerticalAlignment,
                 Type = l.Type,
-                Stretch = l.Stretch
+                Stretch = l.Stretch,
+                BackgroundColor = l.BackgroundColor
             });
 
             foreach (var c in element.Children)

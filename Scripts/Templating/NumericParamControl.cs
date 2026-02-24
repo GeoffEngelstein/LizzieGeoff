@@ -1,6 +1,6 @@
 using Godot;
 using System;
-using TTSS.Scripts.Templating;
+using Lizzie.Scripts.Templating;
 
 public partial class NumericParamControl : HBoxContainer, IParamControl
 {

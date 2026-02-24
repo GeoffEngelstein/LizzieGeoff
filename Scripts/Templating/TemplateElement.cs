@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Godot;
 
-namespace TTSS.Scripts.Templating;
+namespace Lizzie.Scripts.Templating;
 
 public class TemplateElement : ITemplateElement
 {
@@ -157,7 +157,17 @@ public class TemplateElement : ITemplateElement
         
         return TextureFactory.TextureObject.AnchorStringToEnum(ProcessKeywords(p.Value, context));
     }
-    
+
+    public TrackElement.TrackTypeEnum EvaluateTrackParameter(IList<TemplateParameter> parameters, string key,
+        TextureContext context)
+    {
+        var p = parameters.FirstOrDefault(x => x.Name == key);
+        if (p == null) return TrackElement.TrackTypeEnum.Horizontal;
+
+
+        return TextureFactory.TextureObject.TrackStringToEnum(ProcessKeywords(p.Value, context));
+    }
+
     private string ProcessKeywords(string parameterVal, TextureContext context)
     {
         var s = parameterVal.Replace("{Width}", context.ParentSize.X.ToString(),
@@ -215,7 +225,9 @@ public interface ITemplateElement
         Polygon,
         Table,
         Line,
-        Container
+        Container,
+        Frame,
+        Track
     }
 
     TemplateElementType ElementType { get; }
@@ -245,7 +257,8 @@ public class TemplateParameter
         Boolean,
         HorizontalAlignment,
         VerticalAlignment,
-        Image
+        Image,
+        TrackType
     }
 
     public TemplateParameterType Type { get; set; }

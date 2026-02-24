@@ -179,11 +179,46 @@ public partial class TextureFactory : SubViewport
             {
                 RenderText(obj);
             }
+            else if (obj.Type == TextureObjectType.RectangleFrame)
+            {
+                RenderFrame(obj);
+            }
             else
             {
                 RenderShape(obj);
             }
         }
+    }
+
+    private void RenderFrame(TextureObject obj)
+    {
+        var scaleWidth = obj.Width * obj.Scale;
+        var scaleHeight = obj.Height * obj.Scale;
+        var pW = obj.CenterX - scaleWidth / 2;
+        var pH = obj.CenterY - scaleHeight / 2;
+
+        if (obj.BackgroundColor != Colors.Transparent)
+        {
+            var bgRect = new ColorRect();
+            bgRect.Color = obj.BackgroundColor;
+            bgRect.Position = new Vector2(pW, pH);
+            bgRect.Size = new Vector2(scaleWidth, scaleHeight);
+            _viewport.AddChild(bgRect);
+        }
+
+        var tr = new ReferenceRect();
+        tr.EditorOnly = false;
+        tr.BorderWidth = obj.FontSize;
+        tr.BorderColor = obj.ForegroundColor;
+        
+        
+        tr.Size = new Vector2(scaleWidth, scaleHeight);
+        tr.Position = new Vector2(pW, pH);
+
+        tr.PivotOffset = new Vector2(scaleWidth /2, scaleHeight/2);
+        tr.RotationDegrees = obj.RotationDegrees;
+
+        _viewport.AddChild(tr);
     }
 
     private void RenderText(TextureObject obj)
@@ -792,6 +827,7 @@ public partial class TextureFactory : SubViewport
         CoreShape,
         ExtendedShape,
         UserShape,
+        RectangleFrame
         /*
         RectangleShape,
         CircleShape,
@@ -861,6 +897,7 @@ public partial class TextureFactory : SubViewport
             Quantity = obj.Quantity;
             Multiline = obj.Multiline;
             Stretch = obj.Stretch;
+            BackgroundColor = obj.BackgroundColor;
         }
 
         public TextureObjectType Type { get; set; }
@@ -868,6 +905,7 @@ public partial class TextureFactory : SubViewport
         public bool TriangleFace { get; set; }
         public string Text { get; set; }
         public Color ForegroundColor { get; set; } = Colors.Black;
+        public Color BackgroundColor { get; set; } = Colors.Transparent;
         public Font Font { get; set; }
 
         public int FontSize { get; set; } = 12;
@@ -954,6 +992,20 @@ public partial class TextureFactory : SubViewport
                 default:
                     throw new ArgumentOutOfRangeException(nameof(anchorEnum), anchorEnum, null);
             }
+        }
+
+        public static TrackElement.TrackTypeEnum TrackStringToEnum(string trackType)
+        {
+            //just look at the first letter of the keyword to give the user a break if they are using their
+            //own spreadsheet values
+            return trackType.ToUpper()[0] switch
+            {
+                'H' => TrackElement.TrackTypeEnum.Horizontal,
+                'V' => TrackElement.TrackTypeEnum.Vertical,
+                'P' => TrackElement.TrackTypeEnum.Perimeter,
+                'G' => TrackElement.TrackTypeEnum.Grid,
+                _ => TrackElement.TrackTypeEnum.Horizontal
+            };
         }
     }
 

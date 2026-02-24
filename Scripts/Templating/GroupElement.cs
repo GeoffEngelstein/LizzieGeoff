@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using TTSS.Scripts.Templating;
+using Lizzie.Scripts.Templating;
 
 public class GroupElement : TemplateElement
 {

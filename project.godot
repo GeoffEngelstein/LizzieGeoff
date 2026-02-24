@@ -28,7 +28,7 @@ EventBus="*uid://dg3sv0bbkjbc2"
 
 [dotnet]
 
-project/assembly_name="TTSS"
+project/assembly_name="Lizzie"
 
 [editor]
 

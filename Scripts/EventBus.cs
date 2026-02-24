@@ -185,7 +185,7 @@ public interface IEvent
 {
 }
 
-#region Example Event Definitions
+#region Event Definitions
 
 // Example events - you can define your own by implementing IEvent
 
@@ -216,6 +216,15 @@ public class DataSetChangedEvent : IEvent
 }
 
 /// <summary>
+/// Named template has been updated
+/// </summary>
+public class TemplateChangedEvent : IEvent
+{
+    public string TemplateName { get; set; }
+    public Template Template { get; set; }
+}
+
+/// <summary>
 /// Example: Command executed event
 /// </summary>
 public class CommandExecutedEvent : IEvent
@@ -227,6 +236,16 @@ public class CommandExecutedEvent : IEvent
 public class ProjectChangedEvent : IEvent
 {
 	public Dictionary<ProjectService.ProjectElement, string> ChangedElements { get; set; } = new();
+}
+
+public class ShowTemplateEditor : IEvent
+{
+	public string TemplateName { get; set; }
+}
+
+public class ShowDatasetEditor : IEvent
+{
+	public string DatasetName { get; set; }
 }
 
 
