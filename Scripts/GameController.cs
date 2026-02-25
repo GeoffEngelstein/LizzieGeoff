@@ -69,9 +69,11 @@ public partial class GameController : Node3D
 					_mainScene.GameObjects.CreateUniqueName(args.Params["BaseName"].ToString());
 			}
 		}
-		
-		
-		if (component.Build(args.Params, _textureFactory))
+
+        //Add to Prototype Manifest if it's not already there
+		AddPrototypeToManifest(args);
+
+        if (component.Build(args.Params, _textureFactory))
 		{
 			_mainScene.EnterSpawnMode(component);
 		}
@@ -80,7 +82,24 @@ public partial class GameController : Node3D
 			GD.PrintErr("Error building component");
 		}
 	}
-	
+
+    private void AddPrototypeToManifest(CreateObjectEventArgs args)
+    {
+		var p = ProjectService.Instance.CurrentProject;
+        if (p == null) return;
+
+		if (!p.Prototypes.ContainsKey(args.PrototypeRef))
+		{
+			var newProto = new Prototype
+			{
+				Name = args.PrototypeName,
+				PrototypeRef = args.PrototypeRef,
+				Type = args.ComponentType,
+            };
+			p.Prototypes.Add(args.PrototypeRef, newProto);
+        }
+    }
+
 	private void OnMasterModeChange(object sender, MasterModeChangeArgs e)
 	{
 		switch (e.NewMode)

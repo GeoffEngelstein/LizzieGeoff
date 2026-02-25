@@ -91,7 +91,9 @@ public partial class ComponentDefinition : Control
 			{
 				ComponentType = NameToType(CurName),
 				Params = r.GetParams(),
-			};
+				PrototypeRef = Guid.NewGuid()
+            };
+
 
 			if (!e.Params.ContainsKey("BaseName"))
 			{
@@ -226,4 +228,6 @@ public class CreateObjectEventArgs: EventArgs
 	public VisualComponentBase.VisualComponentType ComponentType { get; set; }
 	
 	public string PrototypeName { get; set; }
+
+	public Guid PrototypeRef { get; set; }
 }

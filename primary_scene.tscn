@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://chacoe302ooah" path="res://Scenes/ComponentPanels/single_card_panel.tscn" id="16_j3qli"]
 [ext_resource type="PackedScene" uid="uid://dnt6ry3ax2c63" path="res://Scenes/ComponentPanels/component_definition.tscn" id="17_dek8p"]
 [ext_resource type="PackedScene" uid="uid://bifubswbhqkkp" path="res://Scenes/ComponentPanels/deck_panel.tscn" id="17_mgf4o"]
+[ext_resource type="PackedScene" uid="uid://bavnq4x2fyb6u" path="res://Scenes/Prototypes/PrototypeManifest.tscn" id="18_bbt0k"]
 [ext_resource type="PackedScene" uid="uid://diovg4u3xl1qn" path="res://Scenes/ComponentPanels/token_panel.tscn" id="18_c5hxe"]
 [ext_resource type="Texture2D" uid="uid://41ftdwu6bvkv" path="res://Textures/UI/lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="19_mftnr"]
 [ext_resource type="PackedScene" uid="uid://div11bya2rlmh" path="res://Scenes/ComponentPanels/mesh_panel.tscn" id="19_xcrb0"]
@@ -238,6 +239,10 @@ unique_name_in_owner = true
 visible = false
 
 [node name="ComponentDefinition" parent="UI" unique_id=852297741 instance=ExtResource("17_dek8p")]
+unique_name_in_owner = true
+visible = false
+
+[node name="PrototypeManifest" parent="UI" unique_id=399050387 instance=ExtResource("18_bbt0k")]
 unique_name_in_owner = true
 visible = false
 
