@@ -173,4 +173,115 @@ public partial class Utility : Node
 		}
 	}
 
+	public static string ComponentTypeToScenePath(VisualComponentBase.VisualComponentType componentType, Dictionary<string, object> parameters)
+	{
+        switch (componentType)
+        {
+            case VisualComponentBase.VisualComponentType.Cube:
+				return "res://Scenes/VisualComponents/VcCube.tscn";
+                break;
+            case VisualComponentBase.VisualComponentType.Disc:
+				return "res://Scenes/VisualComponents/VcDisc.tscn";
+            
+            case VisualComponentBase.VisualComponentType.Tile:
+                return TokenScene(parameters);
+            
+            case VisualComponentBase.VisualComponentType.Token:
+                return TokenScene(parameters);
+                
+            case VisualComponentBase.VisualComponentType.Board:
+                return TokenScene(parameters);
+                
+            case VisualComponentBase.VisualComponentType.Card:
+                return TokenScene(parameters);
+            
+            case VisualComponentBase.VisualComponentType.Deck:
+                return "res://Scenes/VisualComponents/VcDeck.tscn";
+
+            case VisualComponentBase.VisualComponentType.Die:
+				return DieScene(parameters);
+                
+            case VisualComponentBase.VisualComponentType.Mesh:
+                break;
+                
+            case VisualComponentBase.VisualComponentType.Meeple:
+                return "res://Scenes/VisualComponents/VcMeeple.tscn";
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(componentType), componentType, null);
+        }
+
+        return string.Empty;
+
+    }
+
+	private static string TokenScene(Dictionary<string, object> parameters)
+	{
+		var shape = string.Empty;
+
+		var si = GetParam<int>(parameters, "Shape");
+        
+            
+            switch (si)
+            {
+                case 1:
+                    shape = "VcTokenCircle.tscn";
+                    break;
+
+                case 2:
+                    shape = "VcTokenHexPoint.tscn";
+                    break;
+
+                case 3:
+                    shape = "VcTokenHexFlat.tscn";
+                    break;
+
+				default:
+					shape = "VcToken.tscn";
+					break;
+            }
+        
+		return $"res://Scenes/VisualComponents/{shape}";
+	}
+
+	private static string DieScene(Dictionary<string, object> parameters)
+	{
+        var sides = GetParam<QuickTextureField[]>(parameters, "Sides");
+        
+        string shape = string.Empty;
+
+        switch (sides.Length)
+        {
+            case 4:
+                shape = "vc_d_4.tscn";
+                break;
+
+            case 6:
+                shape = "VcD6s.tscn";
+                break;
+
+            case 8:
+                shape = "VcD8.tscn";
+                break;
+
+            case 10:
+                shape = "VcD10.tscn";
+                break;
+
+            case 12:
+                shape = "VcD12.tscn";
+                break;
+
+
+            case 20:
+                shape = "VcD20.tscn";
+                break;
+
+			default: return string.Empty;
+        }
+
+        return $"res://Scenes/VisualComponents/Dice/{shape}";
+        
+    }
+
 }

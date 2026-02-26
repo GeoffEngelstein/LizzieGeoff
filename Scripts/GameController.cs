@@ -92,11 +92,21 @@ public partial class GameController : Node3D
 		{
 			var newProto = new Prototype
 			{
-				Name = args.PrototypeName,
 				PrototypeRef = args.PrototypeRef,
 				Type = args.ComponentType,
+				Parameters = args.Params
             };
-			p.Prototypes.Add(args.PrototypeRef, newProto);
+
+			if (args.Params.ContainsKey("ComponentName"))
+			{
+				newProto.Name = args.Params["ComponentName"].ToString();
+			}
+			else
+			{
+				newProto.Name = $"Unnamed {args.ComponentType}";
+            }
+
+            p.Prototypes.Add(args.PrototypeRef, newProto);
         }
     }
 

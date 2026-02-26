@@ -110,7 +110,9 @@ public partial class ComponentDefinition : Control
 			{
 				e.PrototypeName = cd.PrototypeName;
 			}
-					
+            
+			
+
 			CreateObject?.Invoke(this, e);
 		}
 		else
@@ -228,6 +230,6 @@ public class CreateObjectEventArgs: EventArgs
 	public VisualComponentBase.VisualComponentType ComponentType { get; set; }
 	
 	public string PrototypeName { get; set; }
-
+	
 	public Guid PrototypeRef { get; set; }
 }

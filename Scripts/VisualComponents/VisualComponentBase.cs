@@ -59,7 +59,7 @@ public abstract partial class VisualComponentBase : Area3D
 		MouseExited += _on_mouse_exited;
 		
 		base._Ready();
-	}
+    }
 
 	
 	public void MoveToTargetY(float y)
@@ -370,7 +370,9 @@ public abstract partial class VisualComponentBase : Area3D
 	{
 	}
 
-	public virtual void SetColor(Color color)
+    public virtual string GetPreviewComponentScene() => string.Empty;
+
+    public virtual void SetColor(Color color)
 	{
 		var objMesh = GetNode<MeshInstance3D>("ObjectMesh");
 		var mat = new StandardMaterial3D();

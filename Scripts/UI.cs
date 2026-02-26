@@ -76,11 +76,14 @@ public partial class UI : CanvasLayer
         _componentTabs = GetNode<TabContainer>("%ComponentTabs");
         _templateCreator = GetNode<TemplateCreator>("%TemplateCreator");
 
-        _textureFactory = GetNode<TextureFactory>("%TextureFactory");
-        _componentDefinition.SetTextureFactory(_textureFactory);
+        
 
         _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
       _prototypeManifest = GetNode<PrototypeManifest>("%PrototypeManifest");
+
+      _textureFactory = GetNode<TextureFactory>("%TextureFactory"); 
+      _componentDefinition.SetTextureFactory(_textureFactory);
+        _prototypeManifest.TextureFactory = _textureFactory;
 
         _projectManager = GetNode<ProjectManager>("%ProjectManager");
         EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
@@ -287,6 +290,7 @@ public partial class UI : CanvasLayer
 
         if (id == 3)
         {
+            _prototypeManifest.Refresh();
             _prototypeManifest.Visible = true;
         }
     }

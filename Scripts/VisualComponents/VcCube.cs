@@ -73,9 +73,10 @@ public partial class VcCube : VisualComponentBase
 		
 		return true;
 	}
-	
 
-	public override List<string> ValidateParameters(Dictionary<string, object> parameters)
+
+
+    public override List<string> ValidateParameters(Dictionary<string, object> parameters)
 	{
 		var ret = new List<string>();
 		
