@@ -10,6 +10,7 @@ public partial class PrototypeManifest : Control
     private TreeItem _root;
 
     private Button _close;
+    private Button _editPrototype;
 
     private ComponentPreview _preview;
 
@@ -35,7 +36,18 @@ public partial class PrototypeManifest : Control
 
         _close  = GetNode<Button>("%Close");
         _close.Pressed += Hide;
+        _editPrototype = GetNode<Button>("%EditPrototype");
+        _editPrototype.Pressed += OnEditPrototypePressed;
         InitializePrototypeGrid();
+    }
+
+    private void OnEditPrototypePressed()
+    {
+        var s = "res://Scenes/ComponentPanels/component_definition.tscn";
+        var editPanel = GD.Load<PackedScene>(s).Instantiate<ComponentDefinition>();
+        editPanel.Initialize(ProjectService.Instance.CurrentProject);
+        editPanel.SetTextureFactory(TextureFactory);
+        AddChild(editPanel);
     }
 
     private void InitializePrototypeGrid()

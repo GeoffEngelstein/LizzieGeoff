@@ -27,12 +27,31 @@ public partial class ComponentDefinition : Control
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		}
+		if (_initRequired) {localInit(); }
+    }
+
+    private bool _initRequired;
 
 	private bool _isInitialized;
-	public void Initialize(Project curProject)
+
+    public void Initialize(Project curProject)
+    {
+		CurrentProject = curProject;
+		if (IsNodeReady())
+		{
+			localInit();
+		}
+		else
+		{
+			_initRequired = true;
+		}
+    }
+
+    private void localInit()
 	{
-		Visible = true;
+		_initRequired = false;
+        
+        Visible = true;
 		
 		if (_isInitialized) return;
 
@@ -43,8 +62,6 @@ public partial class ComponentDefinition : Control
 		
 		var bg = new ButtonGroup();
 
-		CurrentProject = curProject;
-		
 		bool firstButton = true;
 		
 		foreach (var c in _components)

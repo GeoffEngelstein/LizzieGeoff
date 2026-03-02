@@ -32,7 +32,7 @@ grow_vertical = 2
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 
-[node name="EditDefinition" type="Button" parent="Panel/VBoxContainer/Toolbar" unique_id=922142654]
+[node name="EditPrototype" type="Button" parent="Panel/VBoxContainer/Toolbar" unique_id=922142654]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Edit Definition"

@@ -180,15 +180,11 @@ public partial class GameObjects : Node
         Dictionary<Guid, int> counts = new();
         foreach (var c in GetChildren())
         {
-            if (c is VisualComponentBase vcb && vcb.PrototypeRef != null)
+            if (c is VisualComponentBase vcb && vcb.PrototypeRef != Guid.Empty && vcb.Visible)
             {
-                if (counts.ContainsKey(vcb.PrototypeRef))
+                if (!counts.TryAdd(vcb.PrototypeRef, 1))
                 {
                     counts[vcb.PrototypeRef]++;
-                }
-                else
-                {
-                    counts.Add(vcb.PrototypeRef, 1);
                 }
             }
         }
