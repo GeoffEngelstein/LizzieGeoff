@@ -5,23 +5,13 @@
 [ext_resource type="PackedScene" uid="uid://c10pvpfntkay3" path="res://Scenes/3d_scene_no_physics.tscn" id="3_6khan"]
 [ext_resource type="Script" uid="uid://3274wuq0qfvx" path="res://Scripts/HandManager.cs" id="3_h6pmi"]
 [ext_resource type="Texture2D" uid="uid://r8l25si7dbtm" path="res://Textures/queen_of_spades.jpg" id="4_vbm5h"]
-[ext_resource type="PackedScene" uid="uid://bavnq4x2fyb6u" path="res://Scenes/Prototypes/PrototypeManifest.tscn" id="18_bbt0k"]
 [ext_resource type="Texture2D" uid="uid://41ftdwu6bvkv" path="res://Textures/UI/lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="19_mftnr"]
 [ext_resource type="Texture2D" uid="uid://b0ghdcbyhne5f" path="res://Textures/UI/flip_camera_android_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="20_7j0c8"]
-[ext_resource type="PackedScene" uid="uid://0wsvxlpthnkp" path="res://Scenes/Templating/TemplateCreator.tscn" id="24_f3vmv"]
 [ext_resource type="Script" uid="uid://rkus14o3uk6n" path="res://Scripts/TextureFactory.cs" id="25_461bj"]
-[ext_resource type="PackedScene" uid="uid://bqbaakftpue7u" path="res://Scenes/project_manager.tscn" id="25_urt8w"]
-[ext_resource type="PackedScene" uid="uid://dbskxotmh6h06" path="res://Scenes/DataSet/DatasetEditor.tscn" id="26_kgdam"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_xnkas"]
-font_size = 32
-font_color = Color(0, 0, 0, 1)
-outline_size = 1
-
-[node name="PrimaryScene" type="Node3D" unique_id=410470090 node_paths=PackedStringArray("_textureFactory", "_templateCreator")]
+[node name="PrimaryScene" type="Node3D" unique_id=410470090 node_paths=PackedStringArray("_textureFactory")]
 script = ExtResource("1_hibmt")
-_textureFactory = NodePath("SubViewportContainer/TextureFactory")
-_templateCreator = NodePath("UI/TemplateCreator")
+_textureFactory = NodePath("UI/TextureFactory")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=309296479]
 script = ExtResource("2_a0mv7")
@@ -115,47 +105,6 @@ item_5/separator = true
 item_6/text = "Delete"
 item_6/id = 4
 
-[node name="SubViewport" type="SubViewport" parent="UI" unique_id=691097972]
-size = Vector2i(128, 128)
-
-[node name="ColorRect" type="ColorRect" parent="UI/SubViewport" unique_id=916366187]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(1, 0.32549, 1, 1)
-
-[node name="Label" type="Label" parent="UI/SubViewport" unique_id=986361349]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -22.5
-offset_top = -11.5
-offset_right = 22.5
-offset_bottom = 11.5
-grow_horizontal = 2
-grow_vertical = 2
-text = "Hello!"
-label_settings = SubResource("LabelSettings_xnkas")
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="TestRect" type="TextureRect" parent="UI" unique_id=802082010]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-
 [node name="ComponentName" type="Label" parent="UI" unique_id=843150342]
 unique_name_in_owner = true
 anchors_preset = 1
@@ -166,21 +115,11 @@ offset_bottom = 23.0
 grow_horizontal = 0
 horizontal_alignment = 2
 
-[node name="TemplateCreator" parent="UI" unique_id=402841994 instance=ExtResource("24_f3vmv")]
+[node name="TextureFactory" type="SubViewport" parent="UI" unique_id=1184539869]
 unique_name_in_owner = true
-visible = false
-
-[node name="ProjectManager" parent="UI" unique_id=2053799146 instance=ExtResource("25_urt8w")]
-unique_name_in_owner = true
-visible = false
-
-[node name="DatasetEditor" parent="UI" unique_id=1239742681 instance=ExtResource("26_kgdam")]
-unique_name_in_owner = true
-visible = false
-
-[node name="PrototypeManifest" parent="UI" unique_id=399050387 instance=ExtResource("18_bbt0k")]
-unique_name_in_owner = true
-visible = false
+handle_input_locally = false
+render_target_update_mode = 4
+script = ExtResource("25_461bj")
 
 [node name="FileDialog" type="FileDialog" parent="." unique_id=350939739]
 oversampling_override = 1.0
@@ -192,16 +131,6 @@ file_mode = 0
 access = 2
 
 [node name="3DSceneNoPhysics" parent="." unique_id=325671090 instance=ExtResource("3_6khan")]
-
-[node name="SubViewportContainer" type="SubViewportContainer" parent="." unique_id=1519249467]
-offset_left = -512.0
-offset_bottom = 512.0
-
-[node name="TextureFactory" type="SubViewport" parent="SubViewportContainer" unique_id=1184539869]
-unique_name_in_owner = true
-handle_input_locally = false
-render_target_update_mode = 4
-script = ExtResource("25_461bj")
 
 [connection signal="pressed" from="UI/Mode/Play2D" to="UI" method="_on_play_2d_pressed"]
 [connection signal="pressed" from="UI/Mode/Play3D" to="UI" method="_on_play_3d_pressed"]

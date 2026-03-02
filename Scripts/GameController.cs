@@ -12,9 +12,6 @@ public partial class GameController : Node3D
 	[Export]
 	private TextureFactory _textureFactory;
 	
-	[Export]
-	private TemplateCreator _templateCreator;
-	
 	private ProjectManager _projectManager;
 	
 	// Called when the node enters the scene tree for the first time.
@@ -34,11 +31,9 @@ public partial class GameController : Node3D
         _projectManager = GetNode<ProjectManager>("%ProjectManager");
 		//_projectManager.CurrentProject = _projectManager.CreateTestProject();
 		ProjectService.Instance.CurrentProject = ProjectService.Instance.LoadProject("TestProject");
-		_templateCreator.SetProjectManager( _projectManager);
-
-		var commandDic = new CommandDictionary(_mainScene);
 		
-		_templateCreator.TextureFactory = _textureFactory;
+		var commandDic = new CommandDictionary(_mainScene);
+        
 	}
 
 	private void MainSceneOnShowComponentPopup2(object sender, ShowComponentPopupEventArgs e)

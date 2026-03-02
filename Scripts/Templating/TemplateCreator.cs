@@ -82,6 +82,8 @@ public partial class TemplateCreator : MarginContainer
         _acceptDialog = (AcceptDialog)GetNode("ConfirmationDialog");
 
         this.VisibilityChanged += UpdateScrollBarVisibility;
+
+        UpdateProject();
     }
 
 
@@ -101,7 +103,7 @@ public partial class TemplateCreator : MarginContainer
 
 
         _closeButton = GetNode<Button>("%CloseButton");
-        _closeButton.Pressed += Hide;
+        _closeButton.Pressed += OnClose;
 
         _heightInput = GetNode<LineEdit>("%Height");
         _heightInput.TextChanged += HeightWidthChange;
@@ -123,6 +125,12 @@ public partial class TemplateCreator : MarginContainer
         _pageControl.ItemSelected += ChangePage;
     }
 
+    private void OnClose()
+    {
+        Closed?.Invoke(this, EventArgs.Empty);
+    }
+
+    public event EventHandler Closed;
 
     private Template _currentTemplate;
 
@@ -828,8 +836,6 @@ public partial class TemplateCreator : MarginContainer
 
     private void InitializeDataSets()
     {
-        if (_projectManager == null) return;
-
         _dataSetSelector.Clear();
         _dataSetSelector.AddItem("(none)", 0);
 
@@ -1037,12 +1043,9 @@ public partial class TemplateCreator : MarginContainer
     }
 
 
-    private ProjectManager _projectManager;
 
-    public void SetProjectManager(ProjectManager pm)
+    private void UpdateProject()
     {
-        _projectManager = pm;
-
         _templateNameSelector.Clear();
         foreach (var kv in ProjectService.Instance.CurrentProject.Templates)
         {

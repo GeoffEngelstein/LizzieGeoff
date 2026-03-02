@@ -73,20 +73,9 @@ public partial class UI : CanvasLayer
 
         _componentName = GetNode<Label>("%ComponentName");
 
-        //_componentTabs = GetNode<TabContainer>("%ComponentTabs");
-        _templateCreator = GetNode<TemplateCreator>("%TemplateCreator");
-
-        
-
-        _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
-      //_prototypeManifest = GetNode<PrototypeManifest>("%PrototypeManifest");
-
       _textureFactory = GetNode<TextureFactory>("%TextureFactory"); 
-        //_prototypeManifest.TextureFactory = _textureFactory;
-
-        _projectManager = GetNode<ProjectManager>("%ProjectManager");
+        
         EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
-        //UpdateComponentTabs();
 
     }
 
@@ -126,19 +115,44 @@ public partial class UI : CanvasLayer
         _prototypeManifest.QueueFree();
     }
 
+    private void ShowTemplateCreator()
+    {
+        string s = "res://Scenes/Templating/TemplateCreator.tscn";
+        _templateCreator = GD.Load<PackedScene>(s).Instantiate<TemplateCreator>();
+        _templateCreator.TextureFactory = _textureFactory;
+        _templateCreator.Closed += TemplateCreatorOnClosed;
+        
+        AddChild(_templateCreator);
+    }
+
+    private void TemplateCreatorOnClosed(object sender, EventArgs e)
+    {
+        _templateCreator.Closed -= TemplateCreatorOnClosed;
+        _templateCreator.Hide();
+        _templateCreator.QueueFree();
+    }
+
+
+    private void ShowDatasetEditor()
+    {
+        string s = "res://Scenes/DataSet/DatasetEditor.tscn";
+        _datasetEditor = GD.Load<PackedScene>(s).Instantiate<DatasetEditor>();
+        _datasetEditor.Closed += DatasetEditorOnClosed;
+        
+        AddChild(_datasetEditor);
+    }
+
+    private void DatasetEditorOnClosed(object sender, EventArgs e)
+    {
+        _datasetEditor.Closed -= DatasetEditorOnClosed;
+        _datasetEditor.Hide();
+        _datasetEditor.QueueFree();
+    }
 
     public void SetGameController(GameController gameController)
     {
         _gameController = gameController;
     }
-
-    private void OnDatasetRefresh(object sender,string name)
-    {
-        DatasetChanged?.Invoke(this, name);
-    }
-
-    public event EventHandler<string> DatasetChanged;
-
 
 
 
@@ -147,7 +161,7 @@ public partial class UI : CanvasLayer
         switch (id)
         {
             case 0:
-                _projectManager.Show();
+                ShowProjectManager();
                 break;
             
             case 1:
@@ -161,6 +175,21 @@ public partial class UI : CanvasLayer
                 break;
         }
     }
+
+    private void ShowProjectManager()
+    {
+        var s = "res://Scenes/project_manager.tscn";
+        _projectManager = GD.Load<PackedScene>(s).Instantiate<ProjectManager>();
+        _projectManager.Closed += ProjectManagerClosed;
+        AddChild(_projectManager);
+    }
+
+    private void ProjectManagerClosed(object sender, EventArgs e)
+    {
+        _projectManager.Closed -= ProjectManagerClosed;
+        _projectManager.QueueFree();
+    }
+
 
     public override void _Process(double delta)
     {
@@ -307,13 +336,12 @@ public partial class UI : CanvasLayer
     {
         if (id == 1)
         {
-            _templateCreator.Visible = true;
+            ShowTemplateCreator();
         }
 
         if (id == 2)
         {
-            _datasetEditor.SetProject(ProjectService.Instance.CurrentProject);
-            _datasetEditor.Visible = true;
+            ShowDatasetEditor();
         }
 
         if (id == 3)

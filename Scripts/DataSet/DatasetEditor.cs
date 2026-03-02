@@ -35,16 +35,14 @@ public partial class DatasetEditor : Control
 	{
 		InitializeSpreadsheet();
 
-		if (_project != null)
+		_project = ProjectService.Instance.CurrentProject;
+
+        if (_project != null)
 		{
 			MapDataSet(_project.Datasets.First().Value);
 		}
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
 
 	private void InitializeSpreadsheet()
 	{
@@ -59,7 +57,7 @@ public partial class DatasetEditor : Control
         _saveButton = GetNode<Button>("%Save");
         _saveButton.Pressed += SaveDataSet;
         _cancelButton = GetNode<Button>("%Cancel");
-        _cancelButton.Pressed += Hide;
+        _cancelButton.Pressed += CloseDialog;
 		
 
         _headerContainer = new HBoxContainer();
@@ -77,6 +75,13 @@ public partial class DatasetEditor : Control
 
 		if (_project != null) MapDataSet(_project.Datasets.First().Value);
 	}
+
+    public event EventHandler Closed;
+    private void CloseDialog()
+    {
+        Closed?.Invoke(this, EventArgs.Empty);
+        Hide();
+    }
 
     private void SaveDataSet()
     {
@@ -157,7 +162,7 @@ public partial class DatasetEditor : Control
         GD.Print("Dataset saved successfully");
 
 		EventBus.Instance.Publish<DataSetChangedEvent>(new DataSetChangedEvent{DataSetName = _currentDataSet.Name});
-        Hide();
+		CloseDialog();
     }
 
     private void MapDataSet(DataSet ds)
