@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Channels;
 
 public partial class PrototypeManifest : Control
 {
@@ -35,10 +36,23 @@ public partial class PrototypeManifest : Control
         _preview.SetComponentX(-200);
 
         _close  = GetNode<Button>("%Close");
-        _close.Pressed += Hide;
+        _close.Pressed += OnClose;
         _editPrototype = GetNode<Button>("%EditPrototype");
         _editPrototype.Pressed += OnEditPrototypePressed;
         InitializePrototypeGrid();
+
+        if (_refreshRequired)
+        {
+            Refresh(_prototypeCounts);
+        }
+    }
+
+
+    public event EventHandler Closed;
+    private void OnClose()
+    {
+        Hide();
+        Closed?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnEditPrototypePressed()
@@ -47,6 +61,7 @@ public partial class PrototypeManifest : Control
         var editPanel = GD.Load<PackedScene>(s).Instantiate<ComponentDefinition>();
         editPanel.Initialize(ProjectService.Instance.CurrentProject);
         editPanel.SetTextureFactory(TextureFactory);
+        editPanel.SetEditMode();
         AddChild(editPanel);
     }
 
@@ -89,11 +104,21 @@ public partial class PrototypeManifest : Control
     }
 
 
+    private bool _refreshRequired;
+
     public void Refresh(Dictionary<Guid, int> prototypeCounts)
     {
+        _prototypeCounts = prototypeCounts;
+
+        if (!IsNodeReady())
+        {
+            _refreshRequired = true;
+            return;
+        }
         _preview.ClearComponent();
         _preview.SetComponentVisibility(false);
         LoadPrototypes(prototypeCounts);
+        _refreshRequired = false;
     }
 
     private Dictionary<Guid, int> _prototypeCounts;
@@ -103,7 +128,6 @@ public partial class PrototypeManifest : Control
         if (ProjectService.Instance?.CurrentProject == null)
             return;
 
-        _prototypeCounts = prototypeCounts;
 
         _prototypeTree.Clear();
         _root = _prototypeTree.CreateItem();

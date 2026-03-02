@@ -48,9 +48,9 @@ public partial class UI : CanvasLayer
 
         _fileMenu = GetNode<PopupMenu>("MenuBar/File");
         _fileMenu.IdPressed += FileMenuOnIdPressed;
-        _componentDefinition = GetNode<ComponentDefinition>("ComponentDefinition");
-        _componentDefinition.CreateObject += OnCreateObject;
-        _componentDefinition.CancelDialog += OnCancelCreate;
+        //_componentDefinition = GetNode<ComponentDefinition>("ComponentDefinition");
+        //_componentDefinition.CreateObject += OnCreateObject;
+        //_componentDefinition.CancelDialog += OnCancelCreate;
 
         _editMenu = GetNode<PopupMenu>("MenuBar/Edit");
         _editMenu.AddItem("Templates", 1);
@@ -73,22 +73,57 @@ public partial class UI : CanvasLayer
 
         _componentName = GetNode<Label>("%ComponentName");
 
-        _componentTabs = GetNode<TabContainer>("%ComponentTabs");
+        //_componentTabs = GetNode<TabContainer>("%ComponentTabs");
         _templateCreator = GetNode<TemplateCreator>("%TemplateCreator");
 
         
 
         _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
-      _prototypeManifest = GetNode<PrototypeManifest>("%PrototypeManifest");
+      //_prototypeManifest = GetNode<PrototypeManifest>("%PrototypeManifest");
 
       _textureFactory = GetNode<TextureFactory>("%TextureFactory"); 
-      _componentDefinition.SetTextureFactory(_textureFactory);
-        _prototypeManifest.TextureFactory = _textureFactory;
+        //_prototypeManifest.TextureFactory = _textureFactory;
 
         _projectManager = GetNode<ProjectManager>("%ProjectManager");
         EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
-        UpdateComponentTabs();
+        //UpdateComponentTabs();
 
+    }
+
+    private void ProjectChanged(ProjectChangedEvent obj)
+    {
+        return;
+    }
+
+    private void ShowComponentDefinition()
+    {
+        var s = "res://Scenes/ComponentPanels/component_definition.tscn";
+        _componentDefinition = GD.Load<PackedScene>(s).Instantiate<ComponentDefinition>();
+        _componentDefinition.Initialize(ProjectService.Instance.CurrentProject);
+        _componentDefinition.SetTextureFactory(_textureFactory);
+
+        _componentDefinition.CreateObject += OnCreateObject;
+        _componentDefinition.CancelDialog += OnCancelCreate;
+        
+        AddChild(_componentDefinition);
+    }
+
+    private void ShowPrototypeManifest()
+    {
+        var s = "res://Scenes/Prototypes/PrototypeManifest.tscn";
+        _prototypeManifest = GD.Load<PackedScene>(s).Instantiate<PrototypeManifest>();
+        _prototypeManifest.TextureFactory = _textureFactory;
+        _prototypeManifest.Refresh(_gameController.MainScene.GameObjects.PrototypeCounts());
+        _prototypeManifest.Closed += PrototypeManifestOnClosed;
+        
+        AddChild(_prototypeManifest);
+    }
+
+    private void PrototypeManifestOnClosed(object sender, EventArgs e)
+    {
+        _prototypeManifest.Closed -= PrototypeManifestOnClosed;
+        _prototypeManifest.Hide();
+        _prototypeManifest.QueueFree();
     }
 
 
@@ -104,22 +139,9 @@ public partial class UI : CanvasLayer
 
     public event EventHandler<string> DatasetChanged;
 
-    private void ProjectChanged(ProjectChangedEvent projectChangedEvent)
-    {
-        UpdateComponentTabs();
-    }
 
-    private void UpdateComponentTabs()
-    {
-        foreach (var c in _componentTabs.GetChildren())
-        {
-            if (c is ComponentPanelDialogResult cpdr)
-            {
-                cpdr.TextureFactory = _textureFactory;
-                cpdr.CurrentProject = ProjectService.Instance.CurrentProject;
-            }
-        }
-    }
+
+
     private void FileMenuOnIdPressed(long id)
     {
         switch (id)
@@ -277,7 +299,7 @@ public partial class UI : CanvasLayer
     {
         if (id == 1)
         {
-            _componentDefinition.Initialize(ProjectService.Instance.CurrentProject);
+            ShowComponentDefinition();
         }
     }
 
@@ -296,8 +318,7 @@ public partial class UI : CanvasLayer
 
         if (id == 3)
         {
-            _prototypeManifest.Refresh(_gameController.MainScene.GameObjects.PrototypeCounts());
-            _prototypeManifest.Visible = true;
+               ShowPrototypeManifest();
         }
     }
 
@@ -311,12 +332,14 @@ public partial class UI : CanvasLayer
     private void OnCreateObject(object sender, CreateObjectEventArgs args)
     {
         _componentDefinition.Visible = false;
+        _componentDefinition.QueueFree();
         CreateObject?.Invoke(this, args);
     }
 
     private void OnCancelCreate(object sender, EventArgs e)
     {
         _componentDefinition.Visible = false;
+        _componentDefinition.QueueFree();
     }
 
 

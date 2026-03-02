@@ -5,16 +5,8 @@
 [ext_resource type="PackedScene" uid="uid://c10pvpfntkay3" path="res://Scenes/3d_scene_no_physics.tscn" id="3_6khan"]
 [ext_resource type="Script" uid="uid://3274wuq0qfvx" path="res://Scripts/HandManager.cs" id="3_h6pmi"]
 [ext_resource type="Texture2D" uid="uid://r8l25si7dbtm" path="res://Textures/queen_of_spades.jpg" id="4_vbm5h"]
-[ext_resource type="PackedScene" uid="uid://bmimebxb37rro" path="res://Scenes/ComponentPanels/cube_panel.tscn" id="13_gbiwn"]
-[ext_resource type="PackedScene" uid="uid://gticvk17jrfq" path="res://Scenes/ComponentPanels/disc_panel.tscn" id="14_u4hc7"]
-[ext_resource type="PackedScene" uid="uid://bmitdjv4ha061" path="res://Scenes/ComponentPanels/die_panel.tscn" id="15_mybtt"]
-[ext_resource type="PackedScene" uid="uid://chacoe302ooah" path="res://Scenes/ComponentPanels/single_card_panel.tscn" id="16_j3qli"]
-[ext_resource type="PackedScene" uid="uid://dnt6ry3ax2c63" path="res://Scenes/ComponentPanels/component_definition.tscn" id="17_dek8p"]
-[ext_resource type="PackedScene" uid="uid://bifubswbhqkkp" path="res://Scenes/ComponentPanels/deck_panel.tscn" id="17_mgf4o"]
 [ext_resource type="PackedScene" uid="uid://bavnq4x2fyb6u" path="res://Scenes/Prototypes/PrototypeManifest.tscn" id="18_bbt0k"]
-[ext_resource type="PackedScene" uid="uid://diovg4u3xl1qn" path="res://Scenes/ComponentPanels/token_panel.tscn" id="18_c5hxe"]
 [ext_resource type="Texture2D" uid="uid://41ftdwu6bvkv" path="res://Textures/UI/lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="19_mftnr"]
-[ext_resource type="PackedScene" uid="uid://div11bya2rlmh" path="res://Scenes/ComponentPanels/mesh_panel.tscn" id="19_xcrb0"]
 [ext_resource type="Texture2D" uid="uid://b0ghdcbyhne5f" path="res://Textures/UI/flip_camera_android_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="20_7j0c8"]
 [ext_resource type="PackedScene" uid="uid://0wsvxlpthnkp" path="res://Scenes/Templating/TemplateCreator.tscn" id="24_f3vmv"]
 [ext_resource type="Script" uid="uid://rkus14o3uk6n" path="res://Scripts/TextureFactory.cs" id="25_461bj"]
@@ -101,58 +93,6 @@ title = "Insert"
 [node name="Help" type="PopupMenu" parent="UI/MenuBar" unique_id=1339962661]
 title = "Help"
 
-[node name="ComponentTabs" type="TabContainer" parent="UI" unique_id=36789732]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(450, 450)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-current_tab = 0
-
-[node name="Cube" parent="UI/ComponentTabs" unique_id=2088067474 instance=ExtResource("13_gbiwn")]
-layout_mode = 2
-metadata/_tab_index = 0
-
-[node name="Disc" parent="UI/ComponentTabs" unique_id=59727215 instance=ExtResource("14_u4hc7")]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 1
-
-[node name="Die" parent="UI/ComponentTabs" unique_id=1033476331 node_paths=PackedStringArray("_quickSideEntries") instance=ExtResource("15_mybtt")]
-visible = false
-layout_mode = 2
-_quickSideEntries = []
-metadata/_tab_index = 2
-
-[node name="Card" parent="UI/ComponentTabs" unique_id=651939893 instance=ExtResource("16_j3qli")]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 3
-
-[node name="Deck" parent="UI/ComponentTabs" unique_id=818290636 instance=ExtResource("17_mgf4o")]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 4
-
-[node name="Token" parent="UI/ComponentTabs" unique_id=239034979 instance=ExtResource("18_c5hxe")]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 5
-
-[node name="Mesh Panel" parent="UI/ComponentTabs" unique_id=829532857 instance=ExtResource("19_xcrb0")]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 6
-
 [node name="ComponentPopup" type="PopupMenu" parent="UI" unique_id=1851200208]
 oversampling_override = 1.0
 size = Vector2i(163, 174)
@@ -235,10 +175,6 @@ unique_name_in_owner = true
 visible = false
 
 [node name="DatasetEditor" parent="UI" unique_id=1239742681 instance=ExtResource("26_kgdam")]
-unique_name_in_owner = true
-visible = false
-
-[node name="ComponentDefinition" parent="UI" unique_id=852297741 instance=ExtResource("17_dek8p")]
 unique_name_in_owner = true
 visible = false
 

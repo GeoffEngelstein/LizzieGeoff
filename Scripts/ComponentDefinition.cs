@@ -19,15 +19,26 @@ public partial class ComponentDefinition : Control
 	private Button _createButton;
 
 	private Button _cancelButton;
-	
-	private TextureFactory _textureFactory;
+    private Button _updateButton;
+
+    private TextureFactory _textureFactory;
 	
 	public Project CurrentProject { get; set; }
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
-	{
-		if (_initRequired) {localInit(); }
+    {
+        _createButton = GetNode<Button>("%CreateButton");
+        _createButton.Pressed += CreateClicked;
+
+        _cancelButton = GetNode<Button>("%CancelButton");
+        _cancelButton.Pressed += CancelClicked;
+
+        _updateButton = GetNode<Button>("%UpdateButton");
+		_updateButton.Pressed += UpdateClicked;
+
+        if (_initRequired) {localInit(); }
+		if (_editMode) SetEditMode();
     }
 
     private bool _initRequired;
@@ -89,12 +100,6 @@ public partial class ComponentDefinition : Control
 			}
 		}
 
-		_createButton = GetNode<Button>("%CreateButton");
-		_createButton.Pressed += CreateClicked;
-
-		_cancelButton = GetNode<Button>("%CancelButton");
-		_cancelButton.Pressed += CancelClicked;
-
 	}
 	
 
@@ -137,6 +142,11 @@ public partial class ComponentDefinition : Control
 			GD.PrintErr($"{_panelDictionary[CurName].Name} is NOT CPDR");
 		}
 	}
+
+    private void UpdateClicked()
+    {
+
+    }
 
 	private void CancelClicked()
 	{
@@ -239,6 +249,26 @@ public partial class ComponentDefinition : Control
 	{
 		return _components.First(x => x.ComponentType == componentType).ComponentName;
 	}
+
+	public void SetCurrentComponentType(VisualComponentBase.VisualComponentType type)
+	{
+		CurName = TypeToName(type);
+    }
+
+    private bool _editMode;
+
+    public void SetEditMode()
+    { 
+		_editMode = true;
+        if (IsNodeReady())
+        {
+			_updateButton.Visible = true;
+			_createButton.Visible = false;
+			buttonPanel.Visible = false;
+        }
+    }
+
+	
 }
 
 public class CreateObjectEventArgs: EventArgs
