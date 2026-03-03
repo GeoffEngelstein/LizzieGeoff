@@ -37,7 +37,7 @@ public partial class ComponentDefinition : Control
         _updateButton = GetNode<Button>("%UpdateButton");
 		_updateButton.Pressed += UpdateClicked;
 
-        if (_initRequired) {localInit(); }
+        if (_initRequired) {LocalInit(); }
 		if (_editMode) SetEditMode();
     }
 
@@ -50,7 +50,7 @@ public partial class ComponentDefinition : Control
 		CurrentProject = curProject;
 		if (IsNodeReady())
 		{
-			localInit();
+			LocalInit();
 		}
 		else
 		{
@@ -58,7 +58,7 @@ public partial class ComponentDefinition : Control
 		}
     }
 
-    private void localInit()
+    private void LocalInit()
 	{
 		_initRequired = false;
         
@@ -92,13 +92,15 @@ public partial class ComponentDefinition : Control
 
 			_panelDictionary.Add(c.ComponentName, ci);
 
-			if (firstButton)
+			if (firstButton && !_editMode)
 			{
 				b.ButtonPressed = true;
 				CurName = c.ComponentName;
 				firstButton = false;
 			}
-		}
+
+			if (_editMode) UpdatePanelVisibility(CurName);
+        }
 
 	}
 	
@@ -143,9 +145,22 @@ public partial class ComponentDefinition : Control
 		}
 	}
 
+	
+
     private void UpdateClicked()
     {
+		if (_mapPrototype == null) return;
+		//update the project prototype
 
+		if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue( _mapPrototype.PrototypeRef, out var prototype )) return;
+		
+		prototype.Parameters = (_panelDictionary[CurName] as ComponentPanelDialogResult)?.GetParams();
+        prototype.Name = Utility.GetParam<string>(prototype.Parameters, "ComponentName");
+		prototype.IsDirty = true;
+
+        EventBus.Instance.Publish(new PrototypeChangedEvent{PrototypeId = prototype.PrototypeRef});
+
+		CancelClicked();
     }
 
 	private void CancelClicked()
@@ -180,9 +195,11 @@ public partial class ComponentDefinition : Control
 					cpdr.Deactivate();
 				}
 			}
-			
-			
-			
+		}
+
+		if (_editMode && _mapPrototype != null) 
+        {
+			MapPrototypeToPanel(_mapPrototype);
 		}
 	}
 
@@ -253,6 +270,34 @@ public partial class ComponentDefinition : Control
 	public void SetCurrentComponentType(VisualComponentBase.VisualComponentType type)
 	{
 		CurName = TypeToName(type);
+    }
+
+    private Prototype _mapPrototype;
+
+    public void DisplayPrototype(Prototype prototype)
+    {
+        if (prototype == null) return;
+
+        _mapPrototype = prototype;
+        var t = TypeToName(prototype.Type);
+        CurName = t;
+
+        if (IsNodeReady())
+        {
+			MapPrototypeToPanel(prototype);
+        }
+    }
+
+    private void MapPrototypeToPanel(Prototype prototype)
+    {
+        foreach (var kv in _panelDictionary)
+        {
+            if (kv.Key == CurName && kv.Value is ComponentPanelDialogResult cpdr) 
+            {
+				cpdr.DisplayPrototype(prototype);
+                return;
+            }
+        }
     }
 
     private bool _editMode;

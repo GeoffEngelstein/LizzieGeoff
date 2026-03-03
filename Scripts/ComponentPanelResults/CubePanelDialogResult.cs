@@ -112,5 +112,22 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
 		
 	}
 
+	public override void DisplayPrototype(Guid prototypeId)
+	{
+		var prototype = ProjectService.Instance.CurrentProject.Prototypes[prototypeId];
+		DisplayPrototype(prototype);
+	}
+
+	public override void DisplayPrototype(Prototype prototype)
+	{
+		_nameInput.Text = prototype.Name;
+		_heightInput.Text = prototype.Parameters["Height"].ToString();
+		_widthInput.Text = prototype.Parameters["Width"].ToString();
+		_lengthInput.Text = prototype.Parameters["Length"].ToString();
+		_colorPicker.Color = (Color)prototype.Parameters["Color"];
+		
+		UpdatePreview();
+    }
+
 
 }

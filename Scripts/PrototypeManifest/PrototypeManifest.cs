@@ -55,15 +55,52 @@ public partial class PrototypeManifest : Control
         Closed?.Invoke(this, EventArgs.Empty);
     }
 
+    private ComponentDefinition _editPanel;
+
     private void OnEditPrototypePressed()
     {
+        if (SelectedPrototype == null) return;
+
         var s = "res://Scenes/ComponentPanels/component_definition.tscn";
-        var editPanel = GD.Load<PackedScene>(s).Instantiate<ComponentDefinition>();
-        editPanel.Initialize(ProjectService.Instance.CurrentProject);
-        editPanel.SetTextureFactory(TextureFactory);
-        editPanel.SetEditMode();
-        AddChild(editPanel);
+        _editPanel = GD.Load<PackedScene>(s).Instantiate<ComponentDefinition>();
+        _editPanel.SetEditMode(); 
+        _editPanel.Initialize(ProjectService.Instance.CurrentProject);
+        _editPanel.SetTextureFactory(TextureFactory);
+        _editPanel.DisplayPrototype(SelectedPrototype);
+
+        _editPanel.CancelDialog += ComponentEditDialogClose;
+        AddChild(_editPanel);
     }
+
+    private void ComponentEditDialogClose(object sender, EventArgs e)
+    {
+        _editPanel.Hide();
+        _editPanel.QueueFree();
+        RefreshSelectedPrototype();
+    }
+
+    private void RefreshSelectedPrototype()
+    {
+        if (SelectedPrototype == null) return;
+
+
+        if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(SelectedPrototype.PrototypeRef, out var p))
+            return;
+
+        SelectedPrototype = p;
+
+        var selectedItem = _prototypeTree.GetSelected();
+        if (selectedItem == null)
+            return;
+
+        var prototypeRef = Guid.Parse(selectedItem.GetMetadata(0).AsString());
+        if (prototypeRef == SelectedPrototype.PrototypeRef)
+        {
+            selectedItem.SetText(0, p.Name);
+        }
+    }
+
+
 
     private void InitializePrototypeGrid()
     {

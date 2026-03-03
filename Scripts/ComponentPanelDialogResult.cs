@@ -72,5 +72,14 @@ public abstract partial class ComponentPanelDialogResult : Control
     }
     
     public virtual Project CurrentProject { get; set; }
-    
+
+    public virtual void DisplayPrototype(Guid prototypeId)
+    {
+    }
+
+    public virtual void DisplayPrototype(Prototype prototype)
+    {
+    }
+
+
 }

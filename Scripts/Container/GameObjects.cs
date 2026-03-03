@@ -25,6 +25,7 @@ public partial class GameObjects : Node
     public override void _Ready()
     {
         EventBus.Instance.Subscribe<DataSetChangedEvent>(OnDataSetChanged);
+        EventBus.Instance.Subscribe<PrototypeChangedEvent>(OnPrototypeChanged);
     }
 
     private void OnDataSetChanged(DataSetChangedEvent obj)
@@ -33,6 +34,17 @@ public partial class GameObjects : Node
         foreach (var c in this.GetChildren())
         {
             if (c is VisualComponentBase vc)
+            {
+                vc.ProcessCommand(VisualCommand.Refresh);
+            }
+        }
+    }
+
+    private void OnPrototypeChanged(PrototypeChangedEvent e)
+    {
+        foreach (var c in this.GetChildren())
+        {
+            if (c is VisualComponentBase vc && vc.PrototypeRef == e.PrototypeId)
             {
                 vc.ProcessCommand(VisualCommand.Refresh);
             }
