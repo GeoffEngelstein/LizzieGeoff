@@ -181,30 +181,50 @@ public partial class GameObjects : Node
 		AddComponentToScene(e.Component);
 	}
 
-	private void DeleteComponents()
-	{
-		Update update = new();
-		foreach (var go in GetSelectedObjects())
-		{
-			go.Hide();
-			var change = new Change
-			{
-				Component = go,
-				Action = Change.ChangeType.Deletion
-			};
-			update.Add(change);
-		}
+    private void DeleteComponents()
+    {
+        Update update = new();
+        foreach (var go in GetSelectedObjects())
+        {
+            go.Hide();
+            var change = new Change
+            {
+                Component = go,
+                Action = Change.ChangeType.Deletion
+            };
+            update.Add(change);
+        }
 
         if (update.Count > 0)
         {
             UndoService.Instance.Add(update);
         }
+
         QueueStackingUpdate();
     }
+
+    public Dictionary<Guid, int> PrototypeCounts()
+    {
+        Dictionary<Guid, int> counts = new();
+        foreach (var c in GetChildren())
+        {
+            if (c is VisualComponentBase vcb && vcb.PrototypeRef != Guid.Empty && vcb.Visible)
+            {
+                if (!counts.TryAdd(vcb.PrototypeRef, 1))
+                {
+                    counts[vcb.PrototypeRef]++;
+                }
+            }
+        }
+        return counts;
+    }
+
+
+
     #endregion
 
-	#region Hover
-	public bool IsAnyObjectHovered()
+    #region Hover
+    public bool IsAnyObjectHovered()
 	{
 		return GetChildren().Any(n => n is VisualComponentBase { IsHovered: true });
 	}
