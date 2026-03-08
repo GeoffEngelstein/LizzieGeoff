@@ -12,10 +12,7 @@ public partial class GameController : Node3D
 	[Export]
 	private TextureFactory _textureFactory;
 	
-	[Export]
-	private TemplateCreator _templateCreator;
 	
-	private ProjectManager _projectManager;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -29,15 +26,12 @@ public partial class GameController : Node3D
 		_uiController = GetNode<UI>("UI");
 		_uiController.MasterModeChange += OnMasterModeChange;
 		_uiController.CreateObject += OnCreateObject;
-		
-		_projectManager = GetNode<ProjectManager>("%ProjectManager");
-		//_projectManager.CurrentProject = _projectManager.CreateTestProject();
-		ProjectService.Instance.CurrentProject = ProjectService.Instance.LoadProject("TestProject");
-		_templateCreator.SetProjectManager( _projectManager);
+		_uiController.SetGameController(this);
 
-		var commandDic = new CommandDictionary(_mainScene);
+		ProjectService.Instance.CurrentProject = ProjectService.Instance.LoadProject("TestProject");
 		
-		_templateCreator.TextureFactory = _textureFactory;
+		var commandDic = new CommandDictionary(_mainScene);
+        
 	}
 
 	private void MainSceneOnShowComponentPopup2(object sender, ShowComponentPopupEventArgs e)
@@ -60,8 +54,10 @@ public partial class GameController : Node3D
 			return;
 		}
 
-		//if the name is blank in the parameters, set it
-		if (args.Params.ContainsKey("ComponentName") && args.Params.ContainsKey("BaseName"))
+		component.PrototypeRef = args.PrototypeRef;
+
+        //if the name is blank in the parameters, set it
+        if (args.Params.ContainsKey("ComponentName") && args.Params.ContainsKey("BaseName"))
 		{
 			if (string.IsNullOrWhiteSpace(args.Params["ComponentName"].ToString()))
 			{
@@ -69,9 +65,11 @@ public partial class GameController : Node3D
 					_mainScene.GameObjects.CreateUniqueName(args.Params["BaseName"].ToString());
 			}
 		}
-		
-		
-		if (component.Build(args.Params, _textureFactory))
+
+        //Add to Prototype Manifest if it's not already there
+		AddPrototypeToManifest(args);
+
+        if (component.Build(args.Params, _textureFactory))
 		{
 			_mainScene.EnterSpawnMode(component);
 		}
@@ -80,7 +78,34 @@ public partial class GameController : Node3D
 			GD.PrintErr("Error building component");
 		}
 	}
-	
+
+    private void AddPrototypeToManifest(CreateObjectEventArgs args)
+    {
+		var p = ProjectService.Instance.CurrentProject;
+        if (p == null) return;
+
+		if (!p.Prototypes.ContainsKey(args.PrototypeRef))
+		{
+			var newProto = new Prototype
+			{
+				PrototypeRef = args.PrototypeRef,
+				Type = args.ComponentType,
+				Parameters = args.Params
+            };
+
+			if (args.Params.ContainsKey("ComponentName"))
+			{
+				newProto.Name = args.Params["ComponentName"].ToString();
+			}
+			else
+			{
+				newProto.Name = $"Unnamed {args.ComponentType}";
+            }
+
+            p.Prototypes.Add(args.PrototypeRef, newProto);
+        }
+    }
+
 	private void OnMasterModeChange(object sender, MasterModeChangeArgs e)
 	{
 		switch (e.NewMode)
@@ -103,7 +128,9 @@ public partial class GameController : Node3D
 	{
 	}
 
-	public VisualComponentBase SpawnComponent(string prototype)
+	public SceneController MainScene => _mainScene;
+
+    public VisualComponentBase SpawnComponent(string prototype)
 	{
 		var scene = ResourceLoader.Load<PackedScene>(prototype).Instantiate();
 

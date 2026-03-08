@@ -35,7 +35,8 @@ public partial class UI : CanvasLayer
     private TextureFactory _textureFactory;
     
     private DatasetEditor _datasetEditor;
-    
+    private PrototypeManifest _prototypeManifest;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -47,13 +48,14 @@ public partial class UI : CanvasLayer
 
         _fileMenu = GetNode<PopupMenu>("MenuBar/File");
         _fileMenu.IdPressed += FileMenuOnIdPressed;
-        _componentDefinition = GetNode<ComponentDefinition>("ComponentDefinition");
-        _componentDefinition.CreateObject += OnCreateObject;
-        _componentDefinition.CancelDialog += OnCancelCreate;
+        //_componentDefinition = GetNode<ComponentDefinition>("ComponentDefinition");
+        //_componentDefinition.CreateObject += OnCreateObject;
+        //_componentDefinition.CancelDialog += OnCancelCreate;
 
         _editMenu = GetNode<PopupMenu>("MenuBar/Edit");
         _editMenu.AddItem("Templates", 1);
         _editMenu.AddItem("Datasets", 2);
+        _editMenu.AddItem("Prototype Manifest", 3);
         _editMenu.IdPressed += OnEditMenuSelection;
 
         _insertMenu = GetNode<PopupMenu>("MenuBar/Insert");
@@ -71,50 +73,95 @@ public partial class UI : CanvasLayer
 
         _componentName = GetNode<Label>("%ComponentName");
 
-        _componentTabs = GetNode<TabContainer>("%ComponentTabs");
-        _templateCreator = GetNode<TemplateCreator>("%TemplateCreator");
+      _textureFactory = GetNode<TextureFactory>("%TextureFactory"); 
+        
+        EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
 
-        _textureFactory = GetNode<TextureFactory>("%TextureFactory");
+    }
+
+    private void ProjectChanged(ProjectChangedEvent obj)
+    {
+        return;
+    }
+
+    private void ShowComponentDefinition()
+    {
+        var s = "res://Scenes/ComponentPanels/component_definition.tscn";
+        _componentDefinition = GD.Load<PackedScene>(s).Instantiate<ComponentDefinition>();
+        _componentDefinition.Initialize(ProjectService.Instance.CurrentProject);
         _componentDefinition.SetTextureFactory(_textureFactory);
 
-        _datasetEditor = GetNode<DatasetEditor>("%DatasetEditor");
-      
+        _componentDefinition.CreateObject += OnCreateObject;
+        _componentDefinition.CancelDialog += OnCancelCreate;
         
-        _projectManager = GetNode<ProjectManager>("%ProjectManager");
-        EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
-        UpdateComponentTabs();
-
+        AddChild(_componentDefinition);
     }
 
-    private void OnDatasetRefresh(object sender,string name)
+    private void ShowPrototypeManifest()
     {
-        DatasetChanged?.Invoke(this, name);
+        var s = "res://Scenes/Prototypes/PrototypeManifest.tscn";
+        _prototypeManifest = GD.Load<PackedScene>(s).Instantiate<PrototypeManifest>();
+        _prototypeManifest.TextureFactory = _textureFactory;
+        _prototypeManifest.Refresh(_gameController.MainScene.GameObjects.PrototypeCounts());
+        _prototypeManifest.Closed += PrototypeManifestOnClosed;
+        
+        AddChild(_prototypeManifest);
     }
 
-    public event EventHandler<string> DatasetChanged;
-
-    private void ProjectChanged(ProjectChangedEvent projectChangedEvent)
+    private void PrototypeManifestOnClosed(object sender, EventArgs e)
     {
-        UpdateComponentTabs();
+        _prototypeManifest.Closed -= PrototypeManifestOnClosed;
+        _prototypeManifest.Hide();
+        _prototypeManifest.QueueFree();
     }
 
-    private void UpdateComponentTabs()
+    private void ShowTemplateCreator()
     {
-        foreach (var c in _componentTabs.GetChildren())
-        {
-            if (c is ComponentPanelDialogResult cpdr)
-            {
-                cpdr.TextureFactory = _textureFactory;
-                cpdr.CurrentProject = ProjectService.Instance.CurrentProject;
-            }
-        }
+        string s = "res://Scenes/Templating/TemplateCreator.tscn";
+        _templateCreator = GD.Load<PackedScene>(s).Instantiate<TemplateCreator>();
+        _templateCreator.TextureFactory = _textureFactory;
+        _templateCreator.Closed += TemplateCreatorOnClosed;
+        
+        AddChild(_templateCreator);
     }
+
+    private void TemplateCreatorOnClosed(object sender, EventArgs e)
+    {
+        _templateCreator.Closed -= TemplateCreatorOnClosed;
+        _templateCreator.Hide();
+        _templateCreator.QueueFree();
+    }
+
+
+    private void ShowDatasetEditor()
+    {
+        string s = "res://Scenes/DataSet/DatasetEditor.tscn";
+        _datasetEditor = GD.Load<PackedScene>(s).Instantiate<DatasetEditor>();
+        _datasetEditor.Closed += DatasetEditorOnClosed;
+        
+        AddChild(_datasetEditor);
+    }
+
+    private void DatasetEditorOnClosed(object sender, EventArgs e)
+    {
+        _datasetEditor.Closed -= DatasetEditorOnClosed;
+        _datasetEditor.Hide();
+        _datasetEditor.QueueFree();
+    }
+
+    public void SetGameController(GameController gameController)
+    {
+        _gameController = gameController;
+    }
+
+
+
     private void FileMenuOnIdPressed(long id)
     {
         switch (id)
         {
             case 0:
-                _projectManager.Show();
+                ShowProjectManager();
                 break;
             
             case 1:
@@ -128,6 +175,21 @@ public partial class UI : CanvasLayer
                 break;
         }
     }
+
+    private void ShowProjectManager()
+    {
+        var s = "res://Scenes/project_manager.tscn";
+        _projectManager = GD.Load<PackedScene>(s).Instantiate<ProjectManager>();
+        _projectManager.Closed += ProjectManagerClosed;
+        AddChild(_projectManager);
+    }
+
+    private void ProjectManagerClosed(object sender, EventArgs e)
+    {
+        _projectManager.Closed -= ProjectManagerClosed;
+        _projectManager.QueueFree();
+    }
+
 
     public override void _Process(double delta)
     {
@@ -266,7 +328,7 @@ public partial class UI : CanvasLayer
     {
         if (id == 1)
         {
-            _componentDefinition.Initialize(ProjectService.Instance.CurrentProject);
+            ShowComponentDefinition();
         }
     }
 
@@ -274,13 +336,17 @@ public partial class UI : CanvasLayer
     {
         if (id == 1)
         {
-            _templateCreator.Visible = true;
+            ShowTemplateCreator();
         }
 
         if (id == 2)
         {
-            _datasetEditor.SetProject(ProjectService.Instance.CurrentProject);
-            _datasetEditor.Visible = true;
+            ShowDatasetEditor();
+        }
+
+        if (id == 3)
+        {
+               ShowPrototypeManifest();
         }
     }
 
@@ -294,12 +360,14 @@ public partial class UI : CanvasLayer
     private void OnCreateObject(object sender, CreateObjectEventArgs args)
     {
         _componentDefinition.Visible = false;
+        _componentDefinition.QueueFree();
         CreateObject?.Invoke(this, args);
     }
 
     private void OnCancelCreate(object sender, EventArgs e)
     {
         _componentDefinition.Visible = false;
+        _componentDefinition.QueueFree();
     }
 
 

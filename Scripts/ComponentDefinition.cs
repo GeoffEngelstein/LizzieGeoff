@@ -19,20 +19,50 @@ public partial class ComponentDefinition : Control
 	private Button _createButton;
 
 	private Button _cancelButton;
-	
-	private TextureFactory _textureFactory;
+    private Button _updateButton;
+
+    private TextureFactory _textureFactory;
 	
 	public Project CurrentProject { get; set; }
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
-	{
-		}
+    {
+        _createButton = GetNode<Button>("%CreateButton");
+        _createButton.Pressed += CreateClicked;
+
+        _cancelButton = GetNode<Button>("%CancelButton");
+        _cancelButton.Pressed += CancelClicked;
+
+        _updateButton = GetNode<Button>("%UpdateButton");
+		_updateButton.Pressed += UpdateClicked;
+
+        if (_initRequired) {LocalInit(); }
+		if (_editMode) SetEditMode();
+    }
+
+    private bool _initRequired;
 
 	private bool _isInitialized;
-	public void Initialize(Project curProject)
+
+    public void Initialize(Project curProject)
+    {
+		CurrentProject = curProject;
+		if (IsNodeReady())
+		{
+			LocalInit();
+		}
+		else
+		{
+			_initRequired = true;
+		}
+    }
+
+    private void LocalInit()
 	{
-		Visible = true;
+		_initRequired = false;
+        
+        Visible = true;
 		
 		if (_isInitialized) return;
 
@@ -43,8 +73,6 @@ public partial class ComponentDefinition : Control
 		
 		var bg = new ButtonGroup();
 
-		CurrentProject = curProject;
-		
 		bool firstButton = true;
 		
 		foreach (var c in _components)
@@ -64,21 +92,24 @@ public partial class ComponentDefinition : Control
 
 			_panelDictionary.Add(c.ComponentName, ci);
 
-			if (firstButton)
+			if (firstButton && !_editMode)
 			{
 				b.ButtonPressed = true;
 				CurName = c.ComponentName;
 				firstButton = false;
 			}
-		}
 
-		_createButton = GetNode<Button>("%CreateButton");
-		_createButton.Pressed += CreateClicked;
+            if (_editMode)
+            {
+                UpdatePanelVisibility(CurName);
+            }
+        }
 
-		_cancelButton = GetNode<Button>("%CancelButton");
-		_cancelButton.Pressed += CancelClicked;
-
-	}
+        if (_editMode && _mapPrototype != null)
+        {
+            MapPrototypeToPanel(_mapPrototype);
+        }
+    }
 	
 
 	private string _curItem;
@@ -91,7 +122,9 @@ public partial class ComponentDefinition : Control
 			{
 				ComponentType = NameToType(CurName),
 				Params = r.GetParams(),
-			};
+				PrototypeRef = Guid.NewGuid()
+            };
+
 
 			if (!e.Params.ContainsKey("BaseName"))
 			{
@@ -108,7 +141,9 @@ public partial class ComponentDefinition : Control
 			{
 				e.PrototypeName = cd.PrototypeName;
 			}
-					
+            
+			
+
 			CreateObject?.Invoke(this, e);
 		}
 		else
@@ -116,6 +151,24 @@ public partial class ComponentDefinition : Control
 			GD.PrintErr($"{_panelDictionary[CurName].Name} is NOT CPDR");
 		}
 	}
+
+	
+
+    private void UpdateClicked()
+    {
+		if (_mapPrototype == null) return;
+		//update the project prototype
+
+		if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue( _mapPrototype.PrototypeRef, out var prototype )) return;
+		
+		prototype.Parameters = (_panelDictionary[CurName] as ComponentPanelDialogResult)?.GetParams();
+        prototype.Name = Utility.GetParam<string>(prototype.Parameters, "ComponentName");
+		prototype.IsDirty = true;
+
+        EventBus.Instance.Publish(new PrototypeChangedEvent{PrototypeId = prototype.PrototypeRef});
+
+		CancelClicked();
+    }
 
 	private void CancelClicked()
 	{
@@ -141,7 +194,7 @@ public partial class ComponentDefinition : Control
 				if (kv.Key == name)
 				{
 					kv.Value.Visible = true;
-					cpdr.Activate();
+					if (!_editMode) cpdr.Activate();
 				}
 				else
 				{
@@ -149,9 +202,6 @@ public partial class ComponentDefinition : Control
 					cpdr.Deactivate();
 				}
 			}
-			
-			
-			
 		}
 	}
 
@@ -218,6 +268,54 @@ public partial class ComponentDefinition : Control
 	{
 		return _components.First(x => x.ComponentType == componentType).ComponentName;
 	}
+
+	public void SetCurrentComponentType(VisualComponentBase.VisualComponentType type)
+	{
+		CurName = TypeToName(type);
+    }
+
+    private Prototype _mapPrototype;
+
+    public void DisplayPrototype(Prototype prototype)
+    {
+        if (prototype == null) return;
+
+        _mapPrototype = prototype;
+        var t = TypeToName(prototype.Type);
+        CurName = t;
+
+        if (IsNodeReady())
+        {
+			MapPrototypeToPanel(prototype);
+        }
+    }
+
+    private void MapPrototypeToPanel(Prototype prototype)
+    {
+        foreach (var kv in _panelDictionary)
+        {
+            if (kv.Key == CurName && kv.Value is ComponentPanelDialogResult cpdr) 
+            {
+				cpdr.DisplayPrototype(prototype);
+                return;
+            }
+        }
+    }
+
+    private bool _editMode;
+
+    public void SetEditMode()
+    { 
+		_editMode = true;
+        if (IsNodeReady())
+        {
+			_updateButton.Visible = true;
+			_createButton.Visible = false;
+			buttonPanel.Visible = false;
+        }
+    }
+
+	
 }
 
 public class CreateObjectEventArgs: EventArgs
@@ -226,4 +324,6 @@ public class CreateObjectEventArgs: EventArgs
 	public VisualComponentBase.VisualComponentType ComponentType { get; set; }
 	
 	public string PrototypeName { get; set; }
+	
+	public Guid PrototypeRef { get; set; }
 }

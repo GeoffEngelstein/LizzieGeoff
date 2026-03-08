@@ -22,22 +22,34 @@ public partial class GameObjects : Node
 
 	public CursorMode CursorMode { get; private set; }
 
-	public override void _Ready()
-	{
-		EventBus.Instance.Subscribe<DataSetChangedEvent>(OnDataSetChanged);
-	}
+    public override void _Ready()
+    {
+        EventBus.Instance.Subscribe<DataSetChangedEvent>(OnDataSetChanged);
+        EventBus.Instance.Subscribe<PrototypeChangedEvent>(OnPrototypeChanged);
+    }
 
-	private void OnDataSetChanged(DataSetChangedEvent obj)
-	{
-		//naive approach for now
-		foreach (var c in this.GetChildren())
-		{
-			if (c is VisualComponentBase vc)
-			{
-				vc.ProcessCommand(VisualCommand.Refresh);
-			}
-		}
-	}
+    private void OnDataSetChanged(DataSetChangedEvent obj)
+    {
+        //naive approach for now
+        foreach (var c in this.GetChildren())
+        {
+            if (c is VisualComponentBase vc)
+            {
+                vc.ProcessCommand(VisualCommand.Refresh);
+            }
+        }
+    }
+
+    private void OnPrototypeChanged(PrototypeChangedEvent e)
+    {
+        foreach (var c in this.GetChildren())
+        {
+            if (c is VisualComponentBase vc && vc.PrototypeRef == e.PrototypeId)
+            {
+                vc.ProcessCommand(VisualCommand.Refresh);
+            }
+        }
+    }
 
 	public override void _PhysicsProcess(double delta)
 	{
@@ -169,30 +181,50 @@ public partial class GameObjects : Node
 		AddComponentToScene(e.Component);
 	}
 
-	private void DeleteComponents()
-	{
-		Update update = new();
-		foreach (var go in GetSelectedObjects())
-		{
-			go.Hide();
-			var change = new Change
-			{
-				Component = go,
-				Action = Change.ChangeType.Deletion
-			};
-			update.Add(change);
-		}
+    private void DeleteComponents()
+    {
+        Update update = new();
+        foreach (var go in GetSelectedObjects())
+        {
+            go.Hide();
+            var change = new Change
+            {
+                Component = go,
+                Action = Change.ChangeType.Deletion
+            };
+            update.Add(change);
+        }
 
-		if (update.Count > 0)
-		{
-			UndoService.Instance.Add(update);
-		}
-		QueueStackingUpdate();
-	}
-	#endregion
+        if (update.Count > 0)
+        {
+            UndoService.Instance.Add(update);
+        }
 
-	#region Hover
-	public bool IsAnyObjectHovered()
+        QueueStackingUpdate();
+    }
+
+    public Dictionary<Guid, int> PrototypeCounts()
+    {
+        Dictionary<Guid, int> counts = new();
+        foreach (var c in GetChildren())
+        {
+            if (c is VisualComponentBase vcb && vcb.PrototypeRef != Guid.Empty && vcb.Visible)
+            {
+                if (!counts.TryAdd(vcb.PrototypeRef, 1))
+                {
+                    counts[vcb.PrototypeRef]++;
+                }
+            }
+        }
+        return counts;
+    }
+
+
+
+    #endregion
+
+    #region Hover
+    public bool IsAnyObjectHovered()
 	{
 		return GetChildren().Any(n => n is VisualComponentBase { IsHovered: true });
 	}
@@ -535,13 +567,15 @@ public partial class GameObjects : Node
 		get; 
 		set; }
 
-	private void SpawnComponent()
-	{
-		var newComp = (VisualComponentBase)_spawnComponent.Duplicate();
-		var spawnPosition = _dragPlane.GetCursorProjection();
-		
-		newComp.Build(_spawnComponent.Parameters, TextureFactory);
-		newComp.Position = new Vector3(spawnPosition.X, newComp.YHeight / 2f, spawnPosition.Z);
+    private void SpawnComponent()
+    {
+        var newComp = (VisualComponentBase)_spawnComponent.Duplicate();
+        newComp.PrototypeRef = _spawnComponent.PrototypeRef;
+
+        var spawnPosition = _dragPlane.GetCursorProjection();
+        
+        newComp.Build(_spawnComponent.Parameters, TextureFactory);
+        newComp.Position = new Vector3(spawnPosition.X, newComp.YHeight / 2f, spawnPosition.Z);
 
 		newComp.DimMode(false);
 		newComp.NeverHighlight = false;

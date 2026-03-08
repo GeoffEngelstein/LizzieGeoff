@@ -12,42 +12,103 @@ public partial class ComponentPreview : Panel
 	private Button _frontView;
 	private Button _backView;
 
-	private SubViewportContainer _subViewportContainer;
+    private Button _zoomIn;
+	private Button _zoomOut;
+    private Button _zoomToFit;
+    
+    private SubViewportContainer _subViewportContainer;
 	private SubViewport _subViewport;
 
     private PageControl _pageControl;
-	
+	private Camera3D _camera;
+
 	public override void _Ready()
 	{
-		_parentNode = GetNode<Node3D>("SubViewportContainer/SubViewport/Node3D");
-		_previewLabel = GetNode<Label>("PreviewLabel");
-		_pageControl = GetNode<PageControl>("PageControl");
+		_parentNode = GetNode<Node3D>("%Node3D");
+		_previewLabel = GetNode<Label>("%PreviewLabel");
+		_pageControl = GetNode<PageControl>("%PageControl");
 		_pageControl.ItemSelected += ChangePage;
 		_pageControl.Visible = false;
 		_pageControl.SetItemCount(ItemCount);
-		
+
 		_spinButton = GetNode<Button>("%SpinButton");
-		
+
 		_frontView = GetNode<Button>("%FrontView");
 		_frontView.Pressed += () => ShowView(0);
-		
+
 		_backView = GetNode<Button>("%BackView");
 		_backView.Pressed += () => ShowView(180);
 
-        _subViewportContainer = GetNode<SubViewportContainer>("%SubViewportContainer");
+		_subViewportContainer = GetNode<SubViewportContainer>("%SubViewportContainer");
+        _subViewportContainer.MouseTarget = true;
+		_subViewportContainer.MouseFilter = Control.MouseFilterEnum.Pass;
+
         _subViewport = GetNode<SubViewport>("%SubViewport");
-        _subViewport.Size = new Vector2I((int)Size.X, (int)_subViewportContainer.Size.Y);
+		//_subViewport.Size = new Vector2I((int)Size.X, (int)_subViewportContainer.Size.Y);
+
+		_zoomIn = GetNode<Button>("%ZoomIn");
+        _zoomIn.Pressed += ZoomIn;
+
+		_zoomOut = GetNode<Button>("%ZoomOut");
+		_zoomOut.Pressed += ZoomOut;
+
+		_zoomToFit = GetNode<Button>("%ZoomFit");
+		_zoomToFit.Pressed += () => AutoZoomComponent(_component);
+
+		_camera = _subViewport.GetCamera3D();
+	}
+
+	public override void _Input(InputEvent @event)
+    {
+        if (!Visible) return;
+
+		if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
+		{
+			if (mouseEvent.ButtonIndex == MouseButton.WheelUp)
+			{
+				ZoomIn();
+                GetViewport().SetInputAsHandled();
+			}
+			else if (mouseEvent.ButtonIndex == MouseButton.WheelDown)
+			{
+				ZoomOut();
+				GetViewport().SetInputAsHandled();
+			}
+		}
+	}
+
+    private void ZoomIn()
+    {
+        _camera.Size *= 0.8f;
     }
 
-	public override void _Process(double delta)
+    private void ZoomOut()
+    {
+        _camera.Size *= 1.25f;
+    }
+
+public override void _Process(double delta)
 	{
 		if (_component != null && _spinButton.ButtonPressed)
 		{
 			_component.Rotation += new Vector3(0,(float)delta, 0);
 		}
-	}
+
+		if (_buildNeeded && _component != null && _component.IsNodeReady())
+		{
+			Build(_component.Parameters, _textureFactory);
+			_buildNeeded = false;
+		}
+
+    }
+
+    private bool _zoomInNeeded;
+    private bool _zoomOutNeeded;
+
+	private TextureFactory _textureFactory;
 	
 	private VisualComponentBase _component;
+    private bool _buildNeeded;
 
 	private bool _componentActive;
 	
@@ -64,7 +125,8 @@ public partial class ComponentPreview : Panel
 		_componentActive = true;
 		_component.Rotation = rotation;
 		_parentNode.AddChild(_component);
-	}
+        AutoZoomComponent(_component);
+}
 
 	public void ClearComponent()
 	{
@@ -80,17 +142,106 @@ public partial class ComponentPreview : Panel
 		_component.Visible = visibility;
 	}
 
-	public void Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
+    public void SetComponentX(float x)
+    {
+        var c = _subViewport.GetChildren();
+
+        var a = c?[0] as Node3D;
+        if (a == null) return;	
+		
+		a.Position = new Vector3(x, a.Position.Y, a.Position.Z);
+
+    }
+
+	protected void AutoZoomComponent(VisualComponentBase component)
+	{
+		if (component == null) return;
+
+		var aabb = new Aabb();
+		bool hasAabb = false;
+
+		foreach (var child in component.GetChildren())
+		{
+			if (child is VisualInstance3D visualInstance)
+			{
+				var childAabb = visualInstance.GetAabb();
+				if (!hasAabb)
+				{
+					aabb = childAabb;
+					hasAabb = true;
+				}
+				else
+				{
+					aabb = aabb.Merge(childAabb);
+				}
+			}
+		}
+
+		if (hasAabb)
+		{
+			var size = aabb.Size;
+			var maxSize =  size.Length();
+			_camera.Size = maxSize * 1.2f;
+		}
+		else
+		{
+			_camera.Size = 5.0f;
+		}
+	}
+
+    public void Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
 		if (_component != null)
 		{
 			_component.Build(parameters, textureFactory);
 		}
 	}
-	
-	#region Multi-preview mode
 
-	private bool _multiItemMode;
+    public void Build(Prototype prototype, TextureFactory textureFactory)
+    {
+        var c = SpawnComponent(prototype);
+        _buildNeeded = true;
+
+        SetComponent(c, GetRotationVector(prototype.Type));
+        _textureFactory = textureFactory;
+    }
+
+
+
+	private VisualComponentBase SpawnComponent(Prototype prototype)
+	{
+        var s = Utility.ComponentTypeToScenePath(prototype.Type, prototype.Parameters);
+        var scene = GD.Load<PackedScene>(s);
+        var c = scene.Instantiate<VisualComponentBase>();
+		c.PrototypeRef = prototype.PrototypeRef;
+        return c;
+}
+
+
+
+
+    private Vector3 GetRotationVector(VisualComponentBase.VisualComponentType componentType)
+    {
+        Vector3 v = componentType switch
+        {
+            VisualComponentBase.VisualComponentType.Cube => new Vector3(Mathf.DegToRad(-10), 0, 0),
+            VisualComponentBase.VisualComponentType.Disc => new Vector3(Mathf.DegToRad(-10), 0, 0),
+            VisualComponentBase.VisualComponentType.Tile => new Vector3(Mathf.DegToRad(90), 0, 0),
+            VisualComponentBase.VisualComponentType.Token => new Vector3(Mathf.DegToRad(90), 0, 0),
+            VisualComponentBase.VisualComponentType.Board => new Vector3(Mathf.DegToRad(90), 0, 0),
+            VisualComponentBase.VisualComponentType.Card => new Vector3(Mathf.DegToRad(90), 0, 0),
+            VisualComponentBase.VisualComponentType.Deck => new Vector3(Mathf.DegToRad(90), 0, 0),
+            VisualComponentBase.VisualComponentType.Die => new Vector3(Mathf.DegToRad(-45), 0, 0),
+            VisualComponentBase.VisualComponentType.Mesh => new Vector3(Mathf.DegToRad(-10), 0, 0),
+            VisualComponentBase.VisualComponentType.Meeple => new Vector3(Mathf.DegToRad(-10), 0, 0),
+            _ => Vector3.Zero
+        };
+        return v;
+    }
+
+    #region Multi-preview mode
+
+    private bool _multiItemMode;
 
 	public bool MultiItemMode
 	{
@@ -149,7 +300,9 @@ public partial class ComponentPreview : Panel
 		var r = new Vector3(_component.Rotation.X, Mathf.DegToRad(angle), _component.Rotation.Z);
 		_component.Rotation = r;
 	}
-	
+
+
+
 	
 	#endregion
 	

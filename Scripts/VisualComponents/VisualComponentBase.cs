@@ -46,9 +46,22 @@ public abstract partial class VisualComponentBase : Area3D
 	private float _curScale = 1;
 
 	//original creation parameters
-	public Dictionary<string, object> Parameters { get; set; }
+    public Dictionary<string, object> Parameters
+    {
+        get
+        {
+			if (ProjectService.Instance.CurrentProject == null) return new();
+            if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(PrototypeRef, out var proto))
+			{
+				return new();
+			}
 
-	public override void _Ready()
+            return proto.Parameters;
+                
+        }
+    }
+
+    public override void _Ready()
 	{
 		Visible = false;
 		_curScale = 1;
@@ -59,7 +72,7 @@ public abstract partial class VisualComponentBase : Area3D
 		MouseExited += _on_mouse_exited;
 		
 		base._Ready();
-	}
+    }
 
 	
 	public void MoveToTargetY(float y)
@@ -75,7 +88,6 @@ public abstract partial class VisualComponentBase : Area3D
 		_textureFactory = textureFactory;
         TextureReady = false;
 		
-		Parameters = parameters;
 		if (parameters.ContainsKey(nameof(ComponentName)))
 		{
 			ComponentName = parameters[nameof(ComponentName)].ToString();
@@ -173,6 +185,8 @@ public abstract partial class VisualComponentBase : Area3D
 	}
 
 	public virtual string ComponentName { get; set; }
+
+	public virtual Guid PrototypeRef { get; set; }
 
 	public virtual Guid Reference { get; set; } = new Guid();
 	
@@ -370,7 +384,9 @@ public abstract partial class VisualComponentBase : Area3D
 	{
 	}
 
-	public virtual void SetColor(Color color)
+    public virtual string GetPreviewComponentScene() => string.Empty;
+
+    public virtual void SetColor(Color color)
 	{
 		var objMesh = GetNode<MeshInstance3D>("ObjectMesh");
 		var mat = new StandardMaterial3D();

@@ -248,5 +248,10 @@ public class ShowDatasetEditor : IEvent
 	public string DatasetName { get; set; }
 }
 
+public class PrototypeChangedEvent : IEvent
+{
+	public Guid PrototypeId { get; set; }
+}
+
 
 #endregion
