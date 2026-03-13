@@ -42,6 +42,11 @@ public partial class VcMeeple : VisualComponentBase
 
         Height = h;
 
+        _bounds.Clear();
+        var r = new RectangleShape2D();
+        r.Size = new Vector2(h, t);
+
+        _bounds.Add(new OffsetShape2D(r));
 
         float midx = g.GetLength(0)/2;
         float midz = g.GetLength(1) / 2;
@@ -55,6 +60,11 @@ public partial class VcMeeple : VisualComponentBase
                 if (g[i, j])
                 { 
                     MainMesh.AddChild(CreateCubeMesh(cubeHeight,t, c,  (i-midx) * cubeHeight, (j-midz) * cubeHeight));
+
+                    var v = new RectangleShape2D();
+                    v.Size = new Vector2(cubeHeight, cubeHeight); 
+                    _voxels.Add(new OffsetShape2D(v, new Vector2((i - midx) * cubeHeight, (j - midz) * cubeHeight)));
+
                 }
             }
         }
@@ -68,13 +78,46 @@ public partial class VcMeeple : VisualComponentBase
 
         SetColor(c);
 
-        var r = new RectangleShape2D();
-        r.Size = new Vector2(h, t);
-
-        ShapeProfiles.Add(r);
-
         return true;
     }
+
+    
+    #region Shape Profiles
+
+    private enum MeepleOrientation {FlatUp, FlatDown, StandUp, UpsideDown, RightSide, LeftSide}
+
+    private MeepleOrientation _orientation = MeepleOrientation.FlatUp;
+
+    // The profile changes based on whether the meeple is standing up or laying down
+    private List<OffsetShape2D> _voxels = new();
+    private List<OffsetShape2D> _bounds = new();
+
+
+    public override List<OffsetShape2D> ShapeProfiles
+    {
+        get
+        {
+            switch (_orientation)
+            {
+                case MeepleOrientation.FlatUp:
+                case MeepleOrientation.FlatDown:
+                    return _voxels;
+                case MeepleOrientation.StandUp:
+                case MeepleOrientation.UpsideDown:
+                case MeepleOrientation.LeftSide:
+                case MeepleOrientation.RightSide:
+                    return _bounds;
+                default:
+                    return new List<OffsetShape2D>();
+            }
+        }
+
+        set { }
+    }
+
+
+    #endregion
+
 
     public override void SetColor(Color color)
     {
@@ -145,7 +188,7 @@ public partial class VcMeeple : VisualComponentBase
         
         // Create a BoxMesh (cube)
         var boxMesh = new BoxMesh();
-        boxMesh.Size = new Vector3(s, s, t);
+        boxMesh.Size = new Vector3(s, t, s);
         
         // Assign the mesh to the instance
         meshInstance.Mesh = boxMesh;
@@ -159,7 +202,7 @@ public partial class VcMeeple : VisualComponentBase
 
         // Set the position (x, s/2, y) - s/2 for height so cube sits on the ground
         //meshInstance.Position = new Vector3(x, s / 2f, z);
-        meshInstance.Position = new Vector3(y, -x, 0);
+        meshInstance.Position = new Vector3(y, 0, x);
 
         return meshInstance;
     }

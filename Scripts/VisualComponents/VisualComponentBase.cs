@@ -28,7 +28,7 @@ public abstract partial class VisualComponentBase : Area3D
 
 	private MeshInstance3D _highlightMesh;
 
-	public List<Shape2D> ShapeProfiles { get; set; } = new();
+	public virtual List<OffsetShape2D> ShapeProfiles { get; set; } = new();
 
 	protected MeshInstance3D HighlightMesh
 	{
@@ -450,5 +450,16 @@ public class VisualComponentEventArgs : EventArgs
 		Component = component;
 	}
 	public VisualComponentBase Component { get; set; }
+}
+
+public class OffsetShape2D(Shape2D shape, Vector2 offset)
+{
+    public OffsetShape2D(Shape2D shape) : this(shape, Vector2.Zero)
+    {
+    }
+
+
+    public Shape2D Shape { get; set; } = shape;
+    public Vector2 Offset { get; set; } = offset;
 }
 

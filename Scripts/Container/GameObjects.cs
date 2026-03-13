@@ -789,13 +789,27 @@ public partial class GameObjects : Node
 	}
 	private static bool CheckOverlap(VisualComponentBase comp1, VisualComponentBase comp2)
 	{
-		Transform2D t1 = new(comp1.Rotation.Y, new Vector2(comp1.Position.X, comp1.Position.Z));
-		Transform2D t2 = new(comp2.Rotation.Y, new Vector2(comp2.Position.X, comp2.Position.Z));
+		foreach (var offsetShape1 in comp1.ShapeProfiles)
+		{
+			// Rotate the offset by the component's rotation, then add to component position
+			var rotatedOffset1 = offsetShape1.Offset.Rotated(comp1.Rotation.Y);
+			var pos1 = new Vector2(comp1.Position.X, comp1.Position.Z) + rotatedOffset1;
+			Transform2D t1 = new(comp1.Rotation.Y, pos1);
 
-		return comp1.ShapeProfiles
-			.Any(s1 => comp2.ShapeProfiles
-				.Any(s2 => s1.Collide(t1, s2, t2)));
+			foreach (var offsetShape2 in comp2.ShapeProfiles)
+			{
+				var rotatedOffset2 = offsetShape2.Offset.Rotated(comp2.Rotation.Y);
+				var pos2 = new Vector2(comp2.Position.X, comp2.Position.Z) + rotatedOffset2;
+				Transform2D t2 = new(comp2.Rotation.Y, pos2);
 
+				if (offsetShape1.Shape.Collide(t1, offsetShape2.Shape, t2))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }
 

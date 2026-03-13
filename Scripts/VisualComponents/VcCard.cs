@@ -147,7 +147,7 @@ public partial class VcCard : VisualComponentBase
 		var r = new RectangleShape2D();
 		r.Size = new Vector2(Width, Height);
 		
-		ShapeProfiles.Add(r);
+		ShapeProfiles.Add(new OffsetShape2D(r));
 		
 		return true;
 	}
