@@ -173,6 +173,21 @@ public partial class GameObjects : Node
 		component.ZOrder = GetMaxComponentZ() + 1;
 		AddChild(component);
 		component.AddComponentToObjects += ComponentOnAddComponentToObjects;
+
+		// Add networked object for multiplayer sync
+		if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
+		{
+			var networkedObject = new NetworkedObject();
+			networkedObject.Component = component;
+			component.AddChild(networkedObject);
+
+			// Server syncs object creation to all clients
+			if (MultiplayerManager.Instance.IsServer)
+			{
+				networkedObject.SyncCreation();
+			}
+		}
+
 		QueueStackingUpdate();
 	}
 
@@ -635,6 +650,27 @@ public partial class GameObjects : Node
 
 	private void StartDrag(VisualComponentBase go)
 	{
+		// Check if object is locked by another player in multiplayer
+		if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
+		{
+			var networkedObject = go.GetNodeOrNull<NetworkedObject>("NetworkedObject");
+			if (networkedObject != null)
+			{
+				if (networkedObject.IsLockedByAnotherPlayer)
+				{
+					GD.Print($"Object {go.ComponentName} is locked by another player");
+					return;
+				}
+
+				// Try to acquire lock
+				if (!networkedObject.TryLock())
+				{
+					GD.Print($"Failed to lock object {go.ComponentName}");
+					return;
+				}
+			}
+		}
+
 		CursorMode = CursorMode.Drag;
 		StartDragUndo(go);
 		_lastDragPosition = _dragPlane.GetCursorProjection();
@@ -642,7 +678,7 @@ public partial class GameObjects : Node
 		{
 			gameObject.IsDragging = true;
 		}
-		
+
 		QueueStackingUpdate();
 	}
 
@@ -713,21 +749,28 @@ public partial class GameObjects : Node
 		{
 			hover.DropObjects(GetDraggingObjects());   
 		}
-		
-		
+
+
 		//move all the dragged items to the top of the stack
-		
-		
+
+
 		foreach (var gameObject in GetDraggingObjects().OrderBy(x => x.ZOrder))
 		{
 			MoveToTop(gameObject);
 			gameObject.IsDragging = false;
+
+			// Release multiplayer lock
+			if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
+			{
+				var networkedObject = gameObject.GetNodeOrNull<NetworkedObject>("NetworkedObject");
+				networkedObject?.Unlock();
+			}
 		}
-		
+
 		Input.SetDefaultCursorShape(Input.CursorShape.Arrow);
-		
+
 		CursorMode = CursorMode.Normal;
-		
+
 		QueueStackingUpdate();
 		EndDragUndo();
 	}
