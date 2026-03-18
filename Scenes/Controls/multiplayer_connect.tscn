@@ -1,0 +1,110 @@
+[gd_scene format=3 uid="uid://cxp0w8sl4nhm4"]
+
+[ext_resource type="Script" uid="uid://dxk7v87pd3r0w" path="res://Scripts/Multiplayer/MultiplayerDialog.cs" id="1_b7pin"]
+
+[node name="MultiplayerConnect" type="Window" unique_id=680875562]
+oversampling_override = 1.0
+title = "Multiplayer"
+initial_position = 2
+size = Vector2i(400, 400)
+script = ExtResource("1_b7pin")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=314343502]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=141476194]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=827554576]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Connecteod to 127.0.0.1:7777"
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=1157098720]
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="MarginContainer/VBoxContainer" unique_id=832383081]
+layout_mode = 2
+current_tab = 0
+
+[node name="Host Game" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer" unique_id=1282489991]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Host Game" unique_id=518695656]
+layout_mode = 2
+text = "Port:"
+
+[node name="PortInput" type="LineEdit" parent="MarginContainer/VBoxContainer/TabContainer/Host Game" unique_id=2068007426]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "7777"
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Host Game" unique_id=1775371864]
+layout_mode = 2
+text = "Max Players:"
+
+[node name="MaxPlayerInput" type="SpinBox" parent="MarginContainer/VBoxContainer/TabContainer/Host Game" unique_id=898100101]
+unique_name_in_owner = true
+layout_mode = 2
+min_value = 1.0
+max_value = 8.0
+value = 4.0
+
+[node name="HostButton" type="Button" parent="MarginContainer/VBoxContainer/TabContainer/Host Game" unique_id=170793964]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create Game"
+
+[node name="Join Game" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TabContainer" unique_id=1340679652]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Join Game" unique_id=1652334743]
+layout_mode = 2
+text = "Server Address:"
+
+[node name="AddressInput" type="LineEdit" parent="MarginContainer/VBoxContainer/TabContainer/Join Game" unique_id=599404347]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "127.0.0.1 or hostname"
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/TabContainer/Join Game" unique_id=1974879215]
+layout_mode = 2
+text = "Port:"
+
+[node name="ClientPortInput" type="LineEdit" parent="MarginContainer/VBoxContainer/TabContainer/Join Game" unique_id=1653380833]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "7777"
+
+[node name="JoinButton" type="Button" parent="MarginContainer/VBoxContainer/TabContainer/Join Game" unique_id=1048854168]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Join Game"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer" unique_id=1190514724]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer" unique_id=429409266]
+layout_mode = 2
+text = "Connected Players:"
+
+[node name="PlayerList" type="ItemList" parent="MarginContainer/VBoxContainer" unique_id=1166523736]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+
+[node name="DisconnectButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=42987255]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Disconnect"

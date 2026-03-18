@@ -20,7 +20,8 @@ public partial class MultiplayerDialogManager : Node
     {
         if (_dialog == null)
         {
-            _dialog = new MultiplayerDialog();
+            var d = GD.Load<PackedScene>("res://Scenes/Controls/multiplayer_connect.tscn");
+            _dialog = d.Instantiate<MultiplayerDialog>();
             _dialog.CloseRequested += OnDialogClosed;
             AddChild(_dialog);
         }

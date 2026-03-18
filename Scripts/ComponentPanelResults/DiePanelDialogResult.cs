@@ -18,7 +18,7 @@ public partial class DiePanelDialogResult : ComponentPanelDialogResult
 
     public override void _Ready()
     {
-        ComponentType = VisualComponentBase.VisualComponentType.Cube;
+        ComponentType = VisualComponentBase.VisualComponentType.Die;
         _nameInput = GetNode<LineEdit>("%ComponentName");
         _diameterInput = GetNode<LineEdit>("%Diameter");
         _diameterInput.TextChanged += text => UpdatePreview();

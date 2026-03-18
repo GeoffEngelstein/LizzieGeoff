@@ -210,13 +210,13 @@ return new CommandResponse(false, null);
 
 	public virtual Guid PrototypeRef { get; set; }
 
-	public virtual Guid Reference { get; set; } = new Guid();
-	
-	/// <summary>
-	/// Guid of the parent that created this object. Primarily used for decks for recovering
-	/// all the cards
-	/// </summary>
-	public virtual Guid Parent { get; set; }
+	public virtual Guid Reference { get; set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Guid of the parent that created this object. Primarily used for decks for recovering
+    /// all the cards
+    /// </summary>
+    public virtual Guid Parent { get; set; }
 	
 	public virtual Polygon2D YProjection { get; private set; }
 

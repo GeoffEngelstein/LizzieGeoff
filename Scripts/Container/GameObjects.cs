@@ -28,7 +28,10 @@ public partial class GameObjects : Node
     {
         EventBus.Instance.Subscribe<DataSetChangedEvent>(OnDataSetChanged);
         EventBus.Instance.Subscribe<PrototypeChangedEvent>(OnPrototypeChanged);
+        EventBus.Instance.Subscribe<SyncTransformEvent>(SyncTransform);
     }
+
+
 
     private void OnDataSetChanged(DataSetChangedEvent obj)
     {
@@ -53,7 +56,14 @@ public partial class GameObjects : Node
         }
     }
 
-	public override void _PhysicsProcess(double delta)
+	private VisualComponentBase GetComponentByReference(Guid reference)
+	{
+		return GetChildren()
+			.OfType<VisualComponentBase>()
+			.FirstOrDefault(vc => vc.Reference == reference);
+    }
+
+    public override void _PhysicsProcess(double delta)
 	{
 		base._PhysicsProcess(delta);
 		if (_stackingUpdateRequired > 0)
@@ -960,12 +970,16 @@ public partial class GameObjects : Node
 
 		var jout = JsonSerializer.Deserialize<Dictionary<string, object>>(parametersJson);
         var prototypeRef = component.PrototypeRef.ToString();
+		var componentRef = component.Reference.ToString();
+		var parentRef = component.Parent.ToString();
 
-		Rpc(nameof(ClientSpawnObject),
+        Rpc(nameof(ClientSpawnObject),
 			component.GetPath(),
 			(int)component.ComponentType,
 			parametersJson,
 			prototypeRef,
+			componentRef,
+			parentRef,
 			component.Position,
 			component.Rotation,
 			component.ZOrder);
@@ -977,7 +991,9 @@ public partial class GameObjects : Node
 		int componentType,
 		string parametersJson,
 		string prototypeRefStr,
-		Vector3 position,
+		string componentRefStr,
+		string parentRefStr,
+        Vector3 position,
 		Vector3 rotation,
 		int zOrder)
 	{
@@ -995,8 +1011,12 @@ public partial class GameObjects : Node
 		if (scene is not VisualComponentBase vcb) return;	//should probably throw an error - something is wrong
 
 		vcb.Build(param, TextureFactory);
-		vcb.PrototypeRef = Guid.Parse(prototypeRefStr);
-		vcb.ZOrder = zOrder;
+        
+        vcb.Reference = Guid.Parse(componentRefStr);
+        vcb.PrototypeRef = Guid.Parse(prototypeRefStr);
+		vcb.Parent = Guid.Parse(parentRefStr);
+
+        vcb.ZOrder = zOrder;
 
 		vcb.Position = position;
 		vcb.Rotation = rotation;
@@ -1027,6 +1047,69 @@ public partial class GameObjects : Node
         }
     }
 
+    private void SyncTransform(SyncTransformEvent obj)
+    {
+		var component = obj.Component;
+        if (component == null) return;
+
+        var pos = component.Position;
+        var rot = component.Rotation;
+
+		GD.Print($"Syncing transform for component {component.Reference} - Pos: {pos}, Rot: {rot}, Z: {component.ZOrder}");
+
+        Rpc( nameof(ServerSyncTransform), component.Reference.ToString(), pos, rot, component.ZOrder);
+    }
+
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
+    private void ServerSyncTransform(string componentRef, Vector3 position, Vector3 rotation, int zOrder)
+    {
+		GD.Print($"Server transform sync for component {componentRef} - Pos: {position}, Rot: {rotation}, Z: {zOrder}");
+        if (!Guid.TryParse(componentRef, out var compGuid)) return;
+        var component = GetComponentByReference(compGuid);
+        if (component == null) return;
+
+        component.Position = position;
+        component.Rotation = rotation;
+        component.ZOrder = zOrder;
+
+        NetworkedObject networkedChild = null;
+        foreach (var n in component.GetChildren())
+        {
+            if (n is NetworkedObject nwc)
+            {
+                networkedChild = nwc;
+                break;
+            }
+        }
+
+        if (!MultiplayerManager.Instance?.IsServer == true) return;
+
+        var senderId = Multiplayer.GetRemoteSenderId();
+        if (networkedChild != null &&  networkedChild.LockedByPlayer != senderId) return; // Only locked player can update
+
+        // Broadcast to all clients except sender
+        foreach (var player in MultiplayerManager.Instance.Players)
+        {
+            if (player.Key != senderId)
+            {
+                RpcId(player.Key, nameof(ClientReceiveTransform), componentRef, position, rotation, zOrder);
+            }
+        }
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
+    private void ClientReceiveTransform(string componentRef, Vector3 position, Vector3 rotation, int zOrder)
+    {
+		GD.Print($"Client transform update for component {componentRef} - Pos: {position}, Rot: {rotation}, Z: {zOrder}");
+        if (!Guid.TryParse(componentRef, out var compGuid)) return;
+        var component = GetComponentByReference(compGuid);
+        if (component == null || component.IsDragging) return;
+
+        component.Position = position;
+        component.Rotation = rotation;
+        component.ZOrder = zOrder;
+    }
 
     #endregion
 }

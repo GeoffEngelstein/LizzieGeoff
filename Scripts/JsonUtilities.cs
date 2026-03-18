@@ -27,7 +27,8 @@ public static class JsonUtilities
             case VisualComponentBase.VisualComponentType.Deck:
                 break;
             case VisualComponentBase.VisualComponentType.Die:
-                break;
+                return ParseDie(d);
+                
             case VisualComponentBase.VisualComponentType.Mesh:
                 break;
             case VisualComponentBase.VisualComponentType.Meeple:
@@ -99,6 +100,25 @@ public static class JsonUtilities
 
     }
 
+
+    private static Dictionary<string, object> ParseDie(Dictionary<string, object> d)
+    {
+
+        var p = new Dictionary<string, object>();
+
+        p.Add("ComponentName", TryGetString(d, "ComponentName"));
+        p.Add("BaseName", TryGetString(d, "BaseName"));
+        p.Add("Size", TryGetFloat(d, "Size"));
+        p.Add("Color", TryGetColor(d, "Color"));
+        
+        p.Add("Sides", TryGetQTFArray(d, "Sides"));
+
+
+        return p;
+
+    }
+
+
     private static string TryGetString(Dictionary<string, object> d, string key)
     {
         if (d.TryGetValue(key, out var value) && value != null)
@@ -157,6 +177,26 @@ public static class JsonUtilities
         }
 
         return new QuickTextureField(); // Default if not found or deserialization fails
+    }
+
+    private static QuickTextureField[] TryGetQTFArray(Dictionary<string, object> d, string key)
+    {
+        if (d.TryGetValue(key, out var value) && value != null)
+        {
+            object[] array = JsonSerializer.Deserialize<object[]>(value.ToString());
+
+            var r = new QuickTextureField[array.Length];
+            int index = 0;
+            foreach (var item in array)
+            {
+                var qtf = JsonSerializer.Deserialize<QuickTextureField>(item.ToString());
+                r[index] = qtf;
+                index++;
+            }
+
+            return r;
+        }
+        return []; // Default if not found or deserialization fails
     }
 
 

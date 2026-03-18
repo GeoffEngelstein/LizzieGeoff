@@ -207,7 +207,8 @@ public partial class UI : CanvasLayer
             return;
         }
 
-        _multiplayerDialog = new MultiplayerDialog();
+        var d = GD.Load<PackedScene>("res://Scenes/Controls/multiplayer_connect.tscn");
+        _multiplayerDialog = d.Instantiate<MultiplayerDialog>();
         _multiplayerDialog.CloseRequested += MultiplayerDialogClosed;
         AddChild(_multiplayerDialog);
         _multiplayerDialog.PopupCentered();

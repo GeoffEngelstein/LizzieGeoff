@@ -47,13 +47,21 @@ public partial class NetworkedObject : Node
         if (Component == null) return;
 
         // If this object is being dragged by local player, sync periodically
-        if (Component.IsDragging && _lockedByPlayer == MultiplayerManager.Instance.LocalPlayerId)
+        if (Component.IsDragging) //&& _lockedByPlayer == MultiplayerManager.Instance.LocalPlayerId)
         {
             _syncFrameCounter++;
             if (_syncFrameCounter >= SyncInterval)
             {
+                if (Component.Position.DistanceTo(_lastSyncedPosition) > 0.01f ||
+                    Component.Rotation.DistanceTo(_lastSyncedRotation) > 0.01f)
+                {
+                    _lastSyncedPosition = Component.Position;
+                    _lastSyncedRotation = Component.Rotation;
+                    EventBus.Instance.Publish(new SyncTransformEvent { Component = Component });
+                }
+
                 _syncFrameCounter = 0;
-                SyncTransform();
+                
             }
         }
     }
@@ -170,52 +178,7 @@ public partial class NetworkedObject : Node
         }
     }
 
-    private void SyncTransform()
-    {
-        if (Component == null) return;
-
-        var pos = Component.Position;
-        var rot = Component.Rotation;
-
-        // Only sync if changed significantly
-        if (pos.DistanceTo(_lastSyncedPosition) > 0.01f || 
-            rot.DistanceTo(_lastSyncedRotation) > 0.01f)
-        {
-            _lastSyncedPosition = pos;
-            _lastSyncedRotation = rot;
-
-            RpcId(1, nameof(ServerSyncTransform), pos, rot, Component.ZOrder);
-        }
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
-    private void ServerSyncTransform(Vector3 position, Vector3 rotation, int zOrder)
-    {
-        if (!MultiplayerManager.Instance?.IsServer == true) return;
-
-        var senderId = Multiplayer.GetRemoteSenderId();
-        if (_lockedByPlayer != senderId) return; // Only locked player can update
-
-        // Broadcast to all clients except sender
-        foreach (var player in MultiplayerManager.Instance.Players)
-        {
-            if (player.Key != senderId)
-            {
-                RpcId(player.Key, nameof(ClientReceiveTransform), position, rotation, zOrder);
-            }
-        }
-    }
-
-    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
-    private void ClientReceiveTransform(Vector3 position, Vector3 rotation, int zOrder)
-    {
-        if (Component == null) return;
-        if (Component.IsDragging) return; // Don't update if we're dragging
-
-        Component.Position = position;
-        Component.Rotation = rotation;
-        Component.ZOrder = zOrder;
-    }
+  
 
    
 }

@@ -6,7 +6,6 @@ using System;
 /// </summary>
 public partial class MultiplayerDialog : Window
 {
-    private TabContainer _tabContainer;
     private LineEdit _portInput;
     private SpinBox _maxPlayersInput;
     private Button _hostButton;
@@ -18,7 +17,7 @@ public partial class MultiplayerDialog : Window
     private ItemList _playerList;
 
     private const int DefaultPort = 7777;
-    private const int DefaultMaxPlayers = 8;
+    private const int DefaultMaxPlayers = 4;
 
     public override void _Ready()
     {
@@ -38,6 +37,8 @@ public partial class MultiplayerDialog : Window
         }
         
         UpdateUI();
+
+        OnDisconnectPressed(); // Ensure we start in a disconnected state
     }
 
     public override void _ExitTree()
@@ -54,103 +55,35 @@ public partial class MultiplayerDialog : Window
 
     private void BuildUI()
     {
-        var margin = new MarginContainer();
-        margin.AddThemeConstantOverride("margin_left", 10);
-        margin.AddThemeConstantOverride("margin_top", 10);
-        margin.AddThemeConstantOverride("margin_right", 10);
-        margin.AddThemeConstantOverride("margin_bottom", 10);
-        AddChild(margin);
-
-        var vbox = new VBoxContainer();
-        margin.AddChild(vbox);
-
-        // Status label at top
-        _statusLabel = new Label();
-        _statusLabel.Text = "Not connected";
-        vbox.AddChild(_statusLabel);
-
-        var separator1 = new HSeparator();
-        vbox.AddChild(separator1);
-
-        // Tab container for Host/Join
-        _tabContainer = new TabContainer();
-        vbox.AddChild(_tabContainer);
-        _tabContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-
-        // Host tab
-        var hostTab = new VBoxContainer();
-        hostTab.Name = "Host Server";
-        _tabContainer.AddChild(hostTab);
-
-        var portLabel = new Label();
-        portLabel.Text = "Port:";
-        hostTab.AddChild(portLabel);
-
-        _portInput = new LineEdit();
-        _portInput.Text = DefaultPort.ToString();
-        _portInput.PlaceholderText = "7777";
-        hostTab.AddChild(_portInput);
-
-        var maxPlayersLabel = new Label();
-        maxPlayersLabel.Text = "Max Players:";
-        hostTab.AddChild(maxPlayersLabel);
-
-        _maxPlayersInput = new SpinBox();
-        _maxPlayersInput.MinValue = 2;
-        _maxPlayersInput.MaxValue = 32;
+        _statusLabel = GetNode<Label>("%StatusLabel");
+        _portInput = GetNode<LineEdit>("%PortInput");
+        _maxPlayersInput = GetNode<SpinBox>("%MaxPlayerInput");
+        _hostButton = GetNode<Button>("%HostButton");
+        _addressInput = GetNode<LineEdit>("%AddressInput");
+        _clientPortInput = GetNode<LineEdit>("%ClientPortInput");
+        _joinButton = GetNode<Button>("%JoinButton");
+        _playerList = GetNode<ItemList>("%PlayerList");
+        _disconnectButton = GetNode<Button>("%DisconnectButton");
+        
+        
+        //_portInput.Text = DefaultPort.ToString();
+        
         _maxPlayersInput.Value = DefaultMaxPlayers;
-        hostTab.AddChild(_maxPlayersInput);
-
-        _hostButton = new Button();
-        _hostButton.Text = "Host Server";
+        
         _hostButton.Pressed += OnHostPressed;
-        hostTab.AddChild(_hostButton);
-
-        // Join tab
-        var joinTab = new VBoxContainer();
-        joinTab.Name = "Join Server";
-        _tabContainer.AddChild(joinTab);
-
-        var addressLabel = new Label();
-        addressLabel.Text = "Server Address:";
-        joinTab.AddChild(addressLabel);
-
-        _addressInput = new LineEdit();
-        _addressInput.PlaceholderText = "127.0.0.1 or hostname";
+        
         _addressInput.Text = "127.0.0.1";
-        joinTab.AddChild(_addressInput);
-
-        var clientPortLabel = new Label();
-        clientPortLabel.Text = "Port:";
-        joinTab.AddChild(clientPortLabel);
-
-        _clientPortInput = new LineEdit();
+        
+        _portInput.Text = DefaultPort.ToString();
         _clientPortInput.Text = DefaultPort.ToString();
-        _clientPortInput.PlaceholderText = "7777";
-        joinTab.AddChild(_clientPortInput);
-
-        _joinButton = new Button();
-        _joinButton.Text = "Join Server";
+        
         _joinButton.Pressed += OnJoinPressed;
-        joinTab.AddChild(_joinButton);
-
-        var separator2 = new HSeparator();
-        vbox.AddChild(separator2);
-
-        // Player list
-        var playersLabel = new Label();
-        playersLabel.Text = "Connected Players:";
-        vbox.AddChild(playersLabel);
-
-        _playerList = new ItemList();
-        _playerList.CustomMinimumSize = new Vector2(0, 100);
-        vbox.AddChild(_playerList);
-
+        
+        
+        
         // Disconnect button at bottom
-        _disconnectButton = new Button();
-        _disconnectButton.Text = "Disconnect";
         _disconnectButton.Pressed += OnDisconnectPressed;
-        vbox.AddChild(_disconnectButton);
+       
     }
 
     private void UpdateUI()
