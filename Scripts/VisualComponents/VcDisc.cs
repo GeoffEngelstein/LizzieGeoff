@@ -54,7 +54,7 @@ public partial class VcDisc : VisualComponentBase
 
 		var c = new CircleShape2D();
 		c.Radius = Diameter /2f;
-		ShapeProfiles.Add(c);
+		ShapeProfiles.Add(new OffsetShape2D(c));
 		
 		return true;
 	}

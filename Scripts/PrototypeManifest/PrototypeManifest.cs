@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Channels;
 
-public partial class PrototypeManifest : Control
+public partial class PrototypeManifest : Window
 {
     private SplitContainer _mainContainer;
     private Tree _prototypeTree;
@@ -43,6 +43,8 @@ public partial class PrototypeManifest : Control
         {
             Refresh(_prototypeCounts);
         }
+
+        EventBus.Instance.Subscribe<PrototypeChangedEvent>(RefreshSelectedPrototype);
     }
 
 
@@ -53,22 +55,12 @@ public partial class PrototypeManifest : Control
         Closed?.Invoke(this, EventArgs.Empty);
     }
 
-    private ComponentDefinition _editPanel;
 
 
-    private void ComponentEditDialogClose(object sender, EventArgs e)
+
+    private void RefreshSelectedPrototype(PrototypeChangedEvent e)
     {
-        _editPanel.Hide();
-        _editPanel.QueueFree();
-        RefreshSelectedPrototype();
-    }
-
-    private void RefreshSelectedPrototype()
-    {
-        if (SelectedPrototype == null) return;
-
-
-        if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(SelectedPrototype.PrototypeRef, out var p))
+        if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(e.PrototypeId, out var p))
             return;
 
         SelectedPrototype = p;
@@ -92,8 +84,8 @@ public partial class PrototypeManifest : Control
         _prototypeTree.Columns = 3;
         _prototypeTree.HideRoot = true;
         _prototypeTree.SelectMode = Tree.SelectModeEnum.Row;
-        _prototypeTree.SizeFlagsVertical = SizeFlags.ExpandFill;
-        _prototypeTree.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        _prototypeTree.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        _prototypeTree.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         _prototypeTree.ButtonClicked += PrototypeEditClicked;
 
         _prototypeTree.ColumnTitlesVisible = true;
@@ -130,20 +122,8 @@ public partial class PrototypeManifest : Control
 
         var prototypeRef = Guid.Parse(item.GetMetadata(0).AsString());
 
-        if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(prototypeRef, out var p))
-        {
-            return;
-        }
+        EventBus.Instance.Publish(new EditPrototypeEvent { PrototypeId = prototypeRef });
 
-        var s = "res://Scenes/ComponentPanels/component_definition.tscn";
-        _editPanel = GD.Load<PackedScene>(s).Instantiate<ComponentDefinition>();
-        _editPanel.SetEditMode();
-        _editPanel.SetTextureFactory(TextureFactory);
-        _editPanel.DisplayPrototype(p);
-        _editPanel.Initialize(ProjectService.Instance.CurrentProject);
-
-        _editPanel.CancelDialog += ComponentEditDialogClose;
-        AddChild(_editPanel);
     }
 
 

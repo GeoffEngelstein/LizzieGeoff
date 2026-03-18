@@ -34,6 +34,13 @@ public partial class VcToken : VisualComponentFlat
 		{
 			ProcessFlip(delta);
 		}
+
+        if (_buildRequired)
+        {
+            Build(TempParams, _textureFactory);
+            _buildRequired = false;
+        }
+
 		base._Process(delta);
 	}
 
@@ -117,9 +124,21 @@ public partial class VcToken : VisualComponentFlat
 	private bool _firstBuild = true;
 
 	public enum TokenBuildMode {Quick, Custom, Grid, Template, Nandeck}
-	
+
+
+    private bool _buildRequired = false;
+
 	public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
 	{
+		_textureFactory = textureFactory;
+        TempParams = parameters;
+
+        if (!IsNodeReady())
+        {
+            _buildRequired = true;
+            return true;
+        }		
+
 		FaceSprite = GetNode<Sprite3D>("FrontSprite");
 		BackSprite = GetNode<Sprite3D>("BackSprite");
 		_sideMesh = GetNode<MeshInstance3D>("SideMesh");
@@ -177,25 +196,25 @@ public partial class VcToken : VisualComponentFlat
 			case TokenTextureSubViewport.TokenShape.Square:
 				var r = new RectangleShape2D();
 				r.Size = new Vector2(_width, _height);
-				ShapeProfiles.Add(r);
+				ShapeProfiles.Add(new OffsetShape2D(r));
 				break;
 			
 			case TokenTextureSubViewport.TokenShape.Circle:
 				var c = new CircleShape2D();
 				c.Radius = _width / 2f;
-				ShapeProfiles.Add(c);
+				ShapeProfiles.Add(new OffsetShape2D(c));
 				break;
 			
 			case TokenTextureSubViewport.TokenShape.HexPoint:
 				var hp = new ConvexPolygonShape2D();
 				hp.Points = CalcHexPointVertices();
-				ShapeProfiles.Add(hp);
+				ShapeProfiles.Add(new OffsetShape2D(hp));
 				break;
 			
 			case TokenTextureSubViewport.TokenShape.HexFlat:
 				var hf = new ConvexPolygonShape2D();
 				hf.Points = CalcHexPointVertices();
-				ShapeProfiles.Add(hf);
+				ShapeProfiles.Add(new OffsetShape2D(hf));
 				break;
 			
 			default:
@@ -512,7 +531,9 @@ public partial class VcToken : VisualComponentFlat
 	}
 
 	private void FinalizeFrontTexture(ImageTexture t)
-	{
+    {
+        if (!IsInstanceValid(FaceSprite) || FaceSprite == null) return;
+
 		_frontTextureGenerated = true;
 		float pixelSize = PixelSize(t.GetSize());
 		FaceSprite.PixelSize = pixelSize;
@@ -525,8 +546,8 @@ public partial class VcToken : VisualComponentFlat
 			BackTexture = t;
 		}
 		
-		var d = t.GetImage();
-		d.SavePng(@"c:\winwam5\token.png");
+		//var d = t.GetImage();
+		//d.SavePng(@"c:\winwam5\token.png");
 
 		TextureReady = _frontTextureGenerated && _backTextureGenerated;
 	}
@@ -541,7 +562,9 @@ public partial class VcToken : VisualComponentFlat
 
 	private void FinalizeBackTexture(ImageTexture t)
 	{
-		_backTextureGenerated = true;
+        if (!IsInstanceValid(BackSprite) || BackSprite == null) return;
+
+        _backTextureGenerated = true;
 		
 		float pixelSize = PixelSize(t.GetSize());
 		BackSprite.PixelSize = pixelSize;

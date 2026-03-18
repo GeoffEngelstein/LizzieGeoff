@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class ComponentDefinition : Control
+public partial class ComponentDefinition : Window
 {
 	// Called when the node enters the scene tree for the first time.
 	[Export] private ComponentTemplate[] _components;
@@ -167,7 +167,7 @@ public partial class ComponentDefinition : Control
 
         EventBus.Instance.Publish(new PrototypeChangedEvent{PrototypeId = prototype.PrototypeRef});
 
-		CancelClicked();
+		CloseDialog?.Invoke(this, EventArgs.Empty);
     }
 
 	private void CancelClicked()
@@ -257,7 +257,8 @@ public partial class ComponentDefinition : Control
 	}
 	
 	public event EventHandler<CreateObjectEventArgs> CreateObject;
-	public event EventHandler<EventArgs> CancelDialog; 
+	public event EventHandler<EventArgs> CancelDialog;
+    public event EventHandler<EventArgs> CloseDialog;
 
 	public VisualComponentBase.VisualComponentType NameToType(string name)
 	{
@@ -288,6 +289,7 @@ public partial class ComponentDefinition : Control
         {
 			MapPrototypeToPanel(prototype);
         }
+       
     }
 
     private void MapPrototypeToPanel(Prototype prototype)

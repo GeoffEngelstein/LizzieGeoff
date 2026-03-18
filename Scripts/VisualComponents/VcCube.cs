@@ -69,7 +69,7 @@ public partial class VcCube : VisualComponentBase
 		var r = new RectangleShape2D();
 		r.Size = new Vector2(Width, Length);
 		
-		ShapeProfiles.Add(r);
+		ShapeProfiles.Add(new OffsetShape2D(r));
 		
 		return true;
 	}

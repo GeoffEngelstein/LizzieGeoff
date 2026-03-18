@@ -122,7 +122,7 @@ public partial class VcBoard : VisualComponentBase
 		var r = new RectangleShape2D();
 		r.Size = new Vector2(Width, Height);
 		
-		ShapeProfiles.Add(r);
+		ShapeProfiles.Add(new OffsetShape2D(r));
 		
 		return true;
 	}

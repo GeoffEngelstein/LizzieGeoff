@@ -82,7 +82,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
     public override void Activate()
     {
-        _preview.SetComponent(GetPreviewComponent(), new Vector3(Mathf.DegToRad(-10), 0, 0));
+        _preview.SetComponent(GetPreviewComponent(), new Vector3(Mathf.DegToRad(80), 0, 0));
         UpdatePreview();
     }
 

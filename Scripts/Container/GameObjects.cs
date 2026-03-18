@@ -1,8 +1,10 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 
 public partial class GameObjects : Node
 {
@@ -26,7 +28,10 @@ public partial class GameObjects : Node
     {
         EventBus.Instance.Subscribe<DataSetChangedEvent>(OnDataSetChanged);
         EventBus.Instance.Subscribe<PrototypeChangedEvent>(OnPrototypeChanged);
+        EventBus.Instance.Subscribe<SyncTransformEvent>(SyncTransform);
     }
+
+
 
     private void OnDataSetChanged(DataSetChangedEvent obj)
     {
@@ -51,7 +56,14 @@ public partial class GameObjects : Node
         }
     }
 
-	public override void _PhysicsProcess(double delta)
+	private VisualComponentBase GetComponentByReference(Guid reference)
+	{
+		return GetChildren()
+			.OfType<VisualComponentBase>()
+			.FirstOrDefault(vc => vc.Reference == reference);
+    }
+
+    public override void _PhysicsProcess(double delta)
 	{
 		base._PhysicsProcess(delta);
 		if (_stackingUpdateRequired > 0)
@@ -168,11 +180,26 @@ public partial class GameObjects : Node
 	}
 	*/
 	
-	public void AddComponentToScene(VisualComponentBase component)
+	public void AddComponentToScene(VisualComponentBase component, bool syncCreation = true)
 	{
 		component.ZOrder = GetMaxComponentZ() + 1;
 		AddChild(component);
 		component.AddComponentToObjects += ComponentOnAddComponentToObjects;
+
+		// Add networked object for multiplayer sync
+		if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
+		{
+			var networkedObject = new NetworkedObject();
+			networkedObject.Component = component;
+			component.AddChild(networkedObject);
+
+			// Server syncs object creation to all clients
+			if (MultiplayerManager.Instance.IsServer && syncCreation)
+			{
+				SyncCreation(component);
+			}
+		}
+
 		QueueStackingUpdate();
 	}
 
@@ -553,7 +580,7 @@ public partial class GameObjects : Node
 		_spawnComponent = component;
 		_spawnComponent.DimMode(true);
 		_spawnComponent.NeverHighlight = true;
-		AddComponentToScene(_spawnComponent);
+		AddComponentToScene(_spawnComponent, false);
 	}
 	
 	
@@ -635,6 +662,27 @@ public partial class GameObjects : Node
 
 	private void StartDrag(VisualComponentBase go)
 	{
+		// Check if object is locked by another player in multiplayer
+		if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
+		{
+			var networkedObject = go.GetNodeOrNull<NetworkedObject>("NetworkedObject");
+			if (networkedObject != null)
+			{
+				if (networkedObject.IsLockedByAnotherPlayer)
+				{
+					GD.Print($"Object {go.ComponentName} is locked by another player");
+					return;
+				}
+
+				// Try to acquire lock
+				if (!networkedObject.TryLock())
+				{
+					GD.Print($"Failed to lock object {go.ComponentName}");
+					return;
+				}
+			}
+		}
+
 		CursorMode = CursorMode.Drag;
 		StartDragUndo(go);
 		_lastDragPosition = _dragPlane.GetCursorProjection();
@@ -642,7 +690,7 @@ public partial class GameObjects : Node
 		{
 			gameObject.IsDragging = true;
 		}
-		
+
 		QueueStackingUpdate();
 	}
 
@@ -713,21 +761,28 @@ public partial class GameObjects : Node
 		{
 			hover.DropObjects(GetDraggingObjects());   
 		}
-		
-		
+
+
 		//move all the dragged items to the top of the stack
-		
-		
+
+
 		foreach (var gameObject in GetDraggingObjects().OrderBy(x => x.ZOrder))
 		{
 			MoveToTop(gameObject);
 			gameObject.IsDragging = false;
+
+			// Release multiplayer lock
+			if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
+			{
+				var networkedObject = gameObject.GetNodeOrNull<NetworkedObject>("NetworkedObject");
+				networkedObject?.Unlock();
+			}
 		}
-		
+
 		Input.SetDefaultCursorShape(Input.CursorShape.Arrow);
-		
+
 		CursorMode = CursorMode.Normal;
-		
+
 		QueueStackingUpdate();
 		EndDragUndo();
 	}
@@ -789,14 +844,274 @@ public partial class GameObjects : Node
 	}
 	private static bool CheckOverlap(VisualComponentBase comp1, VisualComponentBase comp2)
 	{
-		Transform2D t1 = new(comp1.Rotation.Y, new Vector2(comp1.Position.X, comp1.Position.Z));
-		Transform2D t2 = new(comp2.Rotation.Y, new Vector2(comp2.Position.X, comp2.Position.Z));
+		foreach (var offsetShape1 in comp1.ShapeProfiles)
+		{
+			// Rotate the offset by the component's rotation, then add to component position
+			var rotatedOffset1 = offsetShape1.Offset.Rotated(comp1.Rotation.Y);
+			var pos1 = new Vector2(comp1.Position.X, comp1.Position.Z) + rotatedOffset1;
+			Transform2D t1 = new(comp1.Rotation.Y, pos1);
 
-		return comp1.ShapeProfiles
-			.Any(s1 => comp2.ShapeProfiles
-				.Any(s2 => s1.Collide(t1, s2, t2)));
+			foreach (var offsetShape2 in comp2.ShapeProfiles)
+			{
+				var rotatedOffset2 = offsetShape2.Offset.Rotated(comp2.Rotation.Y);
+				var pos2 = new Vector2(comp2.Position.X, comp2.Position.Z) + rotatedOffset2;
+				Transform2D t2 = new(comp2.Rotation.Y, pos2);
 
+				if (offsetShape1.Shape.Collide(t1, offsetShape2.Shape, t2))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
+
+	#region Multiplayer
+
+	/// <summary>
+	/// Serialize Parameters dictionary to JSON string
+	/// </summary>
+	private static string SerializeParameters(Dictionary<string, object> parameters)
+	{
+		if (parameters == null) return "{}";
+
+		var options = new JsonSerializerOptions
+		{
+			WriteIndented = false,
+			PropertyNameCaseInsensitive = true
+		};
+
+		return JsonSerializer.Serialize(parameters, options);
+	}
+
+	/// <summary>
+	/// Deserialize JSON string to Parameters dictionary with proper type conversion
+	/// </summary>
+	private static Dictionary<string, object> DeserializeParameters(string json)
+	{
+		if (string.IsNullOrEmpty(json)) return new Dictionary<string, object>();
+
+		var options = new JsonSerializerOptions
+		{
+			PropertyNameCaseInsensitive = true
+		};
+
+		var rawDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, options);
+		if (rawDict == null) return new Dictionary<string, object>();
+
+		var result = new Dictionary<string, object>();
+
+		foreach (var kvp in rawDict)
+		{
+			result[kvp.Key] = ConvertJsonElement(kvp.Value);
+		}
+
+		return result;
+	}
+
+	/// <summary>
+	/// Convert JsonElement to appropriate .NET type
+	/// </summary>
+	private static object ConvertJsonElement(JsonElement element)
+	{
+		return element.ValueKind switch
+		{
+			JsonValueKind.String => element.GetString(),
+			JsonValueKind.Number => element.TryGetSingle(out float floatValue) 
+				? floatValue 
+                : element.GetDouble(),
+			JsonValueKind.True => true,
+			JsonValueKind.False => false,
+			JsonValueKind.Null => null,
+			JsonValueKind.Array => ConvertJsonArray(element),
+			JsonValueKind.Object => ConvertJsonObject(element),
+			_ => element.ToString()
+		};
+	}
+
+	/// <summary>
+	/// Convert JsonElement array to List
+	/// </summary>
+	private static object ConvertJsonArray(JsonElement element)
+	{
+		var list = new List<object>();
+		foreach (var item in element.EnumerateArray())
+		{
+			list.Add(ConvertJsonElement(item));
+		}
+		return list;
+	}
+
+	/// <summary>
+	/// Convert JsonElement object to Dictionary
+	/// </summary>
+	private static object ConvertJsonObject(JsonElement element)
+	{
+		var dict = new Dictionary<string, object>();
+		foreach (var property in element.EnumerateObject())
+		{
+			dict[property.Name] = ConvertJsonElement(property.Value);
+		}
+		return dict;
+	}
+
+	/// <summary>
+	/// Sync object creation across network
+	/// </summary>
+	public void SyncCreation(VisualComponentBase component)
+	{
+		if (!MultiplayerManager.Instance?.IsMultiplayerActive == true) return;
+		if (!MultiplayerManager.Instance.IsServer) return;
+		if (component == null) return;
+
+
+		var parametersJson = SerializeParameters(component.Parameters);
+
+		var jout = JsonSerializer.Deserialize<Dictionary<string, object>>(parametersJson);
+        var prototypeRef = component.PrototypeRef.ToString();
+		var componentRef = component.Reference.ToString();
+		var parentRef = component.Parent.ToString();
+
+        Rpc(nameof(ClientSpawnObject),
+			component.GetPath(),
+			(int)component.ComponentType,
+			parametersJson,
+			prototypeRef,
+			componentRef,
+			parentRef,
+			component.Position,
+			component.Rotation,
+			component.ZOrder);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void ClientSpawnObject(
+		NodePath componentPath,
+		int componentType,
+		string parametersJson,
+		string prototypeRefStr,
+		string componentRefStr,
+		string parentRefStr,
+        Vector3 position,
+		Vector3 rotation,
+		int zOrder)
+	{
+		// Client receives notification to spawn object
+		// This would be handled by GameObjects
+		GD.Print($"Received spawn for: {componentPath}");
+
+		var param = JsonUtilities.ParseJsonToDictionary((VisualComponentBase.VisualComponentType)componentType, JsonSerializer.Deserialize<Dictionary<string, object>>(parametersJson));
+
+		//get the model ref
+		var path = Utility.ComponentTypeToScenePath((VisualComponentBase.VisualComponentType)componentType, param );
+
+		var scene = GD.Load<PackedScene>(path).Instantiate();
+
+		if (scene is not VisualComponentBase vcb) return;	//should probably throw an error - something is wrong
+
+		vcb.Build(param, TextureFactory);
+        
+        vcb.Reference = Guid.Parse(componentRefStr);
+        vcb.PrototypeRef = Guid.Parse(prototypeRefStr);
+		vcb.Parent = Guid.Parse(parentRefStr);
+
+        vcb.ZOrder = zOrder;
+
+		vcb.Position = position;
+		vcb.Rotation = rotation;
+
+		AddComponentToScene(vcb, false); // Don't sync creation on clients
+	}
+
+    /// <summary>
+    /// Sync object deletion across network
+    /// </summary>
+    public void SyncDeletion(VisualComponentBase component)
+    {
+        if (!MultiplayerManager.Instance?.IsMultiplayerActive == true) return;
+        if (!MultiplayerManager.Instance.IsServer) return;
+
+        Rpc(nameof(ClientDeleteObject), component.GetPath());
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    private void ClientDeleteObject(NodePath componentPath)
+    {
+        GD.Print($"Received delete for: {componentPath}");
+
+        var node = GetNode(componentPath);
+        if (node != null)
+        {
+            node.QueueFree();
+        }
+    }
+
+    private void SyncTransform(SyncTransformEvent obj)
+    {
+		var component = obj.Component;
+        if (component == null) return;
+
+        var pos = component.Position;
+        var rot = component.Rotation;
+
+		GD.Print($"Syncing transform for component {component.Reference} - Pos: {pos}, Rot: {rot}, Z: {component.ZOrder}");
+
+        Rpc( nameof(ServerSyncTransform), component.Reference.ToString(), pos, rot, component.ZOrder);
+    }
+
+
+    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
+    private void ServerSyncTransform(string componentRef, Vector3 position, Vector3 rotation, int zOrder)
+    {
+		GD.Print($"Server transform sync for component {componentRef} - Pos: {position}, Rot: {rotation}, Z: {zOrder}");
+        if (!Guid.TryParse(componentRef, out var compGuid)) return;
+        var component = GetComponentByReference(compGuid);
+        if (component == null) return;
+
+        component.Position = position;
+        component.Rotation = rotation;
+        component.ZOrder = zOrder;
+
+        NetworkedObject networkedChild = null;
+        foreach (var n in component.GetChildren())
+        {
+            if (n is NetworkedObject nwc)
+            {
+                networkedChild = nwc;
+                break;
+            }
+        }
+
+        if (!MultiplayerManager.Instance?.IsServer == true) return;
+
+        var senderId = Multiplayer.GetRemoteSenderId();
+        if (networkedChild != null &&  networkedChild.LockedByPlayer != senderId) return; // Only locked player can update
+
+        // Broadcast to all clients except sender
+        foreach (var player in MultiplayerManager.Instance.Players)
+        {
+            if (player.Key != senderId)
+            {
+                RpcId(player.Key, nameof(ClientReceiveTransform), componentRef, position, rotation, zOrder);
+            }
+        }
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
+    private void ClientReceiveTransform(string componentRef, Vector3 position, Vector3 rotation, int zOrder)
+    {
+		GD.Print($"Client transform update for component {componentRef} - Pos: {position}, Rot: {rotation}, Z: {zOrder}");
+        if (!Guid.TryParse(componentRef, out var compGuid)) return;
+        var component = GetComponentByReference(compGuid);
+        if (component == null || component.IsDragging) return;
+
+        component.Position = position;
+        component.Rotation = rotation;
+        component.ZOrder = zOrder;
+    }
+
+    #endregion
 }
 
 public class ShowComponentPopupEventArgs : EventArgs

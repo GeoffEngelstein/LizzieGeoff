@@ -349,25 +349,25 @@ public partial class VcDeck : VisualGroupComponent
             case TokenTextureSubViewport.TokenShape.RoundedRect:
                 var r = new RectangleShape2D();
                 r.Size = new Vector2(_width, _height);
-                ShapeProfiles.Add(r);
+                ShapeProfiles.Add(new OffsetShape2D(r));
                 break;
 
             case TokenTextureSubViewport.TokenShape.Circle:
                 var c = new CircleShape2D();
                 c.Radius = _width / 2f;
-                ShapeProfiles.Add(c);
+                ShapeProfiles.Add(new OffsetShape2D(c));
                 break;
 
             case TokenTextureSubViewport.TokenShape.HexPoint:
                 var hp = new ConvexPolygonShape2D();
                 hp.Points = CalcHexPointVertices();
-                ShapeProfiles.Add(hp);
+                ShapeProfiles.Add(new OffsetShape2D(hp));
                 break;
 
             case TokenTextureSubViewport.TokenShape.HexFlat:
                 var hf = new ConvexPolygonShape2D();
                 hf.Points = CalcHexPointVertices();
-                ShapeProfiles.Add(hf);
+                ShapeProfiles.Add(new OffsetShape2D(hf));
                 break;
 
             default:

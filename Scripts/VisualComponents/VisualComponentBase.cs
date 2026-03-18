@@ -28,7 +28,7 @@ public abstract partial class VisualComponentBase : Area3D
 
 	private MeshInstance3D _highlightMesh;
 
-	public List<Shape2D> ShapeProfiles { get; set; } = new();
+	public virtual List<OffsetShape2D> ShapeProfiles { get; set; } = new();
 
 	protected MeshInstance3D HighlightMesh
 	{
@@ -60,6 +60,9 @@ public abstract partial class VisualComponentBase : Area3D
                 
         }
     }
+	
+	//temporary store for parameters when we are starting up
+    protected Dictionary<string, object> TempParams;
 
     public override void _Ready()
 	{
@@ -148,9 +151,26 @@ public abstract partial class VisualComponentBase : Area3D
             Refresh(Parameters, _textureFactory);
 			return new CommandResponse(true, null);
         }
-		
-		
-		return new CommandResponse(false, null);
+
+		if (command == VisualCommand.Duplicate)
+		{
+			var newComponent = (VisualComponentBase) this.Duplicate();
+			OnComponentAdded(newComponent);
+			return new CommandResponse(true, null);
+		}
+
+		if (command == VisualCommand.Edit)
+        {
+			EventBus.Instance.Publish(new EditPrototypeEvent { PrototypeId = PrototypeRef });
+        }
+
+        if (command == VisualCommand.MakeUnique)
+        {
+            EventBus.Instance.Publish(new MakePrototypeUniqueEvent { PrototypeId = PrototypeRef });
+        }
+
+
+return new CommandResponse(false, null);
 	}
 
 
@@ -181,6 +201,8 @@ public abstract partial class VisualComponentBase : Area3D
 		l.Add(new MenuCommand(VisualCommand.Delete));
 		l.Add(new MenuCommand(VisualCommand.Refresh));
 		l.Add(new MenuCommand(VisualCommand.Duplicate));
+        l.Add(new MenuCommand(VisualCommand.Edit, singleOnly:true));
+		l.Add(new MenuCommand(VisualCommand.MakeUnique, singleOnly:true));
 		return l;
 	}
 
@@ -188,13 +210,13 @@ public abstract partial class VisualComponentBase : Area3D
 
 	public virtual Guid PrototypeRef { get; set; }
 
-	public virtual Guid Reference { get; set; } = new Guid();
-	
-	/// <summary>
-	/// Guid of the parent that created this object. Primarily used for decks for recovering
-	/// all the cards
-	/// </summary>
-	public virtual Guid Parent { get; set; }
+	public virtual Guid Reference { get; set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Guid of the parent that created this object. Primarily used for decks for recovering
+    /// all the cards
+    /// </summary>
+    public virtual Guid Parent { get; set; }
 	
 	public virtual Polygon2D YProjection { get; private set; }
 
@@ -447,5 +469,16 @@ public class VisualComponentEventArgs : EventArgs
 		Component = component;
 	}
 	public VisualComponentBase Component { get; set; }
+}
+
+public class OffsetShape2D(Shape2D shape, Vector2 offset)
+{
+    public OffsetShape2D(Shape2D shape) : this(shape, Vector2.Zero)
+    {
+    }
+
+
+    public Shape2D Shape { get; set; } = shape;
+    public Vector2 Offset { get; set; } = offset;
 }
 

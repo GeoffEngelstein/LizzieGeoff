@@ -4,4 +4,9 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>TTSS</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="Scripts\AssetManagement\README.md" />
+    <None Include="Scripts\Container\ParametersSerializationGuide.md" />
+    <None Include="Scripts\Multiplayer\README.md" />
+  </ItemGroup>
 </Project>
