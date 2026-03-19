@@ -30,7 +30,7 @@ public partial class VcMeeple : VisualComponentBase
         var h = Utility.GetParam<float>(parameters, "Height") / 10;
         var t = Utility.GetParam<float>(parameters, "Thickness") / 10;
         var c = Utility.GetParam<Color>(parameters, "Color");
-        var g = Utility.GetParam<bool[,]>(parameters, "Grid");
+        var g = Utility.GetParam<bool[][]>(parameters, "Grid");
 
         Height = h;
 
@@ -40,16 +40,19 @@ public partial class VcMeeple : VisualComponentBase
 
         _bounds.Add(new OffsetShape2D(r));
 
-        float midx = g.GetLength(0) / 2;
-        float midz = g.GetLength(1) / 2;
+        int rows = g.Length;
+        int cols = g.Length > 0 ? g[0].Length : 0;
 
-        var cubeHeight = h / g.GetLength(0);
+        float midx = rows / 2f;
+        float midz = cols / 2f;
 
-        for (int i = 0; i < g.GetLength(0); i++)
+        var cubeHeight = h / rows;
+
+        for (int i = 0; i < rows; i++)
         {
-            for (int j = 0; j < g.GetLength(1); j++)
+            for (int j = 0; j < cols; j++)
             {
-                if (g[i, j])
+                if (g[i][j])
                 {
                     MainMesh.AddChild(
                         CreateCubeMesh(

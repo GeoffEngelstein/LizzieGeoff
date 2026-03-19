@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Godot;
 
@@ -35,7 +36,8 @@ public static class JsonUtilities
             case VisualComponentBase.VisualComponentType.Mesh:
                 break;
             case VisualComponentBase.VisualComponentType.Meeple:
-                break;
+                return ParseMeeple(d);
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(vcType), vcType, null);
         }
@@ -114,6 +116,18 @@ public static class JsonUtilities
         return p;
     }
 
+    public static Dictionary<string, object> ParseMeeple(Dictionary<string, object> d)
+    {
+        var p = new Dictionary<string, object>();
+        p.Add("ComponentName", TryGetString(d, "ComponentName"));
+        p.Add("BaseName", TryGetString(d, "BaseName"));
+        p.Add("Height", TryGetFloat(d, "Height"));
+        p.Add("Thickness", TryGetFloat(d, "Thickness"));
+        p.Add("Color", TryGetColor(d, "Color"));
+        p.Add("Grid", TryGetBoolJaggedArray(d, "Grid"));
+        return p;
+    }
+    
     private static string TryGetString(Dictionary<string, object> d, string key)
     {
         if (d.TryGetValue(key, out var value) && value != null)
@@ -200,4 +214,54 @@ public static class JsonUtilities
         }
         return []; // Default if not found or deserialization fails
     }
+
+    private static bool[][] TryGetBoolJaggedArray(Dictionary<string, object> d, string key)
+    {
+        if (d.TryGetValue(key, out var value) && value != null)
+        {
+            // If it's already a jagged array, return it
+            if (value is bool[][] jaggedArray)
+            {
+                return jaggedArray;
+            }
+
+            // Try to deserialize from JSON
+            try
+            {
+                // First deserialize as JsonElement to check structure
+                var json = value.ToString();
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                if (root.ValueKind == JsonValueKind.Array)
+                {
+                    var outerArray = root.EnumerateArray().ToArray();
+                    var result = new bool[outerArray.Length][];
+
+                    for (int i = 0; i < outerArray.Length; i++)
+                    {
+                        if (outerArray[i].ValueKind == JsonValueKind.Array)
+                        {
+                            var innerArray = outerArray[i].EnumerateArray().ToArray();
+                            result[i] = new bool[innerArray.Length];
+
+                            for (int j = 0; j < innerArray.Length; j++)
+                            {
+                                result[i][j] = innerArray[j].GetBoolean();
+                            }
+                        }
+                    }
+
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"Error deserializing jagged bool array: {ex.Message}");
+            }
+        }
+
+        return new bool[0][]; // Default empty jagged array if not found or deserialization fails
+    }
+
 }
