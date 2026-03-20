@@ -87,6 +87,7 @@ public partial class UI : CanvasLayer
         EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
         EventBus.Instance.Subscribe<EditPrototypeEvent>(ShowComponentEditDialog);
         EventBus.Instance.Subscribe<ShowTemplateEditor>(ShowTemplateEditorFromEvent);
+        EventBus.Instance.Subscribe<ShowDatasetEditor>(ShowDatasetEditorFromEvent);
     }
 
 
@@ -148,7 +149,13 @@ public partial class UI : CanvasLayer
         _templateCreator.QueueFree();
     }
 
+
     private void ShowDatasetEditor()
+    {
+        ShowDatasetEditorFromEvent(new ShowDatasetEditor { DatasetName = null });
+    }
+
+    private void ShowDatasetEditorFromEvent(ShowDatasetEditor e)
     {
         string s = "res://Scenes/DataSet/DatasetEditor.tscn";
         _datasetEditor = GD.Load<PackedScene>(s).Instantiate<DatasetEditor>();

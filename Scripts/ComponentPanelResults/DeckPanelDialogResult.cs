@@ -78,6 +78,24 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         QuickSuitCountChanged(_quickSuitCount.Selected);
         GenerateQuickCards();
         ChangePreviewCard(0);
+
+        //register for events
+        EventBus.Instance.Subscribe<TemplateChangedEvent>(TemplateChanged);
+        EventBus.Instance.Subscribe<DataSetChangedEvent>(DataSetChanged);
+
+    }
+
+    private void TemplateChanged(TemplateChangedEvent obj)
+    {
+        UpdatePreview();
+    }
+
+    private void DataSetChanged(DataSetChangedEvent obj)
+    {
+        if (obj.DataSet == _textureContext.DataSet)
+        {
+            UpdatePreview();
+        }
     }
 
     public override void Activate()
@@ -137,6 +155,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         _datasetPicker.ItemSelected += OnDatasetChanged;
 
         _datasetEditorButton = GetNode<Button>("%EditDatasetButton");
+        _datasetEditorButton.Pressed += EditDataset;
 
         UpdateTemplateTab();
     }
@@ -149,6 +168,11 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
     private void EditBackTemplate()
     {
         EventBus.Instance.Publish(new ShowTemplateEditor { TemplateName = _backTemplate?.Name });
+    }
+
+    private void EditDataset()
+    {
+        EventBus.Instance.Publish(new ShowDatasetEditor { DatasetName = _textureContext.DataSet?.Name });
     }
 
     private void StandardSizeChanged(long index)

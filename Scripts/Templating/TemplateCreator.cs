@@ -262,7 +262,9 @@ public partial class TemplateCreator : Window
                 Template = _currentTemplate,
             }
         );
+
         EventBus.Instance.Publish<ProjectChangedEvent>();
+        EventBus.Instance.Publish<TemplateChangedEvent>();
     }
 
     private ScrollBar _previewHScroll;
