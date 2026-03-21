@@ -92,10 +92,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
     private void DataSetChanged(DataSetChangedEvent obj)
     {
-        if (obj.DataSet == _textureContext.DataSet)
-        {
             UpdatePreview();
-        }
     }
 
     public override void Activate()

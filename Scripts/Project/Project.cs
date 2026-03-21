@@ -27,4 +27,41 @@ public class Project
             kv.Value.Name = kv.Key;
         }
     }
+
+    public Template GetTemplate(string name)
+    {
+        var t = new Template();
+        if (string.IsNullOrEmpty(name))
+        {
+            return t;
+        }
+
+        if (Templates.TryGetValue(name, out var template))
+        {
+            return template;
+        }
+        else
+        {
+            GD.PrintErr($"Template '{name}' not found in project.");
+            return t;
+        }
+    }
+
+    public DataSet GetDataset(string name)
+    {
+        var d = new DataSet();
+        if (string.IsNullOrEmpty(name))
+        {
+            return d;
+        }
+        if (Datasets.TryGetValue(name, out var dataset))
+        {
+            return dataset;
+        }
+        else
+        {
+            GD.PrintErr($"Dataset '{name}' not found in project.");
+            return d;
+        }
+    }
 }
