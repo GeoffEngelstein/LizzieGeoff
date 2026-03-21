@@ -3,20 +3,19 @@
 [ext_resource type="Script" uid="uid://jnas4vg7if7d" path="res://Scripts/DataSet/DatasetEditor.cs" id="1_aexr7"]
 [ext_resource type="StyleBox" uid="uid://c67lytp8wdsgx" path="res://Themes/PanelBackgroundStylebox.tres" id="2_o5pyl"]
 
-[node name="DatasetEditor" type="MarginContainer" unique_id=1239742681]
+[node name="DatasetEditor" type="Window" unique_id=1927636890]
+oversampling_override = 1.0
+title = "Dataset Editor"
+position = Vector2i(0, 36)
+size = Vector2i(800, 500)
+script = ExtResource("1_aexr7")
+
+[node name="Panel" type="Panel" parent="." unique_id=175242177]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
-script = ExtResource("1_aexr7")
-
-[node name="Panel" type="Panel" parent="." unique_id=175242177]
-layout_mode = 2
 theme_override_styles/panel = ExtResource("2_o5pyl")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1832742373]

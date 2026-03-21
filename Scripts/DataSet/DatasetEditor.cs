@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-public partial class DatasetEditor : Control
+public partial class DatasetEditor : Window
 {
     private Project _project;
     private DataSet _currentDataSet;
@@ -45,7 +45,7 @@ public partial class DatasetEditor : Control
     private void InitializeSpreadsheet()
     {
         _mainContainer = GetNode<VBoxContainer>("%MainContainer");
-        _mainContainer.SetAnchorsPreset(LayoutPreset.FullRect);
+        _mainContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 
         _deleteButton = GetNode<Button>("%DeleteRow");
         _deleteButton.Pressed += OnDeleteButtonPressed;
@@ -60,7 +60,7 @@ public partial class DatasetEditor : Control
         _mainContainer.AddChild(_headerContainer);
 
         _dataScrollContainer = new ScrollContainer();
-        _dataScrollContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
+        _dataScrollContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
         _dataScrollContainer.HorizontalScrollMode = ScrollContainer.ScrollMode.Auto;
         _dataScrollContainer.VerticalScrollMode = ScrollContainer.ScrollMode.Auto;
         _mainContainer.AddChild(_dataScrollContainer);
@@ -251,8 +251,8 @@ public partial class DatasetEditor : Control
                 var cell = new LineEdit();
                 cell.Text = kv.Value.Data[i];
                 cell.CustomMinimumSize = new Vector2(_columnWidths[i], RowHeight);
-                cell.SizeFlagsHorizontal = SizeFlags.Fill;
-                cell.SizeFlagsVertical = SizeFlags.Fill;
+                cell.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+                cell.SizeFlagsVertical = Control.SizeFlags.Fill;
 
                 // We are changing this to just save when the user clicks the button rather than as we go.
 
@@ -301,8 +301,8 @@ public partial class DatasetEditor : Control
         {
             var cell = new LineEdit();
             cell.CustomMinimumSize = new Vector2(_columnWidths[i], RowHeight);
-            cell.SizeFlagsHorizontal = SizeFlags.Fill;
-            cell.SizeFlagsVertical = SizeFlags.Fill;
+            cell.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+            cell.SizeFlagsVertical = Control.SizeFlags.Fill;
             cell.PlaceholderText = "Enter data...";
 
             // Store column index in metadata for easy retrieval

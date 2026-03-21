@@ -5,7 +5,7 @@ using System.Linq;
 using Godot;
 using Lizzie.Scripts.Templating;
 
-public partial class TemplateCreator : MarginContainer
+public partial class TemplateCreator : Window
 {
     [Export]
     private TextureRect _preview;
@@ -62,6 +62,7 @@ public partial class TemplateCreator : MarginContainer
     private PageControl _pageControl;
 
     private AcceptDialog _acceptDialog;
+    private ConfirmationDialog _saveBeforeCloseDialog;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -82,9 +83,17 @@ public partial class TemplateCreator : MarginContainer
 
         _acceptDialog = (AcceptDialog)GetNode("ConfirmationDialog");
 
+        InitializeSaveBeforeCloseDialog();
+
         this.VisibilityChanged += UpdateScrollBarVisibility;
+        this.CloseRequested += OnCloseRequested;
 
         UpdateProject();
+
+        if (!string.IsNullOrWhiteSpace(_tempTemplateName))
+        {
+            SetTemplateByName(_tempTemplateName);
+        }
     }
 
     private void InitToolbar()
@@ -126,7 +135,53 @@ public partial class TemplateCreator : MarginContainer
 
     private void OnClose()
     {
+        // Show save confirmation dialog
+        _saveBeforeCloseDialog.PopupCentered();
+    }
+
+    private void OnCloseRequested()
+    {
+        // When user clicks X button, show save confirmation instead of closing immediately
+        _saveBeforeCloseDialog.PopupCentered();
+    }
+
+    private void InitializeSaveBeforeCloseDialog()
+    {
+        _saveBeforeCloseDialog = new ConfirmationDialog();
+        _saveBeforeCloseDialog.DialogText = "Do you want to save changes before closing?";
+        _saveBeforeCloseDialog.Title = "Save Changes";
+        _saveBeforeCloseDialog.OkButtonText = "Save and Close";
+        _saveBeforeCloseDialog.CancelButtonText = "Cancel";
+
+        // Add a "Don't Save" button
+        _saveBeforeCloseDialog.AddButton("Don't Save", false, "dont_save");
+
+        // Connect signals
+        _saveBeforeCloseDialog.Confirmed += OnSaveAndClose;
+        _saveBeforeCloseDialog.Canceled += OnCancelClose;
+        _saveBeforeCloseDialog.CustomAction += OnCustomAction;
+
+        AddChild(_saveBeforeCloseDialog);
+    }
+
+    private void OnSaveAndClose()
+    {
+        SaveTemplate();
         Closed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnCancelClose()
+    {
+        // Do nothing - just close the dialog, keep the window open
+    }
+
+    private void OnCustomAction(StringName action)
+    {
+        if (action == "dont_save")
+        {
+            // Close without saving
+            Closed?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     public event EventHandler Closed;
@@ -143,8 +198,18 @@ public partial class TemplateCreator : MarginContainer
         }
     }
 
+
+    private string _tempTemplateName = string.Empty;
     public void SetTemplateByName(string name)
     {
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        if (!IsNodeReady())
+        {
+            _tempTemplateName = name;
+            return;
+        }
+
         if (Templates.TryGetValue(name, out var template))
         {
             for (int i = 0; i < _templateNameSelector.ItemCount; i++)
@@ -233,12 +298,14 @@ public partial class TemplateCreator : MarginContainer
 
         if (Templates.ContainsKey(name))
         {
+            SaveTemplate(); //save current template before switching
             CurrentTemplate = Templates[name];
         }
     }
 
     private void SaveTemplate()
     {
+        CurrentTemplate.Elements = TemplateEngine.MapTemplateElementsToProjectFormat(_hierarchicalElements);
         ProjectService.Instance.SaveProject(ProjectService.Instance.CurrentProject, "TestProject");
         EventBus.Instance.Publish(
             new TemplateChangedEvent
@@ -247,6 +314,7 @@ public partial class TemplateCreator : MarginContainer
                 Template = _currentTemplate,
             }
         );
+
         EventBus.Instance.Publish<ProjectChangedEvent>();
     }
 
@@ -364,6 +432,12 @@ public partial class TemplateCreator : MarginContainer
         var p = GetParamControl(name);
         if (p != null)
             p.UpdateParameter(value);
+
+        if (_selectedElement != null)
+        {
+            _selectedElement.SetParameterValue(name, value);
+        }
+        
     }
 
     private IParamControl GetParamControl(string name)

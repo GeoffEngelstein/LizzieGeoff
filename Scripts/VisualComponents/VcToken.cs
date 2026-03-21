@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text.Json;
 using Godot;
 using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 using Vector2 = Godot.Vector2;
@@ -363,9 +360,9 @@ public partial class VcToken : VisualComponentFlat
 
         var curProj = ProjectService.Instance.CurrentProject;
 
-        curProj.Templates.TryGetValue(_frontTemplateName, out var ft);
-        curProj.Templates.TryGetValue(_backTemplateName, out var bt);
-        curProj.Datasets.TryGetValue(_datasetName, out var ds);
+        var ft = curProj.GetTemplate(_frontTemplateName);
+        var bt = curProj.GetTemplate(_backTemplateName);
+        var ds = curProj.GetDataset(_datasetName);
 
         TextureContext context = new TextureContext
         {

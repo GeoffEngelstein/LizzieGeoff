@@ -78,6 +78,21 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         QuickSuitCountChanged(_quickSuitCount.Selected);
         GenerateQuickCards();
         ChangePreviewCard(0);
+
+        //register for events
+        EventBus.Instance.Subscribe<TemplateChangedEvent>(TemplateChanged);
+        EventBus.Instance.Subscribe<DataSetChangedEvent>(DataSetChanged);
+
+    }
+
+    private void TemplateChanged(TemplateChangedEvent obj)
+    {
+        UpdatePreview();
+    }
+
+    private void DataSetChanged(DataSetChangedEvent obj)
+    {
+            UpdatePreview();
     }
 
     public override void Activate()
@@ -126,17 +141,35 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         _frontTemplatePicker = GetNode<OptionButton>("%FrontTemplateList");
         _frontTemplatePicker.ItemSelected += OnFrontTemplateChanged;
         _editFrontTemplateButton = GetNode<Button>("%EditFrontTemplateButton");
+        _editFrontTemplateButton.Pressed += EditFrontTemplate;
 
         _backTemplatePicker = GetNode<OptionButton>("%BackTemplateList");
         _backTemplatePicker.ItemSelected += OnBackTemplateChanged;
         _editBackTemplateButton = GetNode<Button>("%EditBackTemplateButton");
+        _editBackTemplateButton.Pressed += EditBackTemplate;
 
         _datasetPicker = GetNode<OptionButton>("%DatasetList");
         _datasetPicker.ItemSelected += OnDatasetChanged;
 
         _datasetEditorButton = GetNode<Button>("%EditDatasetButton");
+        _datasetEditorButton.Pressed += EditDataset;
 
         UpdateTemplateTab();
+    }
+
+    private void EditFrontTemplate()
+    {
+        EventBus.Instance.Publish(new ShowTemplateEditor { TemplateName = _frontTemplate?.Name });
+    }
+
+    private void EditBackTemplate()
+    {
+        EventBus.Instance.Publish(new ShowTemplateEditor { TemplateName = _backTemplate?.Name });
+    }
+
+    private void EditDataset()
+    {
+        EventBus.Instance.Publish(new ShowDatasetEditor { DatasetName = _textureContext.DataSet?.Name });
     }
 
     private void StandardSizeChanged(long index)

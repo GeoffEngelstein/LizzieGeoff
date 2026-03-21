@@ -7,7 +7,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
     private int _gridSize = 8;
     private float _cellSize = 30f;
 
-    private bool[,] _gridState;
+    private bool[][] _gridState;
     private Panel[,] _gridCells;
     private GridContainer _gridContainer;
     private CenterContainer _matrixContainer;
@@ -112,15 +112,16 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
     private void InitializeGrid()
     {
-        _gridState = new bool[_gridSize, _gridSize];
+        _gridState = new bool[_gridSize][];
         _gridCells = new Panel[_gridSize, _gridSize];
 
         // Initialize all cells to off
         for (int row = 0; row < _gridSize; row++)
         {
+            _gridState[row] = new bool[_gridSize];
             for (int col = 0; col < _gridSize; col++)
             {
-                _gridState[row, col] = false;
+                _gridState[row][col] = false;
             }
         }
     }
@@ -198,9 +199,9 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
     private void SetCellOn(int row, int col)
     {
-        if (!_gridState[row, col])
+        if (!_gridState[row][col])
         {
-            _gridState[row, col] = true;
+            _gridState[row][col] = true;
             UpdateCellVisual(row, col);
             UpdatePreview();
         }
@@ -208,9 +209,9 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
     private void SetCellOff(int row, int col)
     {
-        if (_gridState[row, col])
+        if (_gridState[row][col])
         {
-            _gridState[row, col] = false;
+            _gridState[row][col] = false;
             UpdateCellVisual(row, col);
             UpdatePreview();
         }
@@ -223,7 +224,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
         if (styleBox != null)
         {
-            styleBox.BgColor = _gridState[row, col] ? _onColor : _offColor;
+            styleBox.BgColor = _gridState[row][col] ? _onColor : _offColor;
         }
     }
 
@@ -241,7 +242,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
 
         // Hover effect for off cells
         var styleBox = panel.GetThemeStylebox("panel") as StyleBoxFlat;
-        if (styleBox != null && !_gridState[row, col])
+        if (styleBox != null && !_gridState[row][col])
         {
             //styleBox.BorderColor = new Color(0.8f, 0.8f, 0.8f);
             styleBox.SetBorderWidthAll(2);
@@ -251,7 +252,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
     private void OnCellMouseExited(Panel panel, int row, int col)
     {
         var styleBox = panel.GetThemeStylebox("panel") as StyleBoxFlat;
-        if (styleBox != null && !_gridState[row, col])
+        if (styleBox != null && !_gridState[row][col])
         {
             styleBox.BorderColor = new Color(0.4f, 0.4f, 0.4f);
             styleBox.SetBorderWidthAll(1);
@@ -263,9 +264,16 @@ public partial class MeeplePanel : ComponentPanelDialogResult
     /// <summary>
     /// Get the current state of the grid
     /// </summary>
-    public bool[,] GetGridState()
+    public bool[][] GetGridState()
     {
-        return (bool[,])_gridState.Clone();
+        // Deep copy of jagged array
+        var copy = new bool[_gridSize][];
+        for (int i = 0; i < _gridSize; i++)
+        {
+            copy[i] = new bool[_gridSize];
+            Array.Copy(_gridState[i], copy[i], _gridSize);
+        }
+        return copy;
     }
 
     /// <summary>
@@ -275,7 +283,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
     {
         if (row >= 0 && row < _gridSize && col >= 0 && col < _gridSize)
         {
-            _gridState[row, col] = state;
+            _gridState[row][col] = state;
             UpdateCellVisual(row, col);
         }
     }
@@ -283,9 +291,9 @@ public partial class MeeplePanel : ComponentPanelDialogResult
     /// <summary>
     /// Set the entire grid state
     /// </summary>
-    public void SetGridState(bool[,] state)
+    public void SetGridState(bool[][] state)
     {
-        if (state.GetLength(0) != _gridSize || state.GetLength(1) != _gridSize)
+        if (state.Length != _gridSize || (state.Length > 0 && state[0].Length != _gridSize))
         {
             GD.PrintErr($"Invalid grid state size. Expected {_gridSize}x{_gridSize}");
             return;
@@ -295,7 +303,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
         {
             for (int col = 0; col < _gridSize; col++)
             {
-                _gridState[row, col] = state[row, col];
+                _gridState[row][col] = state[row][col];
                 UpdateCellVisual(row, col);
             }
         }
@@ -310,7 +318,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
         {
             for (int col = 0; col < _gridSize; col++)
             {
-                _gridState[row, col] = false;
+                _gridState[row][col] = false;
                 UpdateCellVisual(row, col);
             }
         }
@@ -325,7 +333,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
         {
             for (int col = 0; col < _gridSize; col++)
             {
-                _gridState[row, col] = true;
+                _gridState[row][col] = true;
                 UpdateCellVisual(row, col);
             }
         }
@@ -340,7 +348,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
         {
             for (int col = 0; col < _gridSize; col++)
             {
-                _gridState[row, col] = !_gridState[row, col];
+                _gridState[row][col] = !_gridState[row][col];
                 UpdateCellVisual(row, col);
             }
         }
@@ -408,7 +416,7 @@ public partial class MeeplePanel : ComponentPanelDialogResult
         _colorPicker.Color = (Color)prototype.Parameters["Color"];
 
         if (
-            prototype.Parameters.ContainsKey("Grid") && prototype.Parameters["Grid"] is bool[,] grid
+            prototype.Parameters.ContainsKey("Grid") && prototype.Parameters["Grid"] is bool[][] grid
         )
         {
             SetGridState(grid);
