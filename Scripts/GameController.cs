@@ -67,7 +67,7 @@ public partial class GameController : Node3D
         //Add to Prototype Manifest if it's not already there
         AddPrototypeToManifest(args);
 
-        if (component.Build(args.Params, _textureFactory))
+        if (component.Build(args.PrototypeRef, _textureFactory))
         {
             _mainScene.EnterSpawnMode(component);
         }

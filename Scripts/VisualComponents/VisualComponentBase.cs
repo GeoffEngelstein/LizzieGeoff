@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Godot;
-using Container = System.ComponentModel.Container;
 
 public abstract partial class VisualComponentBase : Area3D
 {
@@ -94,13 +92,50 @@ public abstract partial class VisualComponentBase : Area3D
 
     public virtual bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
-        _textureFactory = textureFactory;
+        return Build(parameters, string.Empty, textureFactory);
+    }
+
+    public virtual bool Build(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
+    {
+        TextureFactory = textureFactory;
         TextureReady = false;
 
         if (parameters.ContainsKey(nameof(ComponentName)))
         {
             ComponentName = parameters[nameof(ComponentName)].ToString();
         }
+
+        DataSetRow = dataSetRow;
+
+        return true;
+    }
+
+    public virtual bool Build(Guid prototypeRef, TextureFactory textureFactory)
+    {
+        return Build(prototypeRef, string.Empty, textureFactory);
+    }
+
+    public virtual bool Build(Guid prototypeRef, string dataSetRow, TextureFactory textureFactory)
+    {
+        TextureFactory = textureFactory;
+        TextureReady = false;
+
+        if (ProjectService.Instance.CurrentProject == null)
+            return false;
+
+        if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(
+                prototypeRef,
+                out var proto
+            )
+           )
+        {
+            return false;
+        }
+
+        Build(proto.Parameters, textureFactory);
+
+        PrototypeRef = prototypeRef;
+        DataSetRow = dataSetRow;
 
         return true;
     }
@@ -157,7 +192,7 @@ public abstract partial class VisualComponentBase : Area3D
 
         if (command == VisualCommand.Refresh)
         {
-            Refresh(Parameters, _textureFactory);
+            Refresh(Parameters, TextureFactory);
             return new CommandResponse(true, null);
         }
 
@@ -181,7 +216,7 @@ public abstract partial class VisualComponentBase : Area3D
         return new CommandResponse(false, null);
     }
 
-    protected TextureFactory _textureFactory;
+    protected TextureFactory TextureFactory;
 
     public virtual List<MenuCommand> GetMenuCommands()
     {
@@ -223,6 +258,11 @@ public abstract partial class VisualComponentBase : Area3D
     /// all the cards
     /// </summary>
     public virtual Guid Parent { get; set; }
+
+    /// <summary>
+    /// Which row in the DataSet supplies the data for templating
+    /// </summary>
+    public virtual string DataSetRow { get; set; }
 
     public virtual Polygon2D YProjection { get; private set; }
 
@@ -355,12 +395,7 @@ public abstract partial class VisualComponentBase : Area3D
         AddComponentToObjects?.Invoke(this, new VisualComponentEventArgs(component));
     }
 
-    public event EventHandler<VisualComponentEventArgs> RemoveComponentFromObjects;
-
-    public event EventHandler<VisualComponentEventArgs> ShowToolTip;
-
-    public event EventHandler HideToolTip;
-
+  
     private bool _neverHighlight = false;
 
     public bool NeverHighlight

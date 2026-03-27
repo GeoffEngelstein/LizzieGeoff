@@ -156,7 +156,7 @@ public partial class VcToken : VisualComponentFlat
 
     public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
-        _textureFactory = textureFactory;
+        TextureFactory = textureFactory;
         TempParams = parameters;
 
         if (!InitializeParameters(parameters, textureFactory))
@@ -366,7 +366,7 @@ public partial class VcToken : VisualComponentFlat
     private string _frontTemplateName;
     private string _backTemplateName;
     private string _datasetName;
-    private string _cardReference;
+    
 
     private void BuildTemplate(TextureFactory textureFactory)
     {
@@ -401,7 +401,7 @@ public partial class VcToken : VisualComponentFlat
             DataSet = ds,
             Dpi = 100,
             ParentSize = new Vector2(250, 350),
-            CurrentRowName = _cardReference,
+            CurrentRowName = DataSetRow,
         };
 
         _frontTextureGenerated = true;
@@ -722,7 +722,7 @@ public partial class VcToken : VisualComponentFlat
         _frontTemplateName = Utility.GetParam<string>(parameters, "FrontTemplate");
         _backTemplateName = Utility.GetParam<string>(parameters, "BackTemplate");
         _datasetName = Utility.GetParam<string>(parameters, "Dataset");
-        _cardReference = Utility.GetParam<string>(parameters, "CardReference");
+        DataSetRow = Utility.GetParam<string>(parameters, "CardReference");
 
         return true;
     }

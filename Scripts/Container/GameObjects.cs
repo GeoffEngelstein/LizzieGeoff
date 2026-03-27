@@ -27,6 +27,8 @@ public partial class GameObjects : Node
     public override void _Ready()
     {
         EventBus.Instance.Subscribe<DataSetChangedEvent>(OnDataSetChanged);
+        EventBus.Instance.Subscribe<TemplateChangedEvent>(OnTemplateChanged);
+        EventBus.Instance.Subscribe<ProjectChangedEvent>(OnProjectChanged);
         EventBus.Instance.Subscribe<PrototypeChangedEvent>(OnPrototypeChanged);
         EventBus.Instance.Subscribe<SyncTransformEvent>(SyncTransform);
         EventBus.Instance.Subscribe<ModalDialogOpenedEvent>(OnModalOpened);
@@ -45,6 +47,30 @@ public partial class GameObjects : Node
     }
 
     private void OnDataSetChanged(DataSetChangedEvent obj)
+    {
+        //naive approach for now
+        foreach (var c in this.GetChildren())
+        {
+            if (c is VisualComponentBase vc)
+            {
+                vc.ProcessCommand(VisualCommand.Refresh);
+            }
+        }
+    }
+
+    private void OnProjectChanged(ProjectChangedEvent obj)
+    {
+        //naive approach for now
+        foreach (var c in this.GetChildren())
+        {
+            if (c is VisualComponentBase vc)
+            {
+                vc.ProcessCommand(VisualCommand.Refresh);
+            }
+        }
+    }
+
+    private void OnTemplateChanged(TemplateChangedEvent obj)
     {
         //naive approach for now
         foreach (var c in this.GetChildren())
@@ -628,7 +654,7 @@ public partial class GameObjects : Node
 
         var spawnPosition = _dragPlane.GetCursorProjection();
 
-        newComp.Build(_spawnComponent.Parameters, TextureFactory);
+        newComp.Build(_spawnComponent.PrototypeRef, TextureFactory);
         newComp.Position = new Vector3(spawnPosition.X, newComp.YHeight / 2f, spawnPosition.Z);
 
         newComp.DimMode(false);
