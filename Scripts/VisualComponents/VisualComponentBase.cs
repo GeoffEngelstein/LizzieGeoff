@@ -39,8 +39,7 @@ public abstract partial class VisualComponentBase : Area3D
         }
     }
 
-    [Export]
-    private float _highlightScale = 1.1f;
+    [Export] private float _highlightScale = 1.1f;
 
     public const int TooltipTime = 1000;
     private float _curScale = 1;
@@ -284,14 +283,41 @@ public abstract partial class VisualComponentBase : Area3D
         Tucked,
     }
 
-    public LayerType Layer { get; set; } = LayerType.Normal;
+    private LayerType _layer = LayerType.Normal;
+
+    public LayerType Layer
+    {
+        get => _layer;
+        set
+        {
+            if (_layer == value)
+                return;
+
+            _layer = value;
+            SyncRequired = true;
+        }
+    }
 
     /// <summary>
     /// Sets the Z-order for stacking. A "0" is the lowest - on the table.
     /// If two items have the same Z-Order (should never happen), then
     /// there is no guarantee which will go first.
     /// </summary>
-    public virtual int ZOrder { get; set; }
+
+    private int _zOrder;
+
+    public virtual int ZOrder
+    {
+        get => _zOrder;
+        set
+        {
+            if (_zOrder == value)
+                return;
+
+            _zOrder = value;
+            SyncRequired = true;
+        }
+    }
 
     /// <summary>
     /// The set of Shape3Ds that define the collision volume. Will be a single Shape3D for most items.
@@ -315,6 +341,7 @@ public abstract partial class VisualComponentBase : Area3D
     }
 
     protected bool _locked;
+
     public virtual bool Locked
     {
         get => Layer == LayerType.Frozen;
@@ -323,6 +350,7 @@ public abstract partial class VisualComponentBase : Area3D
             if (_locked != value)
             {
                 _locked = value;
+                SyncRequired = true;
                 LockChanged();
             }
         }
@@ -393,7 +421,7 @@ public abstract partial class VisualComponentBase : Area3D
         AddComponentToObjects?.Invoke(this, new VisualComponentEventArgs(component));
     }
 
-  
+
     private bool _neverHighlight = false;
 
     public bool NeverHighlight
@@ -451,7 +479,9 @@ public abstract partial class VisualComponentBase : Area3D
         return true;
     }
 
-    public virtual void DropObjects(IEnumerable<VisualComponentBase> dragObjects) { }
+    public virtual void DropObjects(IEnumerable<VisualComponentBase> dragObjects)
+    {
+    }
 
     public virtual string GetPreviewComponentScene() => string.Empty;
 
@@ -505,6 +535,50 @@ public abstract partial class VisualComponentBase : Area3D
             DragMesh.Transparency = 0;
         }
     }
+
+    public enum ComponentLocation
+    {
+        Board,
+        Container,
+        Hand
+    }
+
+    private ComponentLocation _location;
+
+    public ComponentLocation Location
+    {
+        get => _location;
+        set
+        {
+            if (_location == value) return;
+            SyncRequired = true;
+            _location = value;
+            Visible = (value == ComponentLocation.Board);
+        }
+    }
+
+
+    public void SetPositionAndRotation(Vector3 position, Vector3 rotation)
+    {
+        Position = position;
+        RotationDegrees = rotation;
+        SyncRequired = true;
+    }
+
+    public void SetPosition(Vector3 position)
+    {
+        Position = position;
+        SyncRequired = true;
+    }
+
+    public void SetRotation(Vector3 rotation)
+    {
+        RotationDegrees = rotation;
+        SyncRequired = true;
+    }
+
+
+    public bool SyncRequired { get; set; }
 }
 
 public class VisualComponentEventArgs : EventArgs

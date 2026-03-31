@@ -327,5 +327,17 @@ public class ModalDialogClosedEvent : IEvent
 {
 }
 
+public class AddComponentToSceneEvent : IEvent
+{
+
+    public AddComponentToSceneEvent(VisualComponentBase component)
+    {
+        Component = component;
+        
+    }
+    
+    public VisualComponentBase Component { get; set; }
+}
+
 
 #endregion

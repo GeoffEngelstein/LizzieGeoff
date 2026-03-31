@@ -20,7 +20,7 @@ public abstract partial class VisualGroupComponent : VisualComponentBase
 
     public virtual void AddChildComponent(VisualComponentBase component)
     {
-        component.Visible = false;
+        component.Location = ComponentLocation.Container;
         Children.Add(component);
         OnChildrenChanged();
     }
@@ -29,7 +29,9 @@ public abstract partial class VisualGroupComponent : VisualComponentBase
     {
         var compArr = components as VisualComponentBase[] ?? components.ToArray(); //avoid multiple iterations
         foreach (var c in compArr)
-            c.Visible = false;
+        {
+            c.Location = ComponentLocation.Container;
+        }
 
         Children.AddRange(compArr);
         OnChildrenChanged();

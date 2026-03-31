@@ -271,7 +271,7 @@ public partial class VcDeck : VisualGroupComponent
             //tween to handle movement
             //var cardTween = GetTree().CreateTween();
 
-            cards[i].Visible = false;
+            cards[i].Location = ComponentLocation.Board;
 
             float deltaX = Position.X + (_width * (1.5f + i));
 
@@ -514,7 +514,7 @@ public partial class VcDeck : VisualGroupComponent
                 textureFactory
             );
 
-            AddChildComponent(card);
+            CreateAndAddChildComponent(card);
         }
     }
 
@@ -629,7 +629,7 @@ public partial class VcDeck : VisualGroupComponent
                     textureFactory
                 );
 
-                AddChildComponent(c);
+                CreateAndAddChildComponent(c);
             }
         }
     }
@@ -732,7 +732,7 @@ public partial class VcDeck : VisualGroupComponent
         for (int i = 0; i < _gridCount; i++)
         {
             var c = CreateGridCard(i, textureFactory);
-            AddChildComponent(c);
+            CreateAndAddChildComponent(c);
         }
     }
 
@@ -864,6 +864,12 @@ public partial class VcDeck : VisualGroupComponent
             TextureReady = _frontTextureReady && _backTextureReady;
 
         }
+    }
+
+    private void CreateAndAddChildComponent(VisualComponentBase component)
+    {
+        AddChildComponent(component);
+        EventBus.Instance.Publish(new AddComponentToSceneEvent(component));
     }
 
     private float PixelSize(Vector2 size)

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Godot;
 
@@ -33,7 +31,10 @@ public partial class GameObjects : Node
         EventBus.Instance.Subscribe<SyncTransformEvent>(SyncTransform);
         EventBus.Instance.Subscribe<ModalDialogOpenedEvent>(OnModalOpened);
         EventBus.Instance.Subscribe<ModalDialogClosedEvent>(OnModalClosed);
+        EventBus.Instance.Subscribe<AddComponentToSceneEvent>(OnAddComponentToScene);
     }
+
+
 
     private void OnModalClosed()
     {
@@ -222,6 +223,13 @@ public partial class GameObjects : Node
     }
 
     #region Components
+
+
+    private void OnAddComponentToScene(AddComponentToSceneEvent e)
+    {
+        AddComponentToScene(e.Component, true);
+    }
+
     /*
     public void AddComponent(VisualComponentBase component)
     {
@@ -799,7 +807,7 @@ public partial class GameObjects : Node
     {
         foreach (var n in GetChildren())
         {
-            if (n is VisualComponentBase { IsDragging: false } p)
+            if (n is VisualComponentBase { Location: VisualComponentBase.ComponentLocation.Board, IsDragging: false } p)
             {
                 yield return p;
             }
@@ -1023,9 +1031,6 @@ public partial class GameObjects : Node
 
         Rpc(
             nameof(ClientSpawnObject),
-            component.GetPath(),
-            (int)component.ComponentType,
-            parametersJson,
             prototypeRef,
             componentRef,
             parentRef,
@@ -1042,9 +1047,6 @@ public partial class GameObjects : Node
         TransferMode = MultiplayerPeer.TransferModeEnum.Reliable
     )]
     private void ClientSpawnObject(
-        NodePath componentPath,
-        int componentType,
-        string parametersJson,
         string prototypeRefStr,
         string componentRefStr,
         string parentRefStr,
@@ -1056,18 +1058,18 @@ public partial class GameObjects : Node
     {
         // Client receives notification to spawn object
         // This would be handled by GameObjects
-        GD.Print($"Received spawn for: {componentPath}");
+        GD.Print($"Received spawn");
 
-        var param = JsonUtilities.ParseJsonToDictionary(
-            (VisualComponentBase.VisualComponentType)componentType,
-            JsonSerializer.Deserialize<Dictionary<string, object>>(parametersJson)
-        );
+        //Get prototype
+        var prototypeRef = Guid.Parse(prototypeRefStr);
+        if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(prototypeRef, out var proto))
+        {
+            //maybe throw an error? Or cache until the prototype is received?
+            return;
+        }
 
         //get the model ref
-        var path = Utility.ComponentTypeToScenePath(
-            (VisualComponentBase.VisualComponentType)componentType,
-            param
-        );
+        var path = Utility.ComponentTypeToScenePath(proto.Type, proto.Parameters);
 
         var scene = GD.Load<PackedScene>(path).Instantiate();
 
@@ -1079,7 +1081,7 @@ public partial class GameObjects : Node
         vcb.Parent = Guid.Parse(parentRefStr);
         vcb.DataSetRow = dataSetRow;
 
-        vcb.Build(param, TextureFactory);
+        vcb.Build(prototypeRef, TextureFactory);
 
        vcb.ZOrder = zOrder;
 
