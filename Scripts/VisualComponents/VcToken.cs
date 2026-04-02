@@ -15,7 +15,6 @@ public partial class VcToken : VisualComponentFlat
     public override void _Ready()
     {
         base._Ready();
-        Visible = true;
         ComponentType = VisualComponentType.Token;
 
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");

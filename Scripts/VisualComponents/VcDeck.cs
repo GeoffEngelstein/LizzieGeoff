@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Godot;
 
-public partial class VcDeck : VisualGroupComponent
+public partial class VcDeck : VisualComponentGroup
 {
     private Sprite3D _frontSprite;
     private Sprite3D _backSprite;
@@ -21,7 +21,6 @@ public partial class VcDeck : VisualGroupComponent
     public override void _Ready()
     {
         base._Ready();
-        Visible = true;
         ComponentType = VisualComponentType.Deck;
 
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
@@ -239,7 +238,7 @@ public partial class VcDeck : VisualGroupComponent
     {
         count = Math.Min(count, Children.Count);
 
-        VisualComponentBase[] cards;
+        Guid[] cards;
         //draw cards
         if (_showFace)
         {
@@ -256,7 +255,11 @@ public partial class VcDeck : VisualGroupComponent
 
         for (int i = 0; i < cards.Length; i++)
         {
-            if (cards[i] is VisualComponentFlat vcf)
+            var comp = ProjectService.Instance.GameObjects.GetComponent(cards[i]);
+
+            if (comp == null) continue;
+
+            if (comp is VisualComponentFlat vcf)
             {
                 if (_showFace)
                 {
@@ -271,7 +274,7 @@ public partial class VcDeck : VisualGroupComponent
             //tween to handle movement
             //var cardTween = GetTree().CreateTween();
 
-            cards[i].Location = ComponentLocation.Board;
+            comp.Location = ComponentLocation.Board;
 
             float deltaX = Position.X + (_width * (1.5f + i));
 
@@ -284,13 +287,13 @@ public partial class VcDeck : VisualGroupComponent
                 0.2f
             );
             */
-            cards[i].Position = new Vector3(deltaX, Position.Y, Position.Z);
+            comp.Position = new Vector3(deltaX, Position.Y, Position.Z);
 
 
 
-            cards[i].ZOrder = ZOrder + i + 1;
+            comp.ZOrder = ZOrder + i + 1;
 
-            OnComponentAdded(cards[i]);
+            OnComponentAdded(comp);
         }
 
         var c = new Change
@@ -306,10 +309,35 @@ public partial class VcDeck : VisualGroupComponent
         return new CommandResponse(true, c);
     }
 
+    public override void SpawnBuild(Guid prototypeRef, VcSyncDto syncDto, TextureFactory textureFactory)
+    {
+        if (ProjectService.Instance.CurrentProject == null)
+            return;
+
+        if (!ProjectService.Instance.CurrentProject.Prototypes.TryGetValue(
+                prototypeRef,
+                out var proto
+            )
+           )
+        {
+            return;
+        }
+
+        syncDto.ApplyToComponent(this);
+        BuildInternal(proto.Parameters, textureFactory, false);
+    }
+
     public override bool Build(
         System.Collections.Generic.Dictionary<string, object> parameters,
         TextureFactory textureFactory
     )
+    {
+        return BuildInternal(parameters, textureFactory, true);
+    }
+
+    private bool BuildInternal(
+        System.Collections.Generic.Dictionary<string, object> parameters,
+        TextureFactory textureFactory, bool spawnCards)
     {
         base.Build(parameters, textureFactory);
 
@@ -422,7 +450,8 @@ public partial class VcDeck : VisualGroupComponent
 
         foreach (var c in Children)
         {
-            if (c is VcToken card ) card.Refresh(textureFactory);
+            var comp = ProjectService.Instance.GameObjects.GetComponent(c);
+            if (comp is VcToken card ) card.Refresh(textureFactory);
         }
 
         return true;
@@ -504,6 +533,7 @@ public partial class VcDeck : VisualGroupComponent
         foreach (var kv in dataset.Rows)
         {
             var card = (VcToken)_templateCard.Duplicate();
+            card.ComponentType = VisualComponentType.Token;
 
             CreateTemplateCard(
                 frontTemplate,
@@ -529,14 +559,15 @@ public partial class VcDeck : VisualGroupComponent
         for (int i = 0; i < Children.Count; i++)
         {
             var c = Children.ElementAt(i);
-            if (c is VcToken card)
+            var comp = ProjectService.Instance.GameObjects.GetComponent(c);
+            if (comp is VcToken card)
             {
                 CreateTemplateCard(
                     frontTemplate,
                     backTemplate,
                     dataset,
                     card,
-                    c.DataSetRow,
+                    comp.DataSetRow,
                     textureFactory
                 );
             }
@@ -839,7 +870,8 @@ public partial class VcDeck : VisualGroupComponent
     {
         if (Children.Count > 0)
         {
-            if (Children.First() is VisualComponentFlat vcf)
+            var c = ProjectService.Instance.GameObjects.GetComponent(Children.First());
+            if (c is VisualComponentFlat vcf)
             {
                 if (vcf.TextureChanged)
                 {
@@ -850,7 +882,8 @@ public partial class VcDeck : VisualGroupComponent
                 }
             }
 
-            if (Children.Last() is VisualComponentFlat vcb)
+            var l = ProjectService.Instance.GameObjects.GetComponent(Children.Last());
+            if (l is VisualComponentFlat vcb)
             {
                 if (vcb.TextureChanged)
                 {
@@ -868,6 +901,8 @@ public partial class VcDeck : VisualGroupComponent
 
     private void CreateAndAddChildComponent(VisualComponentBase component)
     {
+        component.Location = ComponentLocation.Container;
+        component.ExcludeFromSync = ExcludeFromSync;
         AddChildComponent(component);
         EventBus.Instance.Publish(new AddComponentToSceneEvent(component));
     }
@@ -890,7 +925,8 @@ public partial class VcDeck : VisualGroupComponent
         //TODO Handle if there are no cards in the deck?
         if (Children.Count > 0)
         {
-            if (Children.First() is VisualComponentFlat vcf)
+            var c = ProjectService.Instance.GameObjects.GetComponent(Children.First());
+            if (c is VisualComponentFlat vcf)
             {
                 if (vcf.TextureReady)
                 {
@@ -900,7 +936,8 @@ public partial class VcDeck : VisualGroupComponent
                 }
             }
 
-            if (Children.Last() is VisualComponentFlat vcb)
+            var l = ProjectService.Instance.GameObjects.GetComponent(Children.Last());
+            if (l is VisualComponentFlat vcb)
             {
                 if (vcb.TextureReady)
                 {

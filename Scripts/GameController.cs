@@ -27,6 +27,7 @@ public partial class GameController : Node3D
         _uiController.SetGameController(this);
 
         ProjectService.Instance.CurrentProject = ProjectService.Instance.LoadProject("TestProject");
+        ProjectService.Instance.GameObjects = _mainScene.GameObjects;
 
         var commandDic = new CommandDictionary(_mainScene);
     }
@@ -52,6 +53,7 @@ public partial class GameController : Node3D
         }
 
         component.PrototypeRef = args.PrototypeRef;
+        component.ExcludeFromSync = true;
 
         //if the name is blank in the parameters, set it
         if (args.Params.ContainsKey("ComponentName") && args.Params.ContainsKey("BaseName"))

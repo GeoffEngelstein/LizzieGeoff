@@ -94,7 +94,7 @@ public partial class GameObjects : Node
         }
     }
 
-    private VisualComponentBase GetComponentByReference(Guid reference)
+    public VisualComponentBase GetComponent(Guid reference)
     {
         return GetChildren()
             .OfType<VisualComponentBase>()
@@ -240,11 +240,14 @@ public partial class GameObjects : Node
     public void AddComponentToScene(VisualComponentBase component, bool syncCreation = true)
     {
         component.ZOrder = GetMaxComponentZ() + 1;
+        var vv = component.Position;
+        
+
         AddChild(component);
         component.AddComponentToObjects += ComponentOnAddComponentToObjects;
 
         // Add networked object for multiplayer sync
-        if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
+        if (MultiplayerManager.Instance?.IsMultiplayerActive == true && !component.ExcludeFromSync)
         {
             var networkedObject = new NetworkedObject();
             networkedObject.Component = component;
@@ -645,6 +648,7 @@ public partial class GameObjects : Node
         _spawnComponent = component;
         _spawnComponent.DimMode(true);
         _spawnComponent.NeverHighlight = true;
+        _spawnComponent.ExcludeFromSync = true;
         AddComponentToScene(_spawnComponent, false);
     }
 
@@ -658,6 +662,7 @@ public partial class GameObjects : Node
     private void SpawnComponent()
     {
         var newComp = (VisualComponentBase)_spawnComponent.Duplicate();
+        newComp.ExcludeFromSync = false;
         newComp.PrototypeRef = _spawnComponent.PrototypeRef;
 
         var spawnPosition = _dragPlane.GetCursorProjection();
@@ -673,7 +678,7 @@ public partial class GameObjects : Node
 
     private void ExitSpawnMode()
     {
-        _spawnComponent?.QueueFree();
+        _spawnComponent?.Delete();
         _spawnComponent = null;
         CursorMode = CursorMode.Normal;
     }
@@ -1024,20 +1029,18 @@ public partial class GameObjects : Node
 
         var parametersJson = SerializeParameters(component.Parameters);
 
-        var jout = JsonSerializer.Deserialize<Dictionary<string, object>>(parametersJson);
         var prototypeRef = component.PrototypeRef.ToString();
         var componentRef = component.Reference.ToString();
         var parentRef = component.Parent.ToString();
+        var syncDto = new VcSyncDto(component);
+        var syncDtoJson = JsonSerializer.Serialize(syncDto);
 
         Rpc(
             nameof(ClientSpawnObject),
             prototypeRef,
             componentRef,
             parentRef,
-            component.DataSetRow,
-            component.Position,
-            component.Rotation,
-            component.ZOrder
+            syncDtoJson
         );
     }
 
@@ -1050,10 +1053,7 @@ public partial class GameObjects : Node
         string prototypeRefStr,
         string componentRefStr,
         string parentRefStr,
-        string dataSetRow,
-        Vector3 position,
-        Vector3 rotation,
-        int zOrder
+        string syncDtoJson
     )
     {
         // Client receives notification to spawn object
@@ -1079,14 +1079,11 @@ public partial class GameObjects : Node
         vcb.Reference = Guid.Parse(componentRefStr);
         vcb.PrototypeRef = Guid.Parse(prototypeRefStr);
         vcb.Parent = Guid.Parse(parentRefStr);
-        vcb.DataSetRow = dataSetRow;
 
-        vcb.Build(prototypeRef, TextureFactory);
+        var syncDto = JsonSerializer.Deserialize<VcSyncDto>(syncDtoJson);
+        
+        vcb.SpawnBuild(prototypeRef, syncDto, TextureFactory);
 
-       vcb.ZOrder = zOrder;
-
-        vcb.Position = position;
-        vcb.Rotation = rotation;
 
         AddComponentToScene(vcb, false); // Don't sync creation on clients
     }
@@ -1159,7 +1156,7 @@ public partial class GameObjects : Node
         );
         if (!Guid.TryParse(componentRef, out var compGuid))
             return;
-        var component = GetComponentByReference(compGuid);
+        var component = GetComponent(compGuid);
         if (component == null)
             return;
 
@@ -1218,7 +1215,7 @@ public partial class GameObjects : Node
         );
         if (!Guid.TryParse(componentRef, out var compGuid))
             return;
-        var component = GetComponentByReference(compGuid);
+        var component = GetComponent(compGuid);
         if (component == null || component.IsDragging)
             return;
 

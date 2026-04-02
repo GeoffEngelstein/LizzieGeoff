@@ -1,13 +1,65 @@
 using Godot;
 using System;
+using System.Text.Json.Serialization;
 
 /// <summary>
 /// This class captures all the properties that need to be synced across the network for a visual component. This is used to ensure that all clients have the same state for each component, and to minimize the amount of data that needs to be sent over the network by only syncing relevant properties.
 /// </summary>
 public class VcSyncDto
 {
-    public Vector3 Position { get; set; }
-    public Vector3 Rotation { get; set; }
+    public VcSyncDto()
+    {
+    }
+
+    public VcSyncDto(VisualComponentBase component)
+    {
+        Position = component.Position;
+        Rotation = component.Rotation;
+        Visible = component.Visible;
+        //Deleted = component.Deleted;
+        ZOrder = component.ZOrder;
+        DataSetRow = component.DataSetRow;
+        Location = component.Location;
+        Layer = component.Layer;
+
+        if (component is VisualComponentGroup container)
+        {
+            ContainedComponents = container.GetContainerChildren();
+        }
+    }
+
+    [JsonIgnore]
+    public Vector3 Position
+    {
+        get => new(Px, Py, Pz);
+        set         {
+            Px = value.X;
+            Py = value.Y;
+            Pz = value.Z;
+        }
+    }
+
+    [JsonIgnore]
+    public Vector3 Rotation 
+    {
+        get => new(Rx, Ry, Rz);
+        set
+        {
+            Rx = value.X;
+            Ry = value.Y;
+            Rz = value.Z;
+        }
+    }
+
+    public float Px { get; set; }
+    public float Py { get; set; }
+    public float Pz { get; set; }
+
+    public float Rx { get; set; }
+    public float Ry { get; set; }
+    public float Rz { get; set; }
+
+
     public bool Visible { get; set; }
 
     public bool Deleted { get; set; }
@@ -19,5 +71,21 @@ public class VcSyncDto
 
     public VisualComponentBase.LayerType Layer { get; set; }
 
-    public Guid[] ContainedComponents { get; set; }
+    public Guid[] ContainedComponents { get; set; } = Array.Empty<Guid>();
+
+    public void ApplyToComponent(VisualComponentBase component)
+    {
+        component.Position = Position;
+        component.Rotation = Rotation;
+        component.Visible = Visible;
+        //component.Deleted = Deleted;
+        component.ZOrder = ZOrder;
+        component.DataSetRow = DataSetRow;
+        component.Location = Location;
+        component.Layer = Layer;
+        if (component is VisualComponentGroup container)
+        {
+            container.SetContainerChildren(ContainedComponents);
+        }
+    }
 }

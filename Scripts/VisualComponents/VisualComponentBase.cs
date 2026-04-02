@@ -70,7 +70,6 @@ public abstract partial class VisualComponentBase : Area3D
 
     public override void _Ready()
     {
-        Visible = false;
         _curScale = 1;
 
         IsMouseSelected = false;
@@ -139,6 +138,13 @@ public abstract partial class VisualComponentBase : Area3D
         return true;
     }
 
+
+    public virtual void SpawnBuild(Guid prototypeRef, VcSyncDto syncDto, TextureFactory textureFactory)
+    {
+        syncDto.ApplyToComponent(this);
+        Build(prototypeRef, syncDto.DataSetRow, textureFactory);
+    }
+
     /// <summary>
     /// Updates the textures, size, etc, without recreating any child objects.
     /// </summary>
@@ -148,6 +154,11 @@ public abstract partial class VisualComponentBase : Area3D
     public virtual bool Refresh(TextureFactory textureFactory)
     {
         return Build(PrototypeRef, DataSetRow, textureFactory);
+    }
+
+    public virtual void Delete()
+    {
+        QueueFree();
     }
 
 
@@ -579,6 +590,11 @@ public abstract partial class VisualComponentBase : Area3D
 
 
     public bool SyncRequired { get; set; }
+
+    /// <summary>
+    /// If true, this component will not be synced to other nodes
+    /// </summary>
+    public bool ExcludeFromSync { get; set; }
 }
 
 public class VisualComponentEventArgs : EventArgs

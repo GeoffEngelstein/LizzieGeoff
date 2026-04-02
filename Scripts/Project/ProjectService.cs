@@ -192,4 +192,6 @@ public partial class ProjectService : Node
         }
     }
 
+    public GameObjects GameObjects { get; set; }
+
 }
