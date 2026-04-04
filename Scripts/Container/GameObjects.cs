@@ -1340,6 +1340,8 @@ public partial class GameObjects : Node
         if (!MultiplayerManager.Instance?.IsServer == true)
             return;
 
+        ApplyPropertySyncToComponent(componentRef, syncDtoJson);
+
         Rpc(nameof(ClientReceiveProperties), componentRef, syncDtoJson);
     }
 
@@ -1350,16 +1352,24 @@ public partial class GameObjects : Node
     )]
     private void ClientReceiveProperties(string componentRef, string syncDtoJson)
     {
-        GD.Print($"ClientReceiveProperties: {componentRef} Entry");
+        ApplyPropertySyncToComponent(componentRef, syncDtoJson);
+    }
+
+    #endregion
+
+    private void ApplyPropertySyncToComponent(string componentRef, string syncDtoJson)
+    {
+        //apply it to the server.
         if (!Guid.TryParse(componentRef, out var compGuid))
         {
             GD.PrintErr("ClientReceiveProperties: Can't parse GUID");
             return;
         }
+
         var component = GetComponent(compGuid);
         if (component == null || component.IsDragging)
         {
-            GD.PrintErr($"ClientReceiveProperties: Component {componentRef} not found or is being dragged");
+            GD.PrintErr($"Client/ServerReceiveProperties: Component {componentRef} not found or is being dragged");
             return;
         }
 
@@ -1374,8 +1384,6 @@ public partial class GameObjects : Node
             component.SuppressSync = false;
         }
     }
-
-    #endregion
 }
 
 public class ShowComponentPopupEventArgs : EventArgs

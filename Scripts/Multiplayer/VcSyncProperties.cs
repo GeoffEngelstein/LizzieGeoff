@@ -7,6 +7,9 @@ using System.Text.Json.Serialization;
 /// </summary>
 public class VcSyncDto
 {
+    /// <summary>
+    /// Need a parameterless constructor for JSON deserialization. This is used when receiving data from the network and creating a new instance of this class to apply the properties to a visual component.
+    /// </summary>
     public VcSyncDto()
     {
     }
@@ -51,6 +54,7 @@ public class VcSyncDto
         }
     }
 
+    // We need to split the position and rotation into individual float properties for JSON serialization, because Vector3 is not directly serializable by System.Text.Json. By splitting them into individual floats, we can easily serialize and deserialize the position and rotation data without needing custom converters.
     public float Px { get; set; }
     public float Py { get; set; }
     public float Pz { get; set; }
@@ -87,5 +91,7 @@ public class VcSyncDto
         {
             container.SetContainerChildren(ContainedComponents);
         }
+
+        component.SyncRequired = false;
     }
 }
