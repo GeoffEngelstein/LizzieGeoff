@@ -673,7 +673,7 @@ public partial class VcDeck : VisualComponentGroup
     )
     {
         var card = (VcToken)_templateCard.Duplicate();
-        var p = new System.Collections.Generic.Dictionary<string, object>();
+        var p = new Dictionary<string, object>();
 
         p.Add("Height", _height * 10);
         p.Add("Width", _width * 10);
@@ -692,8 +692,29 @@ public partial class VcDeck : VisualComponentGroup
         p.Add("BackCaptionColor", Colors.Black);
         p.Add("FrontFontSize", 72);
         p.Add("BackFontSize", 24);
+
+       var fqt = new QuickTextureField
+        {
+            ForegroundColor = Colors.Black,
+            FaceType = TextureFactory.TextureObjectType.Text,
+            Caption = faceCaption,
+            Quantity = 1,
+        };
+        p.Add("QuickFront", fqt);
+
+        var bqt = new QuickTextureField
+        {
+            ForegroundColor = Colors.Black,
+            FaceType = TextureFactory.TextureObjectType.Text,
+            Caption = backCaption,
+            Quantity = 1,
+        };
+        p.Add("QuickBack", bqt);
+
         card.Build(p, textureFactory);
 
+        card.Parent = Reference;
+        card.PrototypeRef = PrototypeRef;
         card.Parent = Reference;
 
         return card;
