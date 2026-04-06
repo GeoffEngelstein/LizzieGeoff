@@ -645,6 +645,8 @@ public partial class VcDeck : VisualComponentGroup
     {
         Clear();
 
+        int cardNum = 1;
+
         foreach (var q in _quickCardList)
         {
             var values = Utility.ParseValueRanges(q.Caption);
@@ -656,10 +658,12 @@ public partial class VcDeck : VisualComponentGroup
                     q.BackgroundColor,
                     q.CardBackValue,
                     q.CardBackColor,
+                    cardNum,
                     textureFactory
                 );
 
                 CreateAndAddChildComponent(c);
+                cardNum++;
             }
         }
     }
@@ -669,6 +673,7 @@ public partial class VcDeck : VisualComponentGroup
         Color faceColor,
         string backCaption,
         Color backColor,
+        int cardNum,
         TextureFactory textureFactory
     )
     {
@@ -711,7 +716,8 @@ public partial class VcDeck : VisualComponentGroup
         };
         p.Add("QuickBack", bqt);
 
-        card.Build(p, textureFactory);
+        //card.Build(p, cardNum.ToString(), textureFactory);
+        card.Build(p,  textureFactory);
 
         card.Parent = Reference;
         card.PrototypeRef = PrototypeRef;
@@ -890,7 +896,7 @@ public partial class VcDeck : VisualComponentGroup
             var c = ProjectService.Instance.GameObjects.GetComponent(Children.First());
             if (c is VisualComponentFlat vcf)
             {
-                if (vcf.TextureChanged)
+                if (vcf.TextureChanged  && vcf.IsNodeReady() && vcf.BackTexture != null)
                 {
                     _frontSprite.Texture = vcf.BackTexture;
                     _frontSprite.PixelSize = PixelSize(_frontSprite.Texture.GetSize());
@@ -903,7 +909,7 @@ public partial class VcDeck : VisualComponentGroup
             var l = ProjectService.Instance.GameObjects.GetComponent(Children.Last());
             if (l is VisualComponentFlat vcb)
             {
-                if (vcb.TextureChanged)
+                if (vcb.TextureChanged && vcb.IsNodeReady() && vcb.FaceTexture != null)
                 {
                     _backSprite.Texture = vcb.FaceTexture;
                     _backSprite.PixelSize = PixelSize(_backSprite.Texture.GetSize());
