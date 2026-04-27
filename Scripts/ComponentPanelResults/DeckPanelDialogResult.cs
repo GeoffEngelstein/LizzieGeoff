@@ -729,8 +729,8 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
     public override void DisplayPrototype(Prototype prototype)
     {
         _nameInput.Text = prototype.Name;
-        _heightInput.Text = prototype.Parameters["Height"].ToString();
-        _widthInput.Text = prototype.Parameters["Width"].ToString();
+        _heightInput.Text = prototype.Parameters.ContainsKey("Height") ? prototype.Parameters["Height"].ToString() : "";
+        _widthInput.Text = prototype.Parameters.ContainsKey("Width") ? prototype.Parameters["Width"].ToString() : "";
 
         if (
             prototype.Parameters.ContainsKey("Mode")
@@ -769,19 +769,30 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         // Handle Grid mode parameters
         if (_tabs.CurrentTab == 1)
         {
-            if (prototype.Parameters.ContainsKey("GridRows"))
+            _gridRowCount.Text = prototype.Parameters.ContainsKey("GridRows") ? prototype.Parameters["GridRows"].ToString() : "";
+            _gridColCount.Text = prototype.Parameters.ContainsKey("GridCols") ? prototype.Parameters["GridCols"].ToString() : "";
+            _gridCardCount.Text = prototype.Parameters.ContainsKey("GridCount") ? prototype.Parameters["GridCount"].ToString() : "";
+
+            if (prototype.Parameters.ContainsKey("FrontGridImageKey"))
             {
-                _gridRowCount.Text = prototype.Parameters["GridRows"].ToString();
+                string frontKey = prototype.Parameters["FrontGridImageKey"].ToString();
+                var asset = _currentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == frontKey);
+                _gridFrontImageSelector.SelectedImage = asset;
+            }
+            else
+            {
+                _gridFrontImageSelector.SelectedImage = null;
             }
 
-            if (prototype.Parameters.ContainsKey("GridCols"))
+            if (prototype.Parameters.ContainsKey("BackGridImageKey"))
             {
-                _gridColCount.Text = prototype.Parameters["GridCols"].ToString();
+                string backKey = prototype.Parameters["BackGridImageKey"].ToString();
+                var asset = _currentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == backKey);
+                _gridBackImageSelector.SelectedImage = asset;
             }
-
-            if (prototype.Parameters.ContainsKey("GridCount"))
+            else
             {
-                _gridCardCount.Text = prototype.Parameters["GridCount"].ToString();
+                _gridBackImageSelector.SelectedImage = null;
             }
         }
 

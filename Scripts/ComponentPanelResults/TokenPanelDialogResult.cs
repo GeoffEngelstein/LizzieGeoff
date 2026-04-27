@@ -687,14 +687,14 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
     public override void DisplayPrototype(Prototype prototype)
     {
         _nameInput.Text = prototype.Name;
-        _heightInput.Text = prototype.Parameters["Height"].ToString();
-        _widthInput.Text = prototype.Parameters["Width"].ToString();
-        _thicknessInput.Text = prototype.Parameters["Thickness"].ToString();
-        _frontImage.Text = prototype.Parameters["FrontImage"].ToString();
-        _backImage.Text = prototype.Parameters["BackImage"].ToString();
-        _shapePicker.Select((int)prototype.Parameters["Shape"]);
-        _quickBackgroundColor.Color = (Color)prototype.Parameters["FrontBgColor"];
-        _quickBackgroundColor2.Color = (Color)prototype.Parameters["BackBgColor"];
+        _heightInput.Text = prototype.Parameters.ContainsKey("Height") ? prototype.Parameters["Height"].ToString() : "";
+        _widthInput.Text = prototype.Parameters.ContainsKey("Width") ? prototype.Parameters["Width"].ToString() : "";
+        _thicknessInput.Text = prototype.Parameters.ContainsKey("Thickness") ? prototype.Parameters["Thickness"].ToString() : "";
+        _frontImage.Text = prototype.Parameters.ContainsKey("FrontImage") ? prototype.Parameters["FrontImage"].ToString() : "";
+        _backImage.Text = prototype.Parameters.ContainsKey("BackImage") ? prototype.Parameters["BackImage"].ToString() : "";
+        _shapePicker.Select(prototype.Parameters.ContainsKey("Shape") ? (int)prototype.Parameters["Shape"] : 0);
+        _quickBackgroundColor.Color = prototype.Parameters.ContainsKey("FrontBgColor") ? (Color)prototype.Parameters["FrontBgColor"] : Colors.Black;
+        _quickBackgroundColor2.Color = prototype.Parameters.ContainsKey("BackBgColor") ? (Color)prototype.Parameters["BackBgColor"] : Colors.Black;
 
         if (prototype.Parameters.ContainsKey("QuickFront"))
         {
@@ -723,8 +723,89 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
                 VcToken.TokenBuildMode.Quick => 0,
                 VcToken.TokenBuildMode.Custom => 1,
                 VcToken.TokenBuildMode.Grid => 2,
+                VcToken.TokenBuildMode.Template => 3,
                 _ => 0,
             };
+        }
+
+        // Grid mode parameters
+        _gridRowCount.Text = prototype.Parameters.ContainsKey("GridRows") ? prototype.Parameters["GridRows"].ToString() : "";
+        _gridColCount.Text = prototype.Parameters.ContainsKey("GridCols") ? prototype.Parameters["GridCols"].ToString() : "";
+        _gridCardCount.Text = prototype.Parameters.ContainsKey("GridCount") ? prototype.Parameters["GridCount"].ToString() : "";
+
+        if (prototype.Parameters.ContainsKey("FrontGridImageKey"))
+        {
+            string frontKey = prototype.Parameters["FrontGridImageKey"].ToString();
+            var asset = _currentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == frontKey);
+            _gridFrontImageSelector.SelectedImage = asset;
+        }
+        else
+        {
+            _gridFrontImageSelector.SelectedImage = null;
+        }
+
+        if (prototype.Parameters.ContainsKey("BackGridImageKey"))
+        {
+            string backKey = prototype.Parameters["BackGridImageKey"].ToString();
+            var asset = _currentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == backKey);
+            _gridBackImageSelector.SelectedImage = asset;
+        }
+        else
+        {
+            _gridBackImageSelector.SelectedImage = null;
+        }
+
+        // Template mode parameters
+        _frontTemplatePicker.Select(0);
+        _frontTemplate = null;
+        if (prototype.Parameters.ContainsKey("FrontTemplate"))
+        {
+            string frontTemplateName = prototype.Parameters["FrontTemplate"].ToString();
+            for (int i = 0; i < _frontTemplatePicker.ItemCount; i++)
+            {
+                if (_frontTemplatePicker.GetItemText(i) == frontTemplateName)
+                {
+                    _frontTemplatePicker.Select(i);
+                    _frontTemplate = _currentProject.Templates.GetValueOrDefault(frontTemplateName);
+                    break;
+                }
+            }
+        }
+
+        _backTemplatePicker.Select(0);
+        _backTemplate = null;
+        if (prototype.Parameters.ContainsKey("BackTemplate"))
+        {
+            string backTemplateName = prototype.Parameters["BackTemplate"].ToString();
+            for (int i = 0; i < _backTemplatePicker.ItemCount; i++)
+            {
+                if (_backTemplatePicker.GetItemText(i) == backTemplateName)
+                {
+                    _backTemplatePicker.Select(i);
+                    _backTemplate = _currentProject.Templates.GetValueOrDefault(backTemplateName);
+                    break;
+                }
+            }
+        }
+
+        _datasetPicker.Select(0);
+        _textureContext.DataSet = null;
+        _textureContext.CurrentRowName = null;
+        if (prototype.Parameters.ContainsKey("Dataset"))
+        {
+            string datasetName = prototype.Parameters["Dataset"]?.ToString();
+            if (!string.IsNullOrEmpty(datasetName))
+            {
+                for (int i = 0; i < _datasetPicker.ItemCount; i++)
+                {
+                    if (_datasetPicker.GetItemText(i) == datasetName)
+                    {
+                        _datasetPicker.Select(i);
+                        _textureContext.DataSet = _currentProject.Datasets.GetValueOrDefault(datasetName);
+                        break;
+                    }
+                }
+            }
         }
 
         Activate();
