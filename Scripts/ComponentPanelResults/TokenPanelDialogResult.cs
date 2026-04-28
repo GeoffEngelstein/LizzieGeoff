@@ -54,15 +54,7 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
     private OptionButton _datasetPicker;
     private Button _datasetEditorButton;
 
-    //Grid Tab elements
-    private ImageSelector _gridFrontImageSelector;
-    private ImageSelector _gridBackImageSelector;
-
-    private LineEdit _gridRowCount;
-    private LineEdit _gridColCount;
-    private LineEdit _gridCardCount;
-
-    private CheckButton _gridSingleBack;
+    private GridEntry _gridEntry;
 
     public override void _Ready()
     {
@@ -154,23 +146,19 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 
     private void InitializeGridBindings()
     {
-        _gridFrontImageSelector = GetNode<ImageSelector>("%FrontImageSelector");
-        _gridFrontImageSelector.ImageSelected += FrontImageSelected;
-        _gridFrontImageSelector.SetProject(ProjectService.Instance.CurrentProject);
+        _gridEntry = GetNode<GridEntry>("%GridEntry");
+        _gridEntry.GridUpdated += OnGridUpdated;
+        _gridEntry.CardCountUpdated += OnGridCardCountUpdate;
+    }
 
-        _gridBackImageSelector = GetNode<ImageSelector>("%BackImageSelector");
-        _gridBackImageSelector.ImageSelected += BackImageSelected;
-        _gridBackImageSelector.SetProject(ProjectService.Instance.CurrentProject);
+    private void OnGridCardCountUpdate(object sender, EventArgs e)
+    {
+        _preview.ItemCount = _gridEntry.CardCount;
+    }
 
-        _gridRowCount = GetNode<LineEdit>("%GridRows");
-        _gridRowCount.TextChanged += t => GenerateGridTokens();
-        _gridColCount = GetNode<LineEdit>("%GridCols");
-        _gridColCount.TextChanged += t => GenerateGridTokens();
-        _gridCardCount = GetNode<LineEdit>("%GridCardCount");
-        _gridCardCount.TextChanged += t => GenerateGridTokens();
-
-        _gridSingleBack = GetNode<CheckButton>("%GridSingleBack");
-        _gridSingleBack.Pressed += GenerateGridTokens;
+    private void OnGridUpdated(object sender, EventArgs e)
+    {
+        UpdatePreview();
     }
 
     private string _frontGridImage;
@@ -218,20 +206,6 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
         //ProjectService.Instance.FetchImageAsync(a, UpdateBackGridTexture);
     }
 
-    private int _gridRows;
-    private int _gridCols;
-    private int _gridCount;
-
-    private void GenerateGridTokens()
-    {
-        int.TryParse(_gridRowCount.Text, out _gridRows);
-        int.TryParse(_gridColCount.Text, out _gridCols);
-        int.TryParse(_gridCardCount.Text, out _gridCount);
-
-        _preview.ItemCount = _gridCount;
-
-        ChangePreviewToken(0);
-    }
 
     private void EditFrontTemplate()
     {
@@ -604,17 +578,7 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
 
     private void AddGridParameters(Dictionary<string, object> d)
     {
-        d.Add("FrontGridImageKey", _frontGridImage);
-        d.Add("BackGridImageKey", _backGridImage);
-        d.Add("GridRows", _gridRows);
-        d.Add("GridCols", _gridCols);
-        d.Add("GridCount", _gridCount);
-
-        d.Add("Mode", VcToken.TokenBuildMode.Grid);
-        d.Add("DifferentBack", true);
-        MultipleCreateMode = true;
-        WidthHint = ParamToFloat(_heightInput.Text) / 10f;
-        HeightHint = ParamToFloat(_heightInput.Text) / 10f;
+        _gridEntry.AddGridParameters(d);
     }
 
     private VcToken.TokenBuildMode TabToBuildMode(int tab)
@@ -728,32 +692,7 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
             };
         }
 
-        // Grid mode parameters
-        _gridRowCount.Text = prototype.Parameters.ContainsKey("GridRows") ? prototype.Parameters["GridRows"].ToString() : "";
-        _gridColCount.Text = prototype.Parameters.ContainsKey("GridCols") ? prototype.Parameters["GridCols"].ToString() : "";
-        _gridCardCount.Text = prototype.Parameters.ContainsKey("GridCount") ? prototype.Parameters["GridCount"].ToString() : "";
-
-        if (prototype.Parameters.ContainsKey("FrontGridImageKey"))
-        {
-            string frontKey = prototype.Parameters["FrontGridImageKey"].ToString();
-            var asset = _currentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == frontKey);
-            _gridFrontImageSelector.SelectedImage = asset;
-        }
-        else
-        {
-            _gridFrontImageSelector.SelectedImage = null;
-        }
-
-        if (prototype.Parameters.ContainsKey("BackGridImageKey"))
-        {
-            string backKey = prototype.Parameters["BackGridImageKey"].ToString();
-            var asset = _currentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == backKey);
-            _gridBackImageSelector.SelectedImage = asset;
-        }
-        else
-        {
-            _gridBackImageSelector.SelectedImage = null;
-        }
+        _gridEntry.UpdateGridControls(prototype.Parameters);
 
         // Template mode parameters
         _frontTemplatePicker.Select(0);
