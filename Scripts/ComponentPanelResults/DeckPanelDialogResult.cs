@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml;
 using Godot;
 using Lizzie.AssetManagement;
@@ -46,15 +47,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
     private OptionButton _cardSizes;
 
-    //Grid Tab elements
-    private ImageSelector _gridFrontImageSelector;
-    private ImageSelector _gridBackImageSelector;
-
-    private LineEdit _gridRowCount;
-    private LineEdit _gridColCount;
-    private LineEdit _gridCardCount;
-
-    private CheckButton _gridSingleBack;
+  
 
     private ComponentPreview _componentPreview;
 
@@ -64,6 +57,9 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
     private Button _editBackTemplateButton;
     private OptionButton _datasetPicker;
     private Button _datasetEditorButton;
+
+    private GridEntry _gridEntry;
+    
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
@@ -80,27 +76,31 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         GenerateQuickCards();
         ChangePreviewCard(0);
 
+        _gridEntry = GetNode<GridEntry>("%GridEntry");
+        _gridEntry.GridUpdated += OnGridUpdated;
+        _gridEntry.CardCountUpdated += OnGridCardCountUpdate;
+        
         //register for events
         EventBus.Instance.Subscribe<TemplateChangedEvent>(TemplateChanged);
         EventBus.Instance.Subscribe<DataSetChangedEvent>(DataSetChanged);
         EventBus.Instance.Subscribe<ImageChangedEvent>(ImageChanged);
     }
 
-    private void ImageChanged(ImageChangedEvent obj)
+    private void OnGridCardCountUpdate(object sender, EventArgs e)
     {
-        //reload image selectors
-        var f = _gridFrontImageSelector.SelectedImage;
-        var b = _gridBackImageSelector.SelectedImage;
+        _componentPreview.ItemCount = _gridEntry.CardCount;
+    }
 
-        _gridFrontImageSelector.SetProject(ProjectService.Instance.CurrentProject);
-        _gridBackImageSelector.SetProject(ProjectService.Instance.CurrentProject);
-
-        //try to re-select the items
-        _gridFrontImageSelector.SelectedImage = f;
-        _gridBackImageSelector.SelectedImage = b;
-
+    private void OnGridUpdated(object sender, EventArgs e)
+    {
         UpdatePreview();
     }
+
+    private void ImageChanged(ImageChangedEvent obj)
+    {
+        UpdatePreview();
+    }
+
 
     private void TemplateChanged(TemplateChangedEvent obj)
     {
@@ -241,7 +241,6 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
         InitializeQuickBindings();
 
-        InitializeGridBindings();
     }
 
     private void InitializeQuickBindings()
@@ -267,72 +266,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         _quickBackText.TextChanged += t => GenerateQuickCards();
     }
 
-    private void InitializeGridBindings()
-    {
-        _gridFrontImageSelector = GetNode<ImageSelector>("%FrontImageSelector");
-        _gridFrontImageSelector.ImageSelected += FrontImageSelected;
-        _gridFrontImageSelector.SetProject(ProjectService.Instance.CurrentProject);
-
-        _gridBackImageSelector = GetNode<ImageSelector>("%BackImageSelector");
-        _gridBackImageSelector.ImageSelected += BackImageSelected;
-        _gridBackImageSelector.SetProject(ProjectService.Instance.CurrentProject);
-
-        _gridRowCount = GetNode<LineEdit>("%GridRows");
-        _gridRowCount.TextChanged += t => GenerateGridCards();
-        _gridColCount = GetNode<LineEdit>("%GridCols");
-        _gridColCount.TextChanged += t => GenerateGridCards();
-        _gridCardCount = GetNode<LineEdit>("%GridCardCount");
-        _gridCardCount.TextChanged += t => GenerateGridCards();
-
-        _gridSingleBack = GetNode<CheckButton>("%GridSingleBack");
-        _gridSingleBack.Pressed += GenerateGridCards;
-    }
-
-    private string _frontGridImage;
-    private string _backGridImage;
-
-    private async void FrontImageSelected(object sender, SelectedEventArgs<Asset> e)
-    {
-        if (e.SelectedItem == null)
-        {
-            _frontGridImage = string.Empty;
-            /*
-            _frontMasterSprite = new ImageTexture(); //maybe set to blank white?
-            UpdatePreview();
-            return;
-            */
-        }
-
-        {
-            var a = e.SelectedItem;
-            _frontGridImage = a.AssetId.ToString();
-        }
-
-        //ProjectService.Instance.FetchImageAsync(a, UpdateFrontGridTexture);
-        UpdatePreview();
-    }
-
-    private async void BackImageSelected(object sender, SelectedEventArgs<Asset> e)
-    {
-        if (e.SelectedItem == null)
-        {
-            _backGridImage = string.Empty;
-            /*
-            _backMasterSprite = new ImageTexture(); //maybe set to blank white?
-            UpdatePreview();
-            return;
-            */
-        }
-        else
-        {
-            var a = e.SelectedItem;
-            _backGridImage = a.AssetId.ToString();
-        }
-        UpdatePreview();
-
-        //ProjectService.Instance.FetchImageAsync(a, UpdateBackGridTexture);
-    }
-
+ 
     private void ComponentPreviewOnItemSelected(object sender, ItemSelectedEventArgs e)
     {
         _curCard = e.Index;
@@ -370,20 +304,6 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         UpdatePreview();
     }
 
-    private int _gridRows;
-    private int _gridCols;
-    private int _gridCount;
-
-    private void GenerateGridCards()
-    {
-        int.TryParse(_gridRowCount.Text, out _gridRows);
-        int.TryParse(_gridColCount.Text, out _gridCols);
-        int.TryParse(_gridCardCount.Text, out _gridCount);
-
-        _componentPreview.ItemCount = _gridCount;
-
-        ChangePreviewCard(0);
-    }
 
     private int _suitCount;
 
@@ -460,14 +380,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
 
     private void AddGridParameters(Dictionary<string, object> d)
     {
-        d.Add("FrontGridImageKey", _frontGridImage);
-        d.Add("BackGridImageKey", _backGridImage);
-        d.Add("GridRows", _gridRows);
-        d.Add("GridCols", _gridCols);
-        d.Add("GridCount", _gridCount);
-
-        d.Add("Mode", VcToken.TokenBuildMode.Grid);
-        d.Add("DifferentBack", true);
+        _gridEntry.AddGridParameters(d);
     }
 
     private void AddTemplateParameters(Dictionary<string, object> d)
@@ -576,17 +489,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
     private Texture2D _frontMasterSprite;
     private Texture2D _backMasterSprite;
 
-    private void UpdateGrid(Dictionary<string, object> d, int card)
-    {
-        d.Add("FrontMasterSprite", _frontMasterSprite);
-        d.Add("GridRows", _gridRows);
-        d.Add("GridCols", _gridCols);
-        d.Add("GridIndex", card);
 
-        d.Add("Shape", 0);
-        d.Add("Mode", VcToken.TokenBuildMode.Grid);
-        d.Add("DifferentBack", false);
-    }
 
     private TextureContext _textureContext = new();
 
@@ -729,8 +632,8 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
     public override void DisplayPrototype(Prototype prototype)
     {
         _nameInput.Text = prototype.Name;
-        _heightInput.Text = prototype.Parameters["Height"].ToString();
-        _widthInput.Text = prototype.Parameters["Width"].ToString();
+        _heightInput.Text = prototype.Parameters.ContainsKey("Height") ? prototype.Parameters["Height"].ToString() : "";
+        _widthInput.Text = prototype.Parameters.ContainsKey("Width") ? prototype.Parameters["Width"].ToString() : "";
 
         if (
             prototype.Parameters.ContainsKey("Mode")
@@ -769,20 +672,7 @@ public partial class DeckPanelDialogResult : ComponentPanelDialogResult
         // Handle Grid mode parameters
         if (_tabs.CurrentTab == 1)
         {
-            if (prototype.Parameters.ContainsKey("GridRows"))
-            {
-                _gridRowCount.Text = prototype.Parameters["GridRows"].ToString();
-            }
-
-            if (prototype.Parameters.ContainsKey("GridCols"))
-            {
-                _gridColCount.Text = prototype.Parameters["GridCols"].ToString();
-            }
-
-            if (prototype.Parameters.ContainsKey("GridCount"))
-            {
-                _gridCardCount.Text = prototype.Parameters["GridCount"].ToString();
-            }
+            _gridEntry.UpdateGridControls(prototype.Parameters);
         }
 
         // Handle Template mode parameters
