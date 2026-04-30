@@ -3,12 +3,17 @@
 [ext_resource type="Script" uid="uid://3q8ynw5hnlmn" path="res://Scripts/PrototypeManifest/PrototypeManifest.cs" id="1_i7yhx"]
 [ext_resource type="StyleBox" uid="uid://c67lytp8wdsgx" path="res://Themes/PanelBackgroundStylebox.tres" id="2_msrx6"]
 [ext_resource type="PackedScene" uid="uid://ojs61k8nlddj" path="res://Scenes/ComponentPanels/ComponentPreview.tscn" id="3_i7yhx"]
+[ext_resource type="Texture2D" uid="uid://cugnc5143oecw" path="res://Textures/UI/pencil.png" id="3_xpn7p"]
+[ext_resource type="Texture2D" uid="uid://b0rfd7n0nm6f" path="res://Textures/UI/bottom.png" id="4_ibthu"]
+[ext_resource type="Texture2D" uid="uid://dbkp2tyv4uxrj" path="res://Textures/UI/content_copy_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="5_fexkd"]
+[ext_resource type="Texture2D" uid="uid://cetgsjrqd6vjj" path="res://Textures/UI/trash-can.png" id="6_pxctx"]
+[ext_resource type="Texture2D" uid="uid://cx5dv08dde75e" path="res://Textures/UI/arrowup16.png" id="7_vhjdj"]
 
 [node name="PrototypeManifest" type="Window" unique_id=1414249263]
 oversampling_override = 1.0
 title = "Prototype Manifest"
 initial_position = 1
-size = Vector2i(600, 400)
+size = Vector2i(800, 600)
 script = ExtResource("1_i7yhx")
 
 [node name="Margin" type="MarginContainer" parent="." unique_id=1239742681]
@@ -47,15 +52,43 @@ anchor_right = 1.0
 offset_bottom = 31.0
 grow_horizontal = 2
 
-[node name="DeleteUnused" type="Button" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=504364852]
+[node name="EditProto" type="Button" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=1183893659]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Delete Unused"
+tooltip_text = "Edit Prototype"
+icon = ExtResource("3_xpn7p")
+
+[node name="SpawnProto" type="Button" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=6763301]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Spawn Prototype"
+icon = ExtResource("4_ibthu")
+
+[node name="CloneProto" type="Button" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=424107275]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Clone Prototype"
+icon = ExtResource("5_fexkd")
+
+[node name="DeleteProto" type="Button" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=117428559]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Delete Prototype"
+icon = ExtResource("6_pxctx")
+
+[node name="Panel2" type="Panel" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=351257397]
+layout_mode = 2
+size_flags_horizontal = 3
 
 [node name="HideUnused" type="CheckButton" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=850614771]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Hide Unused"
+
+[node name="DeleteUnused" type="Button" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=504364852]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Delete Unused"
 
 [node name="Panel" type="Panel" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=1148527077]
 layout_mode = 2
@@ -66,13 +99,17 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Close"
 
+[node name="Arrowup16" type="Sprite2D" parent="Margin/Panel/VBoxContainer/Panel/Toolbar" unique_id=540207109]
+position = Vector2(-51, 531)
+texture = ExtResource("7_vhjdj")
+
 [node name="GridMargin" type="MarginContainer" parent="Margin/Panel/VBoxContainer" unique_id=227603288]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/margin_left = 6
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
 
 [node name="MainContainer" type="HSplitContainer" parent="Margin/Panel/VBoxContainer/GridMargin" unique_id=1168681572]
 unique_name_in_owner = true

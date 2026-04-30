@@ -14,6 +14,15 @@ public partial class PrototypeManifest : Window
 
     private ComponentPreview _preview;
 
+    private Button _editProto;
+    private Button _cloneProto;
+    private Button _spawnProto;
+    private Button _deleteProto;
+
+    private Button _deleteAllUnused;
+    private Button _hideUnused;
+
+
     private Prototype _selectedPrototype;
     public Prototype SelectedPrototype
     {
@@ -36,6 +45,27 @@ public partial class PrototypeManifest : Window
 
         _close = GetNode<Button>("%Close");
         _close.Pressed += OnClose;
+
+        _editProto = GetNode<Button>("%EditProto");
+        _editProto.Pressed += () =>
+        {
+            if (SelectedPrototype != null)
+            {
+                EventBus.Instance.Publish(new EditPrototypeEvent { PrototypeId = SelectedPrototype.PrototypeRef });
+            }
+        };
+        
+        _cloneProto = GetNode<Button>("%CloneProto");
+        _cloneProto.Pressed += DuplicatePrototype;
+        
+        _spawnProto = GetNode<Button>("%SpawnProto");
+        _spawnProto.Pressed += SpawnPrototype;
+        
+        _deleteProto = GetNode<Button>("%DeleteProto");
+        _deleteProto.Pressed += DeletePrototype;
+        
+        _deleteAllUnused = GetNode<Button>("%DeleteUnused");
+        _hideUnused = GetNode<Button>("%HideUnused");
 
         InitializePrototypeGrid();
 
@@ -138,12 +168,27 @@ public partial class PrototypeManifest : Window
         }
     }
 
+    private void SpawnPrototype()
+    {
+        if (_selectedPrototype != null)
+        {
+            SpawnPrototype(_selectedPrototype.PrototypeRef);
+        }
+    }
+    
     private void SpawnPrototype(Guid prototypeRef)
     {
         OnClose();
         EventBus.Instance.Publish(new SpawnPrototypeEvent { PrototypeRef = prototypeRef });
     }
 
+    private void DeletePrototype()
+    {
+        if (_selectedPrototype != null)
+        {
+            DeletePrototype(_selectedPrototype.PrototypeRef);
+        }
+    }
     private void DeletePrototype(Guid prototypeRef)
     {
         if (
@@ -171,6 +216,14 @@ public partial class PrototypeManifest : Window
         dialog.PopupCentered();
     }
 
+    private void DuplicatePrototype()
+    {
+        if (_selectedPrototype != null)
+        {
+            DuplicatePrototype(_selectedPrototype.PrototypeRef);
+        }
+    }
+    
     private void DuplicatePrototype(Guid prototypeRef)
     {
         if (
@@ -237,12 +290,13 @@ public partial class PrototypeManifest : Window
         if (ProjectService.Instance?.CurrentProject == null)
             return;
 
+        /*
         Texture2D pencil = ResourceLoader.Load<Texture2D>("res://Textures/UI/pencil.png");
         Texture2D trash = ResourceLoader.Load<Texture2D>("res://Textures/UI/trash-can.png");
         Texture2D copy =
             ResourceLoader.Load<Texture2D>("res://Textures/UI/content_copy_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg");
         Texture2D spawn = ResourceLoader.Load<Texture2D>("res://Textures/UI/bottom.png");
-
+        */
 
         _prototypeTree.Clear();
         _root = _prototypeTree.CreateItem();
@@ -282,10 +336,13 @@ public partial class PrototypeManifest : Window
             item.SetTextAlignment(2, HorizontalAlignment.Center);
 
             item.SetMetadata(0, prototype.PrototypeRef.ToString());
+            
+            /*
             item.AddButton(2, pencil);
             item.AddButton(2, spawn);
             item.AddButton(2, copy);
             item.AddButton(2, trash);
+            */
         }
     }
 
