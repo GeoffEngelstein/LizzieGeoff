@@ -1,8 +1,8 @@
-using Godot;
-using Lizzie.AssetManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Godot;
+using Lizzie.AssetManagement;
 
 public partial class GridEntry : MarginContainer
 {
@@ -20,14 +20,12 @@ public partial class GridEntry : MarginContainer
     private int _gridCols;
     private int _gridCount;
 
-
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
-	{
+    {
         InitializeGridBindings();
         EventBus.Instance.Subscribe<ImageChangedEvent>(ImageChanged);
-}
-
+    }
 
     private void ImageChanged(ImageChangedEvent obj)
     {
@@ -141,14 +139,22 @@ public partial class GridEntry : MarginContainer
 
     public void UpdateGridControls(Dictionary<string, object> parameters)
     {
-        _gridRowCount.Text = parameters.ContainsKey("GridRows") ? parameters["GridRows"].ToString() : "";
-        _gridColCount.Text = parameters.ContainsKey("GridCols") ? parameters["GridCols"].ToString() : "";
-        _gridCardCount.Text = parameters.ContainsKey("GridCount") ? parameters["GridCount"].ToString() : "";
+        _gridRowCount.Text = parameters.ContainsKey("GridRows")
+            ? parameters["GridRows"].ToString()
+            : "";
+        _gridColCount.Text = parameters.ContainsKey("GridCols")
+            ? parameters["GridCols"].ToString()
+            : "";
+        _gridCardCount.Text = parameters.ContainsKey("GridCount")
+            ? parameters["GridCount"].ToString()
+            : "";
 
         if (parameters.ContainsKey("FrontGridImageKey"))
         {
             string frontKey = parameters["FrontGridImageKey"].ToString();
-            var asset = ProjectService.Instance.CurrentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == frontKey);
+            var asset = ProjectService.Instance.CurrentProject?.Images.Values.FirstOrDefault(a =>
+                a.AssetId.ToString() == frontKey
+            );
             _gridFrontImageSelector.SelectedImage = asset;
         }
         else
@@ -159,7 +165,9 @@ public partial class GridEntry : MarginContainer
         if (parameters.ContainsKey("BackGridImageKey"))
         {
             string backKey = parameters["BackGridImageKey"].ToString();
-            var asset = ProjectService.Instance.CurrentProject?.Images.Values.FirstOrDefault(a => a.AssetId.ToString() == backKey);
+            var asset = ProjectService.Instance.CurrentProject?.Images.Values.FirstOrDefault(a =>
+                a.AssetId.ToString() == backKey
+            );
             _gridBackImageSelector.SelectedImage = asset;
         }
         else
@@ -181,5 +189,4 @@ public partial class GridEntry : MarginContainer
     {
         CardCountUpdated?.Invoke(this, EventArgs.Empty);
     }
-
 }
