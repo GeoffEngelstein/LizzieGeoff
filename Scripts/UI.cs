@@ -25,6 +25,7 @@ public partial class UI : CanvasLayer
     private PopupMenu _fileMenu;
 
     private PopupMenu _componentPopup;
+    private PopupMenu _restoreSnapshotMenu;
     private Label _componentName;
 
     private GameController _gameController;
@@ -54,11 +55,20 @@ public partial class UI : CanvasLayer
 
         _fileMenu = GetNode<PopupMenu>("%File");
         _fileMenu.AddSeparator();
+        _fileMenu.AddItem("Save Snapshot...", 3);
+
+        _restoreSnapshotMenu = new PopupMenu();
+        _restoreSnapshotMenu.Name = "RestoreSnapshotMenu";
+        _restoreSnapshotMenu.IdPressed += OnRestoreSnapshotSelected;
+        _fileMenu.AddChild(_restoreSnapshotMenu);
+        _fileMenu.AddSubmenuNodeItem("Restore Snapshot", _restoreSnapshotMenu, 4);
+
+        _fileMenu.AddItem("Snapshot Manager...", 5);
+        _fileMenu.AddSeparator();
         _fileMenu.AddItem("Multiplayer...", 10);
         _fileMenu.IdPressed += FileMenuOnIdPressed;
-        //_componentDefinition = GetNode<ComponentDefinition>("ComponentDefinition");
-        //_componentDefinition.CreateObject += OnCreateObject;
-        //_componentDefinition.CancelDialog += OnCancelCreate;
+        _fileMenu.AboutToPopup += RebuildRestoreSnapshotMenu;
+
 
         _editMenu = GetNode<PopupMenu>("%Edit");
         _editMenu.AddItem("Templates", 1);
@@ -87,6 +97,7 @@ public partial class UI : CanvasLayer
         _modalDialogs = GetNode("%ModalDialogs");
 
         EventBus.Instance.Subscribe<ProjectChangedEvent>(ProjectChanged);
+        EventBus.Instance.Subscribe<GameStateChangedEvent>(OnGameStateChanged);
         EventBus.Instance.Subscribe<EditPrototypeEvent>(ShowComponentEditDialog);
         EventBus.Instance.Subscribe<ShowTemplateEditor>(ShowTemplateEditorFromEvent);
         EventBus.Instance.Subscribe<ShowDatasetEditor>(ShowDatasetEditorFromEvent);
@@ -95,7 +106,45 @@ public partial class UI : CanvasLayer
 
     private void ProjectChanged(ProjectChangedEvent obj)
     {
-        return;
+        RebuildRestoreSnapshotMenu();
+    }
+
+    private void OnGameStateChanged(GameStateChangedEvent e)
+    {
+        RebuildRestoreSnapshotMenu();
+    }
+
+    private void RebuildRestoreSnapshotMenu()
+    {
+        if (_restoreSnapshotMenu == null)
+            return;
+
+        _restoreSnapshotMenu.Clear();
+
+        var project = ProjectService.Instance.CurrentProject;
+        if (project == null || project.GameStates.Count == 0)
+        {
+            _restoreSnapshotMenu.AddItem("(no snapshots)", -1);
+            _restoreSnapshotMenu.SetItemDisabled(0, true);
+            return;
+        }
+
+        int id = 0;
+        foreach (var name in project.GameStates.Keys.OrderBy(k => k))
+        {
+            _restoreSnapshotMenu.AddItem(name, id);
+            id++;
+        }
+    }
+
+    private void OnRestoreSnapshotSelected(long id)
+    {
+        var project = ProjectService.Instance.CurrentProject;
+        if (project == null)
+            return;
+
+        var name = _restoreSnapshotMenu.GetItemText((int)id);
+        _gameController.MainScene.GameObjects.RestoreGameState(name);
     }
 
     private void ShowComponentDefinition()
@@ -214,10 +263,135 @@ public partial class UI : CanvasLayer
                 ProjectService.Instance.SaveProject();
                 break;
 
+            case 3:
+                ShowSaveSnapshotDialog();
+                break;
+
+            // case 4 is handled by the _restoreSnapshotMenu submenu
+
+            case 5:
+                ShowSnapshotManager();
+                break;
+
             case 10:
                 ShowMultiplayerDialog();
                 break;
         }
+    }
+
+    private void ShowSaveSnapshotDialog()
+    {
+        var dialog = new ConfirmationDialog();
+        dialog.Title = "Save Snapshot";
+        dialog.OkButtonText = "Save";
+
+        var vbox = new VBoxContainer();
+        vbox.CustomMinimumSize = new Vector2(300, 0);
+
+        var nameLabel = new Label();
+        nameLabel.Text = "Snapshot name:";
+        vbox.AddChild(nameLabel);
+
+        var input = new LineEdit();
+        input.PlaceholderText = "Enter snapshot name...";
+        vbox.AddChild(input);
+
+        var descLabel = new Label();
+        descLabel.Text = "Description (optional):";
+        vbox.AddChild(descLabel);
+
+        var descInput = new TextEdit();
+        descInput.CustomMinimumSize = new Vector2(300, 80);
+        descInput.PlaceholderText = "Enter a description...";
+        descInput.WrapMode = TextEdit.LineWrappingMode.Boundary;
+        vbox.AddChild(descInput);
+
+        dialog.AddChild(vbox);
+
+        dialog.Confirmed += () =>
+        {
+            var name = input.Text.Trim();
+            if (!string.IsNullOrEmpty(name))
+            {
+                _gameController.MainScene.GameObjects.CaptureGameState(name, descInput.Text.Trim());
+                EventBus.Instance.Publish(new GameStateChangedEvent());
+            }
+            dialog.QueueFree();
+        };
+        dialog.Canceled += () => dialog.QueueFree();
+
+        _modalDialogs.AddChild(dialog);
+        dialog.PopupCentered();
+    }
+
+    private void ShowSnapshotManager()
+    {
+        var project = ProjectService.Instance.CurrentProject;
+        if (project == null)
+            return;
+
+        var dialog = new Window();
+        dialog.Title = "Snapshot Manager";
+        dialog.Size = new Vector2I(400, 300);
+        dialog.Unresizable = false;
+
+        var vbox = new VBoxContainer();
+        vbox.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        vbox.OffsetLeft = 8;
+        vbox.OffsetTop = 8;
+        vbox.OffsetRight = -8;
+        vbox.OffsetBottom = -8;
+        dialog.AddChild(vbox);
+
+        var list = new ItemList();
+        list.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+        vbox.AddChild(list);
+
+        void RefreshList()
+        {
+            list.Clear();
+            foreach (var name in project.GameStates.Keys.OrderBy(k => k))
+                list.AddItem(name);
+        }
+
+        RefreshList();
+
+        var hbox = new HBoxContainer();
+        vbox.AddChild(hbox);
+
+        var restoreBtn = new Button();
+        restoreBtn.Text = "Restore";
+        restoreBtn.Pressed += () =>
+        {
+            var sel = list.GetSelectedItems();
+            if (sel.Length == 0) return;
+            var name = list.GetItemText(sel[0]);
+            _gameController.MainScene.GameObjects.RestoreGameState(name);
+        };
+        hbox.AddChild(restoreBtn);
+
+        var deleteBtn = new Button();
+        deleteBtn.Text = "Delete";
+        deleteBtn.Pressed += () =>
+        {
+            var sel = list.GetSelectedItems();
+            if (sel.Length == 0) return;
+            var name = list.GetItemText(sel[0]);
+            _gameController.MainScene.GameObjects.DeleteGameState(name);
+            EventBus.Instance.Publish(new GameStateChangedEvent());
+            RefreshList();
+        };
+        hbox.AddChild(deleteBtn);
+
+        var closeBtn = new Button();
+        closeBtn.Text = "Close";
+        closeBtn.Pressed += () => dialog.QueueFree();
+        hbox.AddChild(closeBtn);
+
+        dialog.CloseRequested += () => dialog.QueueFree();
+
+        _modalDialogs.AddChild(dialog);
+        dialog.PopupCentered();
     }
 
     private void ShowProjectManager()

@@ -16,6 +16,12 @@ public class Project
     public Dictionary<string, Asset> Images { get; set; } = new();
 
     /// <summary>
+    /// Named scene snapshots the user can save and restore.
+    /// Key is the state name.
+    /// </summary>
+    public Dictionary<string, GameState> GameStates { get; set; } = new();
+
+    /// <summary>
     /// List of cloud-stored assets associated with this project
     /// </summary>
     public List<Asset> Assets { get; set; } = new();
@@ -64,4 +70,14 @@ public class Project
             return d;
         }
     }
+
+    public void MapPrototypeJson()
+    {
+        foreach (var p in Prototypes)
+        {
+            var d = JsonUtilities.ParseJsonToDictionary(p.Value.Type, p.Value.Parameters);
+            p.Value.Parameters = d;
+        }
+    }
+    
 }

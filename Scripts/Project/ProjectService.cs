@@ -78,20 +78,14 @@ public partial class ProjectService : Node
 
         loadFile.Close();
 
+        /*
         var p = JsonSerializer.Deserialize<Project>(s);
 
-        /*
-        var d = p.Datasets.First().Value;
-        d.Columns.Add("IconColor");
-
-        var colors = new string[] { "Red","Blue", "Yellow", "Gray", "Purple", "Green" };
-        int i = 0;
-        foreach (var dc in d.Rows)
-        {
-            dc.Value.Data.Add(colors[i++]);
-        }
-        */
         p.FixDatasetName();
+        p?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
+        */
+        
+        var p = DeserializeProject(s);
 
         return p;
     }
@@ -137,6 +131,8 @@ public partial class ProjectService : Node
             return null;
         var project = JsonSerializer.Deserialize<Project>(json);
         project?.FixDatasetName();
+        project?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
+        
         return project;
     }
 

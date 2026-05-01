@@ -387,7 +387,20 @@ public partial class PrototypeManifest : Window
     {
         //update the preview
         _preview.ClearComponent();
-        _preview.Build(SelectedPrototype, TextureFactory);
+
+        string row = "0";
+
+        
+        var datasetParam = Utility.GetParam<string>(SelectedPrototype.Parameters, "Dataset");
+        if (!string.IsNullOrEmpty(datasetParam))
+        {
+
+            ProjectService.Instance.CurrentProject.Datasets.TryGetValue(datasetParam, out var dataset);
+
+            if (dataset != null) row = dataset.Rows.First().Key;
+        }
+
+        _preview.Build(SelectedPrototype, row, TextureFactory);
     }
 
     public TextureFactory TextureFactory { get; set; }

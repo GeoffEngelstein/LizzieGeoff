@@ -154,7 +154,73 @@ public partial class Utility : Node
         if (parameter is null)
             return default;
 
-        throw new Exception($"Parameter {key} is not type {typeof(T)}");
+        try
+        {
+            T o = (T)parameter;
+            return o;
+        }
+        catch{}
+        
+        // Try Parse/TryParse on the string representation of the value.
+        var str = parameter.ToString();
+        var type = typeof(T);
+
+        // Handle enum: accept both named values ("Quick") and numeric strings ("2").
+        if (type.IsEnum)
+        {
+            // Named value or numeric string via Enum.TryParse
+            if (Enum.TryParse(type, str, ignoreCase: true, out var enumResult))
+                return (T)enumResult;
+
+            // str is an integer — convert the underlying integer value to the enum
+            if (long.TryParse(str, out var intResult))
+                return (T)Enum.ToObject(type, intResult);
+
+            return default;
+            //throw new Exception($"Parameter {key} could not be converted to enum {type.Name} from \"{str}\"");
+        }
+
+        // TryParse pattern: bool TryParse(string, out T)
+        var tryParse = type.GetMethod(
+            "TryParse",
+            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static,
+            null,
+            new[] { typeof(string), type.MakeByRefType() },
+            null
+        );
+
+        if (tryParse != null)
+        {
+            var args = new object[] { str, default(T) };
+            if (tryParse.Invoke(null, args) is true)
+                return (T)args[1];
+        }
+        else
+        {
+            // Parse pattern: T Parse(string)
+            var parse = type.GetMethod(
+                "Parse",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static,
+                null,
+                new[] { typeof(string) },
+                null
+            );
+
+            if (parse != null)
+            {
+                try
+                {
+                    return (T)parse.Invoke(null, new object[] { str });
+                }
+                catch
+                {
+                    // Parse threw — fall through to the exception below.
+                }
+            }
+        }
+
+        return default;
+        //throw new Exception($"Parameter {key} is not type {typeof(T)} and could not be converted from \"{str}\"");
     }
 
     public static void UpdateParam(Dictionary<string, object> parameters, string key, object value)
@@ -195,7 +261,7 @@ public partial class Utility : Node
     public static string ComponentTypeToScenePath(
         VisualComponentBase.VisualComponentType componentType,
         Dictionary<string, object> parameters,
-        string dataSetRow = ""
+        string dataSetRow = "", bool previewMode = false
     )
     {
         switch (componentType)
@@ -220,7 +286,7 @@ public partial class Utility : Node
 
             case VisualComponentBase.VisualComponentType.Deck:
             {
-                if (string.IsNullOrEmpty(dataSetRow))
+                if (string.IsNullOrEmpty(dataSetRow) && !previewMode)
                     return "res://Scenes/VisualComponents/VcDeck.tscn";
                 return TokenScene(parameters);
             }

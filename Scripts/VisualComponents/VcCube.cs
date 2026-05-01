@@ -13,31 +13,33 @@ public partial class VcCube : VisualComponentBase
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
     }
 
+    public override bool Build(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
+    {
+        return Build(parameters, textureFactory);
+    }
+
+
     public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
-        base.Build(parameters, textureFactory);
+        base.Build(parameters, string.Empty, textureFactory);
 
         MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
 
         if (parameters.ContainsKey(nameof(Height)))
         {
-            if (parameters[nameof(Height)] is float h)
-            {
-                if (h <= 0)
-                    return false;
-                Height = h / 10f;
-            }
+            var h = Utility.GetParam<float>(parameters, "Height");
+            if (h <= 0)
+                return false;
+            Height = h / 10f;
 
-            if (parameters[nameof(Width)] is float w)
-            {
-                Width = w / 10f;
-            }
+            var w = Utility.GetParam<float>(parameters, "Width");
+            Width = w / 10f;
 
-            if (parameters[nameof(Length)] is float l)
-            {
-                Length = l / 10f;
-            }
+
+            var l = Utility.GetParam<float>(parameters, "Length");
+            Length = l / 10f;
+
 
             if (parameters["Color"] is Color color)
             {
@@ -84,11 +86,9 @@ public partial class VcCube : VisualComponentBase
 
         if (parameters.ContainsKey(nameof(Height)))
         {
-            if (parameters[nameof(Height)] is int h)
-            {
-                if (h <= 0)
-                    ret.Add("Height must be > 0");
-            }
+            var h = Utility.GetParam<float>(parameters, "Height");
+            if (h <= 0)
+                ret.Add("Height must be > 0");
         }
         else
         {

@@ -208,15 +208,38 @@ public partial class ComponentPreview : Panel
     {
         if (_component != null)
         {
+            var d = ShallowClone(parameters);
+
+            var h = Utility.GetParam<float>(parameters, "Height");
+            var w = Utility.GetParam<float>(parameters, "Width");
+            var l = Utility.GetParam<float>(parameters, "Length");
+
+            //normalize dimensions to 10x10x10 outer extants
+            var scale = 10f / Math.Max(h, Math.Max(w, l));
+
+           if (d.ContainsKey("Height")) d["Height"] = h * scale;
+           if (d.ContainsKey("Width")) d["Width"] = w * scale;
+           if (d.ContainsKey("Length")) d["Length"] = l * scale;
+
             if (string.IsNullOrWhiteSpace(row))
             {
-                _component.Build(parameters, textureFactory); //we are doing this because not all components override the Build method with the row parameter, and we don't want to break those that don't
+                _component.Build(d, textureFactory); //we are doing this because not all components override the Build method with the row parameter, and we don't want to break those that don't
             }
             else
             {
-                _component.Build(parameters, row, textureFactory);
+                _component.Build(d, row, textureFactory);
             }
         }
+    }
+
+    private Dictionary<string, object> ShallowClone(Dictionary<string, object> d)
+    {
+        var o = new Dictionary<string, object>();
+        foreach (var kv in d)
+        {
+            o.Add(kv.Key, kv.Value);
+        }
+        return o;
     }
 
     public void Build(Prototype prototype, TextureFactory textureFactory)
@@ -226,7 +249,7 @@ public partial class ComponentPreview : Panel
 
     public void Build(Prototype prototype, string row, TextureFactory textureFactory)
     {
-        var c = SpawnComponent(prototype);
+        var c = SpawnComponent(prototype, row);
         _row = row;
         _buildNeeded = true;
 
@@ -234,9 +257,9 @@ public partial class ComponentPreview : Panel
         _textureFactory = textureFactory;
     }
 
-    private VisualComponentBase SpawnComponent(Prototype prototype)
+    private VisualComponentBase SpawnComponent(Prototype prototype, string row)
     {
-        var s = Utility.ComponentTypeToScenePath(prototype.Type, prototype.Parameters);
+        var s = Utility.ComponentTypeToScenePath(prototype.Type, prototype.Parameters, row, true);
         var scene = GD.Load<PackedScene>(s);
         var c = scene.Instantiate<VisualComponentBase>();
         c.PrototypeRef = prototype.PrototypeRef;
