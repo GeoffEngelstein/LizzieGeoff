@@ -84,7 +84,7 @@ public partial class ProjectService : Node
         p.FixDatasetName();
         p?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
         */
-
+        
         var p = DeserializeProject(s);
 
         return p;
@@ -131,8 +131,8 @@ public partial class ProjectService : Node
             return null;
         var project = JsonSerializer.Deserialize<Project>(json);
         project?.FixDatasetName();
-        project?.MapPrototypeJson(); //map the generic JSON objects to what we actually need
-
+        project?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
+        
         return project;
     }
 
