@@ -329,7 +329,7 @@ public partial class GameObjects : Node
     {
         var state = new GameState
         {
-            Name       = name,
+            Name = name,
             CapturedAt = DateTime.UtcNow,
             Description = description,
         };

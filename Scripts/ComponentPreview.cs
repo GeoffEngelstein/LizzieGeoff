@@ -218,9 +218,12 @@ public partial class ComponentPreview : Panel
             //normalize dimensions to 10x10x10 outer extants
             var scale = 10f / Math.Max(h, Math.Max(w, l));
 
-           if (d.ContainsKey("Height")) d["Height"] = h * scale;
-           if (d.ContainsKey("Width")) d["Width"] = w * scale;
-           if (d.ContainsKey("Length")) d["Length"] = l * scale;
+            if (d.ContainsKey("Height"))
+                d["Height"] = h * scale;
+            if (d.ContainsKey("Width"))
+                d["Width"] = w * scale;
+            if (d.ContainsKey("Length"))
+                d["Length"] = l * scale;
 
             if (string.IsNullOrWhiteSpace(row))
             {
