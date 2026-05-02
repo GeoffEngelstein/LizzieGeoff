@@ -188,6 +188,7 @@ public partial class ComponentPreview : Panel
             var size = aabb.Size;
             var maxSize = size.Length();
             _camera.Size = maxSize * 1.2f;
+            _camera.Position = new Vector3(0, 0, Mathf.Max(100f, maxSize + 1f));
         }
         else
         {
@@ -272,10 +273,7 @@ public partial class ComponentPreview : Panel
         {
             VisualComponentBase.VisualComponentType.Cube => new Vector3(Mathf.DegToRad(-10), 0, 0),
             VisualComponentBase.VisualComponentType.Disc => new Vector3(Mathf.DegToRad(-10), 0, 0),
-            VisualComponentBase.VisualComponentType.Tile => new Vector3(Mathf.DegToRad(90), 0, 0),
             VisualComponentBase.VisualComponentType.Token => new Vector3(Mathf.DegToRad(90), 0, 0),
-            VisualComponentBase.VisualComponentType.Board => new Vector3(Mathf.DegToRad(90), 0, 0),
-            VisualComponentBase.VisualComponentType.Card => new Vector3(Mathf.DegToRad(90), 0, 0),
             VisualComponentBase.VisualComponentType.Deck => new Vector3(Mathf.DegToRad(90), 0, 0),
             VisualComponentBase.VisualComponentType.Die => new Vector3(Mathf.DegToRad(-45), 0, 0),
             VisualComponentBase.VisualComponentType.Mesh => new Vector3(Mathf.DegToRad(-10), 0, 0),

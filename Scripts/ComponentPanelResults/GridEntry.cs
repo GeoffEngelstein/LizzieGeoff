@@ -133,6 +133,7 @@ public partial class GridEntry : MarginContainer
         d.Add("GridCols", _gridCols);
         d.Add("GridCount", _gridCount);
 
+        d.Add("GridSingleBack", _gridSingleBack.ButtonPressed);
         d.Add("Mode", VcToken.TokenBuildMode.Grid);
         d.Add("DifferentBack", true);
     }

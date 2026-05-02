@@ -6,16 +6,13 @@ public abstract partial class VisualComponentBase : Area3D
 {
     public enum VisualComponentType
     {
-        Cube,
-        Disc,
-        Tile,
-        Token,
-        Board,
-        Card,
-        Deck,
-        Die,
-        Mesh,
-        Meeple,
+        Cube = 0,
+        Disc = 1,
+        Token = 3,
+        Deck = 6,
+        Die = 7,
+        Mesh = 8,
+        Meeple = 9,
     }
 
     public bool TextureReady { get; set; }
@@ -66,9 +63,6 @@ public abstract partial class VisualComponentBase : Area3D
         }
     }
 
-    //temporary store for parameters when we are starting up
-    protected Dictionary<string, object> TempParams;
-
     public override void _Ready()
     {
         _curScale = 1;
@@ -89,12 +83,12 @@ public abstract partial class VisualComponentBase : Area3D
         tween.TweenProperty(this, "position", newPos, 0.2f);
     }
 
-    public virtual bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
+    public virtual bool Setup(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
-        return Build(parameters, DataSetRow, textureFactory);
+        return Setup(parameters, DataSetRow, textureFactory);
     }
 
-    public virtual bool Build(
+    public virtual bool Setup(
         Dictionary<string, object> parameters,
         string dataSetRow,
         TextureFactory textureFactory
@@ -114,12 +108,12 @@ public abstract partial class VisualComponentBase : Area3D
         return true;
     }
 
-    public virtual bool Build(Guid prototypeRef, TextureFactory textureFactory)
+    public virtual bool Setup(Guid prototypeRef, TextureFactory textureFactory)
     {
-        return Build(prototypeRef, string.Empty, textureFactory);
+        return Setup(prototypeRef, string.Empty, textureFactory);
     }
 
-    public virtual bool Build(Guid prototypeRef, string dataSetRow, TextureFactory textureFactory)
+    public virtual bool Setup(Guid prototypeRef, string dataSetRow, TextureFactory textureFactory)
     {
         TextureFactory = textureFactory;
         TextureReady = false;
@@ -141,10 +135,12 @@ public abstract partial class VisualComponentBase : Area3D
         if (!string.IsNullOrEmpty(dataSetRow))
             DataSetRow = dataSetRow;
 
-        Build(proto.Parameters, textureFactory);
+        Setup(proto.Parameters, textureFactory);
 
         return true;
     }
+
+    public virtual void Build() { }
 
     public virtual void SpawnBuild(
         Guid prototypeRef,
@@ -153,7 +149,7 @@ public abstract partial class VisualComponentBase : Area3D
     )
     {
         syncDto.ApplyToComponent(this);
-        Build(prototypeRef, syncDto.DataSetRow, textureFactory);
+        Setup(prototypeRef, syncDto.DataSetRow, textureFactory);
     }
 
     /// <summary>
@@ -164,7 +160,10 @@ public abstract partial class VisualComponentBase : Area3D
     /// <returns></returns>
     public virtual bool Refresh(TextureFactory textureFactory)
     {
-        return Build(PrototypeRef, DataSetRow, textureFactory);
+        var result = Setup(PrototypeRef, DataSetRow, textureFactory);
+        if (result)
+            Build();
+        return result;
     }
 
     public virtual void Delete()
@@ -645,7 +644,7 @@ public abstract partial class VisualComponentBase : Area3D
     {
         var l = new List<VisualComponentBase>();
 
-        var c = Build(prototypeRef, textureFactory);
+        var c = Setup(prototypeRef, textureFactory);
 
         return [];
     }
