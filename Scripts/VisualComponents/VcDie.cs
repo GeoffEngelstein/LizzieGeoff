@@ -217,7 +217,7 @@ public partial class VcDie : VisualComponentBase
     private TokenBuildMode _mode;
 
 
-    public override bool Build(
+    public override bool Setup(
         Dictionary<string, object> parameters,
         string datasetRow,
         TextureFactory textureFactory

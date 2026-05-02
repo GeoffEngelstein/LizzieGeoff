@@ -435,7 +435,7 @@ public partial class GameObjects : Node
             newComponent.ExcludeFromSync = true;
 
             entry.ApplyToComponent(newComponent);
-            newComponent.Build(entry.PrototypeRef, entry.DataSetRow, TextureFactory);
+            newComponent.Setup(entry.PrototypeRef, entry.DataSetRow, TextureFactory);
 
             AddComponentToScene(newComponent, false);
         }

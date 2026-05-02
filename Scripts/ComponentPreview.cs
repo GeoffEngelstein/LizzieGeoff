@@ -224,11 +224,13 @@ public partial class ComponentPreview : Panel
 
             if (string.IsNullOrWhiteSpace(row))
             {
-                _component.Build(d, textureFactory); //we are doing this because not all components override the Build method with the row parameter, and we don't want to break those that don't
+                _component.Setup(d, textureFactory); //we are doing this because not all components override the Setup method with the row parameter, and we don't want to break those that don't
+                _component.Build();
             }
             else
             {
-                _component.Build(d, row, textureFactory);
+                _component.Setup(d, row, textureFactory);
+                _component.Build();
             }
         }
     }
