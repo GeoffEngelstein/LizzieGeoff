@@ -161,51 +161,6 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
         UpdatePreview();
     }
 
-    private string _frontGridImage;
-    private string _backGridImage;
-
-    private async void FrontImageSelected(object sender, SelectedEventArgs<Asset> e)
-    {
-        if (e.SelectedItem == null)
-        {
-            _frontGridImage = string.Empty;
-            /*
-            _frontMasterSprite = new ImageTexture(); //maybe set to blank white?
-            UpdatePreview();
-            return;
-            */
-        }
-
-        {
-            var a = e.SelectedItem;
-            _frontGridImage = a.AssetId.ToString();
-        }
-
-        //ProjectService.Instance.FetchImageAsync(a, UpdateFrontGridTexture);
-        UpdatePreview();
-    }
-
-    private async void BackImageSelected(object sender, SelectedEventArgs<Asset> e)
-    {
-        if (e.SelectedItem == null)
-        {
-            _backGridImage = string.Empty;
-            /*
-            _backMasterSprite = new ImageTexture(); //maybe set to blank white?
-            UpdatePreview();
-            return;
-            */
-        }
-        else
-        {
-            var a = e.SelectedItem;
-            _backGridImage = a.AssetId.ToString();
-        }
-        UpdatePreview();
-
-        //ProjectService.Instance.FetchImageAsync(a, UpdateBackGridTexture);
-    }
-
     private void EditFrontTemplate()
     {
         EventBus.Instance.Publish(new ShowTemplateEditor { TemplateName = _frontTemplate?.Name });
@@ -578,6 +533,9 @@ public partial class TokenPanelDialogResult : ComponentPanelDialogResult
     private void AddGridParameters(Dictionary<string, object> d)
     {
         _gridEntry.AddGridParameters(d);
+        MultipleCreateMode = true;
+        WidthHint = ParamToFloat(_heightInput.Text) / 10f;
+        HeightHint = ParamToFloat(_heightInput.Text) / 10f;
     }
 
     private VcToken.TokenBuildMode TabToBuildMode(int tab)

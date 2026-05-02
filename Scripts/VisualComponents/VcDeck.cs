@@ -260,7 +260,7 @@ public partial class VcDeck : VisualComponentGroup
             if (comp == null)
                 continue;
 
-            if (comp is VisualComponentFlat vcf)
+            if (comp is VcToken vcf)
             {
                 if (_showFace)
                 {
@@ -329,18 +329,18 @@ public partial class VcDeck : VisualComponentGroup
         BuildInternal(proto.Parameters, textureFactory, false);
     }
 
-    public override bool Build(Dictionary<string, object> parameters, TextureFactory textureFactory)
+    public override bool Setup(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
         return BuildInternal(parameters, textureFactory, true);
     }
 
     private bool BuildInternal(
-        System.Collections.Generic.Dictionary<string, object> parameters,
+        Dictionary<string, object> parameters,
         TextureFactory textureFactory,
         bool spawnCards
     )
     {
-        base.Build(parameters, textureFactory);
+        base.Setup(parameters, textureFactory);
 
         _frontSprite = GetNode<Sprite3D>("FrontSprite");
         _backSprite = GetNode<Sprite3D>("BackSprite");
@@ -409,7 +409,7 @@ public partial class VcDeck : VisualComponentGroup
 
             case TokenTextureSubViewport.TokenShape.HexFlat:
                 var hf = new ConvexPolygonShape2D();
-                hf.Points = CalcHexPointVertices();
+                hf.Points = CalcHexFlatVertices();
                 ShapeProfiles.Add(new OffsetShape2D(hf));
                 break;
 
@@ -474,8 +474,8 @@ public partial class VcDeck : VisualComponentGroup
         arr[1] = new Vector2(-x, y);
         arr[2] = new Vector2(-x, -y);
         arr[3] = new Vector2(0, -y * 2);
-        arr[4] = new Vector2(-x, -y);
-        arr[5] = new Vector2(-x, y);
+        arr[4] = new Vector2(x, -y);
+        arr[5] = new Vector2(x, y);
 
         /*
         foreach (var p in arr)
@@ -687,9 +687,8 @@ public partial class VcDeck : VisualComponentGroup
 
         card.Parent = Reference;
         card.PrototypeRef = PrototypeRef;
-        card.Parent = Reference;
 
-        card.Build(PrototypeRef, cardNum.ToString(), textureFactory);
+        card.Setup(PrototypeRef, cardNum.ToString(), textureFactory);
 
         return card;
     }
@@ -707,7 +706,7 @@ public partial class VcDeck : VisualComponentGroup
         card.DataSetRow = cardRef;
         card.Parent = Reference;
 
-        card.Build(PrototypeRef, cardRef, textureFactory);
+        card.Setup(PrototypeRef, cardRef, textureFactory);
     }
 
     #region Grid Cards
@@ -717,6 +716,7 @@ public partial class VcDeck : VisualComponentGroup
     private int _gridRows;
     private int _gridCols;
     private int _gridCount;
+    private bool _gridSingleBack;
 
     private void BuildGrid(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
@@ -727,6 +727,7 @@ public partial class VcDeck : VisualComponentGroup
         _gridRows = Utility.GetParam<int>(parameters, "GridRows");
         _gridCols = Utility.GetParam<int>(parameters, "GridCols");
         _gridCount = Utility.GetParam<int>(parameters, "GridCount");
+        _gridSingleBack = Utility.GetParam<bool>(parameters, "GridSingleBack");
 
         CreateGridCards(textureFactory);
     }
@@ -764,9 +765,8 @@ public partial class VcDeck : VisualComponentGroup
 
         card.Parent = Reference;
         card.PrototypeRef = PrototypeRef;
-        card.Parent = Reference;
 
-        card.Build(PrototypeRef, index.ToString(), textureFactory);
+        card.Setup(PrototypeRef, index.ToString(), textureFactory);
 
         return card;
     }
@@ -847,20 +847,19 @@ public partial class VcDeck : VisualComponentGroup
         if (Children.Count > 0)
         {
             var c = ProjectService.Instance.GameObjects.GetComponent(Children.First());
-            if (c is VisualComponentFlat vcf)
+            if (c is VcToken vcf)
             {
                 if (vcf.TextureChanged && vcf.IsNodeReady() && vcf.BackTexture != null)
                 {
                     _frontSprite.Texture = vcf.BackTexture;
                     _frontSprite.PixelSize = PixelSize(_frontSprite.Texture.GetSize());
-                    ;
                     _frontTextureReady = true;
                     vcf.TextureChanged = false;
                 }
             }
 
             var l = ProjectService.Instance.GameObjects.GetComponent(Children.Last());
-            if (l is VisualComponentFlat vcb)
+            if (l is VcToken vcb)
             {
                 if (vcb.TextureChanged && vcb.IsNodeReady() && vcb.FaceTexture != null)
                 {
@@ -904,33 +903,46 @@ public partial class VcDeck : VisualComponentGroup
         if (Children.Count > 0)
         {
             var c = ProjectService.Instance.GameObjects.GetComponent(Children.First());
-            if (c is VisualComponentFlat vcf)
+            if (c is VcToken vcf)
             {
                 if (vcf.TextureReady)
                 {
-                    if (vcf.BackTexture == null || vcf.BackSprite == null)
+                    if (vcf.BackTexture == null)
                         return;
 
-                    _frontSprite.PixelSize = vcf.BackSprite.PixelSize;
+                    _frontSprite.PixelSize = PixelSize(vcf.BackTexture.GetSize());
                     _frontSprite.Texture = vcf.BackTexture;
+
+                    if (_mode == VcToken.TokenBuildMode.Grid && !_gridSingleBack)
+                    {
+                        int.TryParse(vcf.DataSetRow, out var frontFrame);
+                        _frontSprite.Frame = frontFrame;
+                        _frontSprite.Hframes = _gridCols;
+                        _frontSprite.Vframes = _gridRows;
+                        var ts = _frontSprite.Texture.GetSize();
+                        var cv = new Vector2(ts.X / _gridCols, ts.Y / _gridRows);
+                        _frontSprite.PixelSize = PixelSize(cv);
+                    }
+
                     _frontTextureReady = true;
                 }
             }
 
             var l = ProjectService.Instance.GameObjects.GetComponent(Children.Last());
-            if (l is VisualComponentFlat vcb)
+            if (l is VcToken vcb)
             {
                 if (vcb.TextureReady)
                 {
-                    if (vcb.FaceTexture == null || vcb.FaceSprite == null)
+                    if (vcb.FaceTexture == null)
                         return;
 
-                    _backSprite.PixelSize = vcb.FaceSprite.PixelSize;
+                    _backSprite.PixelSize = PixelSize(vcb.FaceTexture.GetSize());
                     _backSprite.Texture = vcb.FaceTexture;
 
                     if (_mode == VcToken.TokenBuildMode.Grid)
                     {
-                        _backSprite.Frame = 0;
+                        int.TryParse(vcb.DataSetRow, out var lastFrame);
+                        _backSprite.Frame = lastFrame;
                         _backSprite.Hframes = _gridCols;
                         _backSprite.Vframes = _gridRows;
                         var ts = _backSprite.Texture.GetSize();

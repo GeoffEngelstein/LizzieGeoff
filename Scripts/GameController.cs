@@ -209,7 +209,7 @@ public partial class GameController : Node3D
             }
         }
 
-        if (component.Build(args.PrototypeRef, row, _textureFactory))
+        if (component.Setup(args.PrototypeRef, row, _textureFactory))
         {
             return component;
         }

@@ -280,12 +280,16 @@ public partial class ComponentDefinition : Window
 
     public VisualComponentBase.VisualComponentType NameToType(string name)
     {
-        return _components.First(x => x.ComponentName == name).ComponentType;
+        return Enum.Parse<VisualComponentBase.VisualComponentType>(
+            _components.First(x => x.ComponentName == name).ComponentType
+        );
     }
 
     public string TypeToName(VisualComponentBase.VisualComponentType componentType)
     {
-        return _components.First(x => x.ComponentType == componentType).ComponentName;
+        if (componentType == VisualComponentBase.VisualComponentType.Deck)
+            return "Printed";
+        return _components.First(x => x.ComponentType == componentType.ToString()).ComponentName;
     }
 
     public void SetCurrentComponentType(VisualComponentBase.VisualComponentType type)
