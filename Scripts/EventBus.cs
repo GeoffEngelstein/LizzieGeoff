@@ -292,6 +292,8 @@ public class ProjectChangedEvent : IEvent
     public Dictionary<ProjectService.ProjectElement, string> ChangedElements { get; set; } = new();
 }
 
+public class GameStateChangedEvent : IEvent { }
+
 public class ShowTemplateEditor : IEvent
 {
     public string TemplateName { get; set; }

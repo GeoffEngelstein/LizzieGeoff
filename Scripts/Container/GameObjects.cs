@@ -318,6 +318,151 @@ public partial class GameObjects : Node
 
     #endregion
 
+    #region GameState
+
+    /// <summary>
+    /// Snapshot all VisualComponent children into a named GameState and store it
+    /// in the current project.  If a state with the same name already exists it
+    /// is overwritten.
+    /// </summary>
+    public GameState CaptureGameState(string name, string description = "")
+    {
+        var state = new GameState
+        {
+            Name       = name,
+            CapturedAt = DateTime.UtcNow,
+            Description = description,
+        };
+
+        foreach (var child in GetChildren())
+        {
+            if (child is VisualComponentBase vcb)
+            {
+                state.Components.Add(GameStateComponent.FromComponent(vcb));
+            }
+        }
+
+        var project = ProjectService.Instance.CurrentProject;
+        if (project != null)
+        {
+            project.GameStates[name] = state;
+            ProjectService.Instance.SaveProject(project);
+            EventBus.Instance.Publish(new GameStateChangedEvent());
+        }
+
+        GD.Print($"GameState '{name}' captured ({state.Components.Count} components).");
+        return state;
+    }
+
+    /// <summary>
+    /// Restore the scene to a previously captured GameState.  Components that
+    /// existed in the snapshot but are no longer in the scene are re-spawned;
+    /// components present in the scene but absent from the snapshot are deleted;
+    /// components in both are repositioned/updated.
+    /// </summary>
+    public void RestoreGameState(string name)
+    {
+        var project = ProjectService.Instance.CurrentProject;
+        if (project == null || !project.GameStates.TryGetValue(name, out var state))
+        {
+            GD.PrintErr($"RestoreGameState: no state named '{name}' found.");
+            return;
+        }
+
+        RestoreGameState(state);
+    }
+
+    /// <summary>
+    /// Restore the scene directly from a <see cref="GameState"/> object.
+    /// </summary>
+    public void RestoreGameState(GameState state)
+    {
+        if (state == null)
+            return;
+
+        // Build a lookup of the saved components by their reference Guid.
+        var saved = state.Components.ToDictionary(c => c.ComponentRef);
+
+        // Build a lookup of live components.
+        var live = GetChildren()
+            .OfType<VisualComponentBase>()
+            .ToDictionary(c => c.Reference);
+
+        // Update or delete live components.
+        foreach (var (refId, component) in live)
+        {
+            if (saved.TryGetValue(refId, out var entry))
+            {
+                entry.ApplyToComponent(component);
+            }
+            else
+            {
+                // Component not present in snapshot — remove it.
+                component.QueueFree();
+            }
+        }
+
+        // Spawn components that exist in the snapshot but not in the live scene.
+        foreach (var (refId, entry) in saved)
+        {
+            if (live.ContainsKey(refId))
+                continue; // Already handled above.
+
+            var project = ProjectService.Instance.CurrentProject;
+            if (project == null || !project.Prototypes.TryGetValue(entry.PrototypeRef, out var proto))
+            {
+                GD.PrintErr($"RestoreGameState: prototype {entry.PrototypeRef} not found for component {refId}.");
+                continue;
+            }
+
+            var scenePath = Utility.ComponentTypeToScenePath(proto.Type, proto.Parameters, entry.DataSetRow);
+            if (string.IsNullOrEmpty(scenePath))
+            {
+                GD.PrintErr($"RestoreGameState: could not resolve scene for {proto.Type}.");
+                continue;
+            }
+
+            var scene = GD.Load<PackedScene>(scenePath).Instantiate();
+            if (scene is not VisualComponentBase newComponent)
+            {
+                GD.PrintErr($"RestoreGameState: spawned scene is not a VisualComponentBase.");
+                scene.QueueFree();
+                continue;
+            }
+
+            newComponent.Reference    = refId;
+            newComponent.PrototypeRef = entry.PrototypeRef;
+            newComponent.ExcludeFromSync = true;
+
+            entry.ApplyToComponent(newComponent);
+            newComponent.Setup(entry.PrototypeRef, entry.DataSetRow, TextureFactory);
+
+            AddComponentToScene(newComponent, false);
+        }
+
+        GD.Print($"GameState '{state.Name}' restored ({state.Components.Count} entries).");
+    }
+
+    /// <summary>
+    /// Remove a named GameState from the current project.
+    /// </summary>
+    public bool DeleteGameState(string name)
+    {
+        var project = ProjectService.Instance.CurrentProject;
+        if (project == null)
+            return false;
+
+        if (!project.GameStates.Remove(name))
+            return false;
+
+        ProjectService.Instance.SaveProject(project);
+        EventBus.Instance.Publish(new GameStateChangedEvent());
+        GD.Print($"GameState '{name}' deleted.");
+        return true;
+    }
+
+    #endregion
+
     #region Hover
     public bool IsAnyObjectHovered()
     {

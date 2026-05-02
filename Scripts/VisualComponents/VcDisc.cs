@@ -13,9 +13,14 @@ public partial class VcDisc : VisualComponentBase
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
     }
 
+    public override bool Setup(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
+    {
+        return Setup(parameters, textureFactory);
+    }
+    
     public override bool Setup(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
-        base.Setup(parameters, textureFactory);
+        base.Setup(parameters, string.Empty, textureFactory);
 
         MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");

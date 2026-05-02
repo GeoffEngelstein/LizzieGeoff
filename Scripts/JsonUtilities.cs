@@ -103,6 +103,14 @@ public static class JsonUtilities
 
         p.Add("QuickCardData", TryGetQuickCardDataList(d, "QuickCardData"));
 
+        p.Add("FrontGridImageKey", TryGetString(d, "FrontGridImageKey"));
+        p.Add("BackGridImageKey", TryGetString(d, "BackGridImageKey"));
+        
+        p.Add("GridRows", TryGetInt(d, "GridRows"));
+        p.Add("GridCols", TryGetInt(d, "GridCols"));
+        p.Add("GridCount", TryGetInt(d, "GridCount"));
+
+
         return p;
     }
 
@@ -144,8 +152,9 @@ public static class JsonUtilities
                 break;
 
             case VcToken.TokenBuildMode.Grid:
-                p.Add("FrontMasterSprite", TryGetTexture2D(d, "FrontMasterSprite"));
-                p.Add("BackMasterSprite", TryGetTexture2D(d, "BackMasterSprite"));
+                p.Add("FrontGridImageKey", TryGetString(d, "FrontGridImageKey"));
+                p.Add("BackGridImageKey", TryGetString(d, "BackGridImageKey"));
+
                 p.Add("GridRows", TryGetInt(d, "GridRows"));
                 p.Add("GridCols", TryGetInt(d, "GridCols"));
                 p.Add("GridCount", TryGetInt(d, "GridCount"));
