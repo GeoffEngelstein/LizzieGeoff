@@ -357,6 +357,7 @@ public class AssetChangedEvent : IEvent
 public class SpawnPrototypeEvent : IEvent
 {
     public Guid PrototypeRef { get; set; }
+    public bool StartInDragMode { get; set; }
 }
 
 public class DeletePrototypeEvent : IEvent

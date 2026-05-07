@@ -235,7 +235,14 @@ public partial class GameObjects : Node
                 }
                 else
                 {
-                    StartDrag(go);
+                    if (go.IsDrawSelected && go is VisualComponentGroup vcg)
+                    {
+                        vcg.DragDraw(1);
+                    }
+                    else
+                    {
+                        EnterDragMode(go);
+                    }
                 }
             }
         }
@@ -801,18 +808,30 @@ public partial class GameObjects : Node
     #region Spawn
     private List<VisualComponentBase> _spawnComponents;
 
-    public void EnterSpawnMode(List<VisualComponentBase> components)
+    public void EnterSpawnMode(List<VisualComponentBase> components, bool startInDragMode)
     {
-        CursorMode = CursorMode.Spawn;
+        if (startInDragMode)
+        {
+            CursorMode = CursorMode.Drag;
+            
+        }
+        else
+        {
+            CursorMode = CursorMode.Spawn;
+        }
+        
+       
         _spawnComponents = components;
 
         foreach (var c in components)
         {
             c.DimMode(true);
-            c.NeverHighlight = true;
-            c.ExcludeFromSync = true;
-            AddComponentToScene(c, false);
+            c.NeverHighlight = !startInDragMode;
+            c.ExcludeFromSync = !startInDragMode;
+            AddComponentToScene(c, startInDragMode);
         }
+        
+        if (startInDragMode) EnterDragSpawnMode();
     }
 
     private void HandleSpawnMode()
@@ -901,7 +920,7 @@ public partial class GameObjects : Node
     private Vector3 _lastDragPosition;
     private Change _dragChange;
 
-    private void StartDrag(VisualComponentBase go)
+    private void EnterDragMode(VisualComponentBase go)
     {
         // Check if object is locked by another player in multiplayer
         if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
@@ -930,6 +949,24 @@ public partial class GameObjects : Node
         foreach (var gameObject in GetSelectedObjects())
         {
             gameObject.IsDragging = true;
+        }
+
+        QueueStackingUpdate();
+    }
+
+    /// <summary>
+    /// Handles when a component is being dragged away from a deck, tray, or other component
+    /// </summary>
+    private void EnterDragSpawnMode()
+    {
+        CursorMode = CursorMode.Drag;
+
+        StartDragUndo(_spawnComponents.First());
+        _lastDragPosition = _dragPlane.GetCursorProjection();
+        foreach (var gameObject in _spawnComponents)
+        {
+            gameObject.IsDragging = true;
+            gameObject.Position = _lastDragPosition + gameObject.SpawnDelta;
         }
 
         QueueStackingUpdate();

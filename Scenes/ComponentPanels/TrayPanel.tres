@@ -1,0 +1,12 @@
+[gd_resource type="Resource" format=3 uid="uid://kytu6eovnfed"]
+
+[ext_resource type="Texture2D" uid="uid://dwo7yx4b16u42" path="res://Textures/UI/top.png" id="1_jip0n"]
+[ext_resource type="Script" uid="uid://cbj45v7spbeg0" path="res://Scripts/ComponentTemplate.cs" id="2_hm3uw"]
+
+[resource]
+script = ExtResource("2_hm3uw")
+ComponentName = "Tray"
+Icon = ExtResource("1_jip0n")
+DefinitionDialogName = "res://Scenes/ComponentPanels/tray_panel.tscn"
+PrototypeName = "res://Scenes/VisualComponents/VcTray.tscn"
+ComponentType = "Cube"

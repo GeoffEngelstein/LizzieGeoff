@@ -281,6 +281,7 @@ public partial class ComponentPreview : Panel
             VisualComponentBase.VisualComponentType.Token => new Vector3(Mathf.DegToRad(90), 0, 0),
             VisualComponentBase.VisualComponentType.Deck => new Vector3(Mathf.DegToRad(90), 0, 0),
             VisualComponentBase.VisualComponentType.Die => new Vector3(Mathf.DegToRad(-45), 0, 0),
+            VisualComponentBase.VisualComponentType.Tray => new Vector3(Mathf.DegToRad(30), 0, 0),
             VisualComponentBase.VisualComponentType.Mesh => new Vector3(Mathf.DegToRad(-10), 0, 0),
             VisualComponentBase.VisualComponentType.Meeple => new Vector3(
                 Mathf.DegToRad(-10),
