@@ -34,6 +34,9 @@ public static class JsonUtilities
             case VisualComponentBase.VisualComponentType.Meeple:
                 return ParseMeeple(d);
 
+            case VisualComponentBase.VisualComponentType.Bag:
+                return ParseBag(d);
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(vcType), vcType, null);
         }
@@ -56,6 +59,19 @@ public static class JsonUtilities
     }
 
     private static Dictionary<string, object> ParseDisc(Dictionary<string, object> d)
+    {
+        var p = new Dictionary<string, object>();
+
+        p.Add("ComponentName", TryGetString(d, "ComponentName"));
+        p.Add("BaseName", TryGetString(d, "BaseName"));
+        p.Add("Height", TryGetFloat(d, "Height"));
+        p.Add("Diameter", TryGetFloat(d, "Diameter"));
+        p.Add("Color", TryGetColor(d, "Color"));
+
+        return p;
+    }
+
+    private static Dictionary<string, object> ParseBag(Dictionary<string, object> d)
     {
         var p = new Dictionary<string, object>();
 

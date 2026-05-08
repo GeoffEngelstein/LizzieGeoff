@@ -291,6 +291,9 @@ public partial class Utility : Node
             case VisualComponentBase.VisualComponentType.Meeple:
                 return "res://Scenes/VisualComponents/VcMeeple.tscn";
 
+            case VisualComponentBase.VisualComponentType.Bag:
+                return "res://Scenes/VisualComponents/VcBag.tscn";
+            
             default:
                 throw new ArgumentOutOfRangeException(nameof(componentType), componentType, null);
         }

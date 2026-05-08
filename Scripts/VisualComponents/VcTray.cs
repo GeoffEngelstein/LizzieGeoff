@@ -23,7 +23,17 @@ public partial class VcTray : VisualComponentGroup
     {
         if (_trayProtoBuildNeeded)
         {
-            CreateTrayPrototype(_textureFactory, _maxScale);
+            CreateTrayPrototype(_textureFactory);
+        }
+
+        foreach (var c in _prototypeSpawnPoint.GetChildren())
+        {
+            if (c is Node3D n)
+            {
+                UpdateChildScale(n);
+                n.Rotate(Vector3.Up, (float)delta);
+                //n.Rotate(Vector3.Right, (float)(delta * 1.3));
+            }
         }
     }
 
@@ -68,12 +78,10 @@ public partial class VcTray : VisualComponentGroup
         if (Width <= 0 || Length <= 0)
         {
             Scale = new Vector3(Height, Height, Height);
-            _maxScale = Height;
         }
         else
         {
             Scale = new Vector3(Width, Height, Length);
-            _maxScale = Math.Max(Height, Math.Max(Length, Width));
         }
 
         YHeight = Height * 2;
@@ -92,12 +100,12 @@ public partial class VcTray : VisualComponentGroup
         }
 
         UpdateNameLabel();
-        CreateTrayPrototype(textureFactory, _maxScale);
+        CreateTrayPrototype(textureFactory);
 
         return true;
     }
 
-    private float _maxScale = 1;
+   
 
     public override List<string> ValidateParameters(Dictionary<string, object> parameters)
     {
@@ -157,15 +165,13 @@ public partial class VcTray : VisualComponentGroup
 
     private bool _trayProtoBuildNeeded;
 
-    private void CreateTrayPrototype(TextureFactory textureFactory, float maxScale)
+    private void CreateTrayPrototype(TextureFactory textureFactory)
     {
         if (!IsNodeReady())
         {
             _trayProtoBuildNeeded = true;
             return;
         }
-
-        if (maxScale == 0) maxScale = 1;
 
         _trayProtoBuildNeeded = false;
 
@@ -175,10 +181,21 @@ public partial class VcTray : VisualComponentGroup
         if (_prototype == null) return;
 
         var c = ProjectService.Instance.SpawnDisconnectedVisualComponent(_prototype, string.Empty, textureFactory);
-        var s = c.Scale;
-        c.Scale = new Vector3(s.X / Width, s.Y / Height, s.Z / Length);
+        UpdateChildScale(c);
         _prototypeSpawnPoint.AddChild(c);
         c.Position += new Vector3(0, c.YHeight, 0);
+    }
+
+    private Vector3 _lastScale;
+
+    private void UpdateChildScale(Node3D c)
+    {
+        if (Math.Abs(c.Scale.Length() - _lastScale.Length()) >= 0.05f)
+        {
+            var s = c.Scale;
+            _lastScale = new Vector3(s.X / Width, s.Y / Height, s.Z / Length);
+            c.Scale = _lastScale;
+        }
     }
 
     protected override void OnChildrenChanged()

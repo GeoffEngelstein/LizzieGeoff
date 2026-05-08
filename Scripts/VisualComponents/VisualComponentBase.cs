@@ -14,6 +14,7 @@ public abstract partial class VisualComponentBase : Area3D
         Mesh = 8,
         Meeple = 9,
         Tray = 10,
+        Bag = 11,
     }
 
     public bool TextureReady { get; set; }
@@ -78,7 +79,7 @@ public abstract partial class VisualComponentBase : Area3D
 
     public override void _InputEvent(Camera3D camera, InputEvent @event, Vector3 eventPosition, Vector3 normal, int shapeIdx)
     {
-        if (@event is InputEventMouseMotion mouse)
+        if (@event is InputEventMouseMotion mouse && !IsDragging)
         {
             if (shapeIdx == 0)
             {
@@ -441,7 +442,18 @@ public abstract partial class VisualComponentBase : Area3D
         HighlightMesh.Visible = IsSelected && !NeverHighlight && !Locked;
     }
 
-    public Aabb Aabb => MainMesh.GlobalTransform * MainMesh.GetAabb();
+    public Aabb Aabb
+    {
+        get
+        {
+            if (MainMesh != null)
+            {
+                return MainMesh.GlobalTransform* MainMesh.GetAabb();
+            }
+
+            return new Aabb();
+        }
+    }
 
     public abstract float MaxAxisSize { get; }
 

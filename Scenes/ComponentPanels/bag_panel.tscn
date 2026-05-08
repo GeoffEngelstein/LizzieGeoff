@@ -1,0 +1,101 @@
+[gd_scene format=3 uid="uid://bubllqxu3yxfu"]
+
+[ext_resource type="Script" uid="uid://xuisspi18mgf" path="res://Scripts/ComponentPanelResults/BagPanelDialogResults.cs" id="1_x8isy"]
+[ext_resource type="PackedScene" uid="uid://ojs61k8nlddj" path="res://Scenes/ComponentPanels/ComponentPreview.tscn" id="2_2uanh"]
+
+[node name="Bag Panel" type="MarginContainer" unique_id=1708440986]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+script = ExtResource("1_x8isy")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1658417507]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="GridContainer" type="GridContainer" parent="HBoxContainer" unique_id=1679716087]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/GridContainer" unique_id=908252749]
+layout_mode = 2
+text = "Name  "
+horizontal_alignment = 2
+
+[node name="ItemName" type="LineEdit" parent="HBoxContainer/GridContainer" unique_id=1986154136]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="Label6" type="Label" parent="HBoxContainer/GridContainer" unique_id=1179901631]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="Label7" type="Label" parent="HBoxContainer/GridContainer" unique_id=2051521100]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="Label5" type="Label" parent="HBoxContainer/GridContainer" unique_id=509601383]
+layout_mode = 2
+text = "Diameter"
+horizontal_alignment = 2
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="HBoxContainer/GridContainer" unique_id=2061779271]
+layout_mode = 2
+
+[node name="Diameter" type="LineEdit" parent="HBoxContainer/GridContainer/HBoxContainer4" unique_id=869925763]
+unique_name_in_owner = true
+layout_mode = 2
+text = "50"
+alignment = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/GridContainer/HBoxContainer4" unique_id=1940069382]
+layout_mode = 2
+text = "mm"
+
+[node name="Label4" type="Label" parent="HBoxContainer/GridContainer" unique_id=959936796]
+layout_mode = 2
+text = "Height  "
+horizontal_alignment = 2
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="HBoxContainer/GridContainer" unique_id=543527016]
+layout_mode = 2
+
+[node name="Height" type="LineEdit" parent="HBoxContainer/GridContainer/HBoxContainer3" unique_id=1011259074]
+unique_name_in_owner = true
+layout_mode = 2
+text = "50"
+alignment = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/GridContainer/HBoxContainer3" unique_id=2076792839]
+layout_mode = 2
+text = "mm"
+
+[node name="Label2" type="Label" parent="HBoxContainer/GridContainer" unique_id=1960823558]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Color  "
+horizontal_alignment = 2
+
+[node name="Color" type="ColorPickerButton" parent="HBoxContainer/GridContainer" unique_id=2102523740]
+unique_name_in_owner = true
+layout_mode = 2
+color = Color(1, 0, 0, 1)
+
+[node name="Label8" type="Label" parent="HBoxContainer/GridContainer" unique_id=600256356]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="Label9" type="Label" parent="HBoxContainer/GridContainer" unique_id=865334985]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="Preview" parent="HBoxContainer" unique_id=612723203 instance=ExtResource("2_2uanh")]
+unique_name_in_owner = true
+layout_mode = 2

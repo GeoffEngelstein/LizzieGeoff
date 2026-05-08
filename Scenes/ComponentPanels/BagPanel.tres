@@ -1,0 +1,12 @@
+[gd_resource type="Resource" format=3 uid="uid://bqon44r3ojq4e"]
+
+[ext_resource type="Texture2D" uid="uid://ckky14sgque2d" path="res://Textures/UI/bag16.png" id="1_mf8nb"]
+[ext_resource type="Script" uid="uid://cbj45v7spbeg0" path="res://Scripts/ComponentTemplate.cs" id="2_csu0h"]
+
+[resource]
+script = ExtResource("2_csu0h")
+ComponentName = "Bag"
+Icon = ExtResource("1_mf8nb")
+DefinitionDialogName = "res://Scenes/ComponentPanels/bag_panel.tscn"
+PrototypeName = "res://Scenes/VisualComponents/VcBag.tscn"
+ComponentType = "Bag"

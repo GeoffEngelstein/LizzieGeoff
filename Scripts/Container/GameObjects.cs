@@ -41,7 +41,9 @@ public partial class GameObjects : Node
         EventBus.Instance.Subscribe<ModalDialogClosedEvent>(OnModalClosed);
         EventBus.Instance.Subscribe<AddComponentToSceneEvent>(OnAddComponentToScene);
         EventBus.Instance.Subscribe<ComponentPropertyChangedEvent>(OnComponentPropertyChanged);
+        EventBus.Instance.Subscribe<ShowAndDragComponentEvent>(EnterDragUnhideMode);
     }
+
 
     private void OnModalClosed()
     {
@@ -825,7 +827,7 @@ public partial class GameObjects : Node
 
         foreach (var c in components)
         {
-            c.DimMode(true);
+            c.DimMode(!startInDragMode);
             c.NeverHighlight = !startInDragMode;
             c.ExcludeFromSync = !startInDragMode;
             AddComponentToScene(c, startInDragMode);
@@ -955,7 +957,7 @@ public partial class GameObjects : Node
     }
 
     /// <summary>
-    /// Handles when a component is being dragged away from a deck, tray, or other component
+    /// Handles when a component is being created as it is dragged away from a tray
     /// </summary>
     private void EnterDragSpawnMode()
     {
@@ -965,6 +967,36 @@ public partial class GameObjects : Node
         _lastDragPosition = _dragPlane.GetCursorProjection();
         foreach (var gameObject in _spawnComponents)
         {
+            gameObject.IsDragging = true;
+            gameObject.Position = _lastDragPosition + gameObject.SpawnDelta;
+        }
+
+        QueueStackingUpdate();
+    }
+
+    /// <summary>
+    /// Handles when a component is being unhidden as it is dragged away from a deck, or bag
+    /// </summary>
+    private void EnterDragUnhideMode(ShowAndDragComponentEvent obj)
+    {
+        if (!obj.ComponentList.Any()) return;
+        
+        var fg = obj.ComponentList.First();
+        if (fg == Guid.Empty) return;
+        
+        var first = GetComponent(fg);
+        if (first == null) return;
+
+        CursorMode = CursorMode.Drag;
+
+        StartDragUndo(first);       //undo should also put it back into where it came from
+        _lastDragPosition = _dragPlane.GetCursorProjection();
+        foreach (var g in obj.ComponentList)
+        {
+            var gameObject = GetComponent(g);
+            if (gameObject == null) continue;
+
+            gameObject.Location = VisualComponentBase.ComponentLocation.Board;
             gameObject.IsDragging = true;
             gameObject.Position = _lastDragPosition + gameObject.SpawnDelta;
         }

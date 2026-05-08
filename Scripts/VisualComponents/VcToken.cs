@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Godot;
 using Lizzie.AssetManagement;
 using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
@@ -175,7 +176,7 @@ public partial class VcToken : VisualComponentBase
         QuickDeck, //need to parse the QuickBuild string to pull out the caption
     }
 
-    private bool _buildRequired = true;
+    private bool _buildRequired;
 
     public override bool Setup(
         Dictionary<string, object> parameters,
@@ -271,6 +272,8 @@ public partial class VcToken : VisualComponentBase
         if (_quickCardList == null)
             _quickCardList = new();
 
+        Build();
+        
         return true;
     }
 
@@ -278,6 +281,7 @@ public partial class VcToken : VisualComponentBase
     {
         if (!IsNodeReady())
         {
+            _buildRequired = true;
             GD.PrintErr("VcToken was built before the node was ready.");
             return;
         }
