@@ -1,6 +1,6 @@
-using Godot;
 using System;
 using System.Collections.Generic;
+using Godot;
 
 public partial class BagPanelDialogResults : ComponentPanelDialogResult
 {
@@ -121,4 +121,3 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
         Activate();
     }
 }
-

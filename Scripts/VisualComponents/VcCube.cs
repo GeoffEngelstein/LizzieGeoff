@@ -13,11 +13,14 @@ public partial class VcCube : VisualComponentBase
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
     }
 
-    public override bool Setup(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
+    public override bool Setup(
+        Dictionary<string, object> parameters,
+        string dataSetRow,
+        TextureFactory textureFactory
+    )
     {
         return Setup(parameters, textureFactory);
     }
-
 
     public override bool Setup(Dictionary<string, object> parameters, TextureFactory textureFactory)
     {
@@ -36,10 +39,8 @@ public partial class VcCube : VisualComponentBase
             var w = Utility.GetParam<float>(parameters, "Width");
             Width = w / 10f;
 
-
             var l = Utility.GetParam<float>(parameters, "Length");
             Length = l / 10f;
-
 
             if (parameters["Color"] is Color color)
             {

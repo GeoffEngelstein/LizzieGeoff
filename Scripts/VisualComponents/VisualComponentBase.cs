@@ -77,7 +77,13 @@ public abstract partial class VisualComponentBase : Area3D
         base._Ready();
     }
 
-    public override void _InputEvent(Camera3D camera, InputEvent @event, Vector3 eventPosition, Vector3 normal, int shapeIdx)
+    public override void _InputEvent(
+        Camera3D camera,
+        InputEvent @event,
+        Vector3 eventPosition,
+        Vector3 normal,
+        int shapeIdx
+    )
     {
         if (@event is InputEventMouseMotion mouse && !IsDragging)
         {
@@ -94,7 +100,6 @@ public abstract partial class VisualComponentBase : Area3D
                 CanDrag = false;
             }
             _on_mouse_entered();
-
         }
         base._InputEvent(camera, @event, eventPosition, normal, shapeIdx);
     }
@@ -389,7 +394,11 @@ public abstract partial class VisualComponentBase : Area3D
     public bool IsDrawSelected
     {
         get => _isDrawSelected;
-        set { _isDrawSelected = value; UpdateHighlight(); }
+        set
+        {
+            _isDrawSelected = value;
+            UpdateHighlight();
+        }
     }
 
     protected bool _locked;
@@ -448,7 +457,7 @@ public abstract partial class VisualComponentBase : Area3D
         {
             if (MainMesh != null)
             {
-                return MainMesh.GlobalTransform* MainMesh.GetAabb();
+                return MainMesh.GlobalTransform * MainMesh.GetAabb();
             }
 
             return new Aabb();

@@ -115,7 +115,8 @@ public partial class GridEntry : MarginContainer
         int.TryParse(_gridColCount.Text, out _gridCols);
         int.TryParse(_gridCardCount.Text, out _gridCount);
 
-        if (_gridCount == 0) _gridCount = _gridRows * _gridCols;
+        if (_gridCount == 0)
+            _gridCount = _gridRows * _gridCols;
 
         _gridCount = Math.Min(_gridRows * _gridCols, _gridCount);
 

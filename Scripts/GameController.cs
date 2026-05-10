@@ -106,7 +106,10 @@ public partial class GameController : Node3D
         var component = SingleComponentSpawn(args, string.Empty);
         if (component != null)
         {
-            _mainScene.EnterSpawnMode(new List<VisualComponentBase> { component }, e.StartInDragMode);
+            _mainScene.EnterSpawnMode(
+                new List<VisualComponentBase> { component },
+                e.StartInDragMode
+            );
         }
     }
 

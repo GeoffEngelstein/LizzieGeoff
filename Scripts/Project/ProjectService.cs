@@ -88,7 +88,7 @@ public partial class ProjectService : Node
         p.FixDatasetName();
         p?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
         */
-        
+
         var p = DeserializeProject(s);
 
         return p;
@@ -135,8 +135,8 @@ public partial class ProjectService : Node
             return null;
         var project = JsonSerializer.Deserialize<Project>(json);
         project?.FixDatasetName();
-        project?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
-        
+        project?.MapPrototypeJson(); //map the generic JSON objects to what we actually need
+
         return project;
     }
 
@@ -327,8 +327,11 @@ public partial class ProjectService : Node
 
     public GameObjects GameObjects { get; set; }
 
-    public VisualComponentBase SpawnDisconnectedVisualComponent(Prototype prototype, string row,
-        TextureFactory textureFactory)
+    public VisualComponentBase SpawnDisconnectedVisualComponent(
+        Prototype prototype,
+        string row,
+        TextureFactory textureFactory
+    )
     {
         var scenePath = Utility.ComponentTypeToScenePath(prototype.Type, prototype.Parameters);
 
@@ -343,9 +346,12 @@ public partial class ProjectService : Node
         component.NeverHighlight = true;
 
         component.PrototypeRef = prototype.PrototypeRef;
-        
+
         //if the name is blank in the parameters, set it
-        if (prototype.Parameters.ContainsKey("ComponentName") && prototype.Parameters.ContainsKey("BaseName"))
+        if (
+            prototype.Parameters.ContainsKey("ComponentName")
+            && prototype.Parameters.ContainsKey("BaseName")
+        )
         {
             if (string.IsNullOrWhiteSpace(prototype.Parameters["ComponentName"].ToString()))
             {
@@ -374,5 +380,4 @@ public partial class ProjectService : Node
         }
         return null;
     }
-
 }
