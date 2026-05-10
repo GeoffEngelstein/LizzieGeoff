@@ -272,9 +272,7 @@ public partial class VcToken : VisualComponentBase
         if (_quickCardList == null)
             _quickCardList = new();
 
-        Build();
-        
-        _faceHframes = ReadIntParam(parameters, "FaceHframes", 1, min: 1);
+         _faceHframes = ReadIntParam(parameters, "FaceHframes", 1, min: 1);
         _faceVframes = ReadIntParam(parameters, "FaceVframes", 1, min: 1);
         _faceFrame = ReadIntParam(parameters, "FaceFrame", 0, min: 0);
         _backHframes = ReadIntParam(parameters, "BackHframes", 1, min: 1);
@@ -303,6 +301,8 @@ public partial class VcToken : VisualComponentBase
                 _backFrame = idx;
             }
         }
+
+        Build();
 
         return true;
     }
