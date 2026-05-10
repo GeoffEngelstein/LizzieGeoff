@@ -86,9 +86,9 @@ public partial class SceneController : Node3D
         //d.SavePng(@"c:\winwam5\tfTest.png");
     }
 
-    public void EnterSpawnMode(List<VisualComponentBase> components)
+    public void EnterSpawnMode(List<VisualComponentBase> components, bool startInDragMode)
     {
-        _gameObjects.EnterSpawnMode(components);
+        _gameObjects.EnterSpawnMode(components, startInDragMode);
     }
 
     public void PopupClosed()

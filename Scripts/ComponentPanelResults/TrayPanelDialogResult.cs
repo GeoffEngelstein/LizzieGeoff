@@ -1,8 +1,8 @@
+using Godot;
 using System;
 using System.Collections.Generic;
-using Godot;
 
-public partial class CubePanelDialogResult : ComponentPanelDialogResult
+public partial class TrayPanelDialogResult : ComponentPanelDialogResult
 {
     private LineEdit _nameInput;
     private LineEdit _heightInput;
@@ -10,6 +10,8 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
     private LineEdit _lengthInput;
     private ColorPickerButton _colorPicker;
     private ComponentPreview _preview;
+    private OptionButton _prototypeList;
+    private string _selectedPrototypeKey;
 
     public override void _Ready()
     {
@@ -26,7 +28,34 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
 
         _colorPicker = GetNode<ColorPickerButton>("%Color");
         _colorPicker.ColorChanged += ColorPickerOnColorChanged;
+
+        _prototypeList = GetNode<OptionButton>("%PrototypeList");
+        LoadPrototypeList();
+        _prototypeList.ItemSelected += PrototypeSelected;
+
         _preview = GetNode<ComponentPreview>("%Preview");
+    }
+
+    private void LoadPrototypeList()
+    {
+        _prototypeList.Clear();
+        _prototypeList.AddItem("(none)", 0);
+
+        int i = 1;
+
+        foreach (var p in ProjectService.Instance.CurrentProject.Prototypes)
+        {
+            _prototypeList.AddItem(p.Value.Name, i);
+            _prototypeList.SetItemMetadata(i, p.Key.ToString());
+            i++;
+        }
+    }
+
+
+    private void PrototypeSelected(long index)
+    {
+        _selectedPrototypeKey = _prototypeList.GetItemMetadata((int)index).ToString();
+        UpdatePreview();
     }
 
     private void ColorPickerOnColorChanged(Color color)
@@ -39,14 +68,14 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
 
     public override void Activate()
     {
-        _preview.SetComponent(GetPreviewComponent(), new Vector3(Mathf.DegToRad(-10), 0, 0));
+        _preview.SetComponent(GetPreviewComponent(), new Vector3(Mathf.DegToRad(30), 0, 0));
         UpdatePreview();
     }
 
-    private VcCube GetPreviewComponent()
+    private VcTray GetPreviewComponent()
     {
-        var scene = GD.Load<PackedScene>("res://Scenes/VisualComponents/VcCube.tscn");
-        return scene.Instantiate<VcCube>();
+        var scene = GD.Load<PackedScene>("res://Scenes/VisualComponents/VcTray.tscn");
+        return scene.Instantiate<VcTray>();
     }
 
     public override void Deactivate()
@@ -75,7 +104,7 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
         d.Add("Width", ParamToFloat(_widthInput.Text));
         d.Add("Length", ParamToFloat(_lengthInput.Text));
         d.Add("Color", _colorPicker.Color);
-
+        d.Add("Prototype", _selectedPrototypeKey);
         return d;
     }
 
@@ -105,7 +134,7 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
         d.Add("Width", w * scale);
         d.Add("Length", l * scale);
         d.Add("Color", _colorPicker.Color);
-
+        d.Add("Prototype", _selectedPrototypeKey);
         _preview.Build(d, TextureFactory);
     }
 

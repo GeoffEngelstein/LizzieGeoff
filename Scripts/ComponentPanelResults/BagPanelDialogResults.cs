@@ -1,41 +1,36 @@
+using Godot;
 using System;
 using System.Collections.Generic;
-using Godot;
 
-public partial class CubePanelDialogResult : ComponentPanelDialogResult
+public partial class BagPanelDialogResults : ComponentPanelDialogResult
 {
     private LineEdit _nameInput;
     private LineEdit _heightInput;
-    private LineEdit _widthInput;
-    private LineEdit _lengthInput;
+    private LineEdit _diameterInput;
+
     private ColorPickerButton _colorPicker;
     private ComponentPreview _preview;
 
     public override void _Ready()
     {
-        ComponentType = VisualComponentBase.VisualComponentType.Cube;
+        ComponentType = VisualComponentBase.VisualComponentType.Bag;
         _nameInput = GetNode<LineEdit>("%ItemName");
         _heightInput = GetNode<LineEdit>("%Height");
         _heightInput.TextChanged += t => UpdatePreview();
 
-        _lengthInput = GetNode<LineEdit>("%Length");
-        _lengthInput.TextChanged += t => UpdatePreview();
-
-        _widthInput = GetNode<LineEdit>("%Width");
-        _widthInput.TextChanged += t => UpdatePreview();
+        _diameterInput = GetNode<LineEdit>("%Diameter");
+        _diameterInput.TextChanged += t => UpdatePreview();
 
         _colorPicker = GetNode<ColorPickerButton>("%Color");
-        _colorPicker.ColorChanged += ColorPickerOnColorChanged;
+        _colorPicker.ColorChanged += color => UpdatePreview();
+
         _preview = GetNode<ComponentPreview>("%Preview");
     }
 
-    private void ColorPickerOnColorChanged(Color color)
+    public override void _Process(double delta)
     {
-        UpdatePreview();
+        //_previewDisc.Rotation += new Vector3(0,(float)delta, 0);
     }
-
-    private bool _subviewportInitComplete;
-    private int _subViewportFrames = 3;
 
     public override void Activate()
     {
@@ -43,10 +38,10 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
         UpdatePreview();
     }
 
-    private VcCube GetPreviewComponent()
+    private VcBag GetPreviewComponent()
     {
-        var scene = GD.Load<PackedScene>("res://Scenes/VisualComponents/VcCube.tscn");
-        return scene.Instantiate<VcCube>();
+        var scene = GD.Load<PackedScene>("res://Scenes/VisualComponents/VcBag.tscn");
+        return scene.Instantiate<VcBag>();
     }
 
     public override void Deactivate()
@@ -72,8 +67,7 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
 
         d.Add("ComponentName", _nameInput.Text);
         d.Add("Height", ParamToFloat(_heightInput.Text));
-        d.Add("Width", ParamToFloat(_widthInput.Text));
-        d.Add("Length", ParamToFloat(_lengthInput.Text));
+        d.Add("Diameter", ParamToFloat((_diameterInput).Text));
         d.Add("Color", _colorPicker.Color);
 
         return d;
@@ -83,12 +77,10 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
     {
         var d = new Dictionary<string, object>();
 
-        //normalize the size
         var h = ParamToFloat(_heightInput.Text);
-        var w = ParamToFloat(_widthInput.Text);
-        var l = ParamToFloat(_lengthInput.Text);
+        var dia = ParamToFloat(_diameterInput.Text);
 
-        if (h == 0 || w == 0 || l == 0)
+        if (h == 0 || dia == 0)
         {
             _preview.SetComponentVisibility(false);
             return;
@@ -97,13 +89,11 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
         _preview.SetComponentVisibility(true);
 
         //normalize dimensions to 10x10x10 outer extants
-        //var scale = 10f / Math.Max(h, Math.Max(w, l));
-        var scale = 1;
-        
+        var scale = 10f / Math.Max(h, dia);
+
         d.Add("ComponentName", _nameInput.Text);
         d.Add("Height", h * scale);
-        d.Add("Width", w * scale);
-        d.Add("Length", l * scale);
+        d.Add("Diameter", dia * scale);
         d.Add("Color", _colorPicker.Color);
 
         _preview.Build(d, TextureFactory);
@@ -121,11 +111,8 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
         _heightInput.Text = prototype.Parameters.ContainsKey("Height")
             ? prototype.Parameters["Height"].ToString()
             : "";
-        _widthInput.Text = prototype.Parameters.ContainsKey("Width")
-            ? prototype.Parameters["Width"].ToString()
-            : "";
-        _lengthInput.Text = prototype.Parameters.ContainsKey("Length")
-            ? prototype.Parameters["Length"].ToString()
+        _diameterInput.Text = prototype.Parameters.ContainsKey("Diameter")
+            ? prototype.Parameters["Diameter"].ToString()
             : "";
         _colorPicker.Color = prototype.Parameters.ContainsKey("Color")
             ? (Color)prototype.Parameters["Color"]
@@ -134,3 +121,4 @@ public partial class CubePanelDialogResult : ComponentPanelDialogResult
         Activate();
     }
 }
+

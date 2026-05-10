@@ -22,6 +22,7 @@ public partial class PrototypeManifest : Window
     private Button _deleteAllUnused;
     private Button _hideUnused;
 
+
     private Prototype _selectedPrototype;
     public Prototype SelectedPrototype
     {
@@ -50,21 +51,19 @@ public partial class PrototypeManifest : Window
         {
             if (SelectedPrototype != null)
             {
-                EventBus.Instance.Publish(
-                    new EditPrototypeEvent { PrototypeId = SelectedPrototype.PrototypeRef }
-                );
+                EventBus.Instance.Publish(new EditPrototypeEvent { PrototypeId = SelectedPrototype.PrototypeRef });
             }
         };
-
+        
         _cloneProto = GetNode<Button>("%CloneProto");
         _cloneProto.Pressed += DuplicatePrototype;
-
+        
         _spawnProto = GetNode<Button>("%SpawnProto");
         _spawnProto.Pressed += SpawnPrototype;
-
+        
         _deleteProto = GetNode<Button>("%DeleteProto");
         _deleteProto.Pressed += DeletePrototype;
-
+        
         _deleteAllUnused = GetNode<Button>("%DeleteUnused");
         _hideUnused = GetNode<Button>("%HideUnused");
 
@@ -176,7 +175,7 @@ public partial class PrototypeManifest : Window
             SpawnPrototype(_selectedPrototype.PrototypeRef);
         }
     }
-
+    
     private void SpawnPrototype(Guid prototypeRef)
     {
         OnClose();
@@ -190,7 +189,6 @@ public partial class PrototypeManifest : Window
             DeletePrototype(_selectedPrototype.PrototypeRef);
         }
     }
-
     private void DeletePrototype(Guid prototypeRef)
     {
         if (
@@ -225,7 +223,7 @@ public partial class PrototypeManifest : Window
             DuplicatePrototype(_selectedPrototype.PrototypeRef);
         }
     }
-
+    
     private void DuplicatePrototype(Guid prototypeRef)
     {
         if (
@@ -236,8 +234,8 @@ public partial class PrototypeManifest : Window
         )
             return;
 
-        var existingNames = ProjectService
-            .Instance.CurrentProject.Prototypes.Values.Select(p => p.Name)
+        var existingNames = ProjectService.Instance.CurrentProject.Prototypes.Values
+            .Select(p => p.Name)
             .ToHashSet();
 
         // Strip any existing trailing " (N)" suffix before generating the new name
@@ -338,7 +336,7 @@ public partial class PrototypeManifest : Window
             item.SetTextAlignment(2, HorizontalAlignment.Center);
 
             item.SetMetadata(0, prototype.PrototypeRef.ToString());
-
+            
             /*
             item.AddButton(2, pencil);
             item.AddButton(2, spawn);
@@ -392,16 +390,14 @@ public partial class PrototypeManifest : Window
 
         string row = "0";
 
+        
         var datasetParam = Utility.GetParam<string>(SelectedPrototype.Parameters, "Dataset");
         if (!string.IsNullOrEmpty(datasetParam))
         {
-            ProjectService.Instance.CurrentProject.Datasets.TryGetValue(
-                datasetParam,
-                out var dataset
-            );
 
-            if (dataset != null)
-                row = dataset.Rows.First().Key;
+            ProjectService.Instance.CurrentProject.Datasets.TryGetValue(datasetParam, out var dataset);
+
+            if (dataset != null) row = dataset.Rows.First().Key;
         }
 
         _preview.Build(SelectedPrototype, row, TextureFactory);

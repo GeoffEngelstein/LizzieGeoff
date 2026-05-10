@@ -88,7 +88,7 @@ public partial class ProjectService : Node
         p.FixDatasetName();
         p?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
         */
-
+        
         var p = DeserializeProject(s);
 
         return p;
@@ -135,8 +135,8 @@ public partial class ProjectService : Node
             return null;
         var project = JsonSerializer.Deserialize<Project>(json);
         project?.FixDatasetName();
-        project?.MapPrototypeJson(); //map the generic JSON objects to what we actually need
-
+        project?.MapPrototypeJson();    //map the generic JSON objects to what we actually need
+        
         return project;
     }
 
@@ -326,4 +326,53 @@ public partial class ProjectService : Node
     }
 
     public GameObjects GameObjects { get; set; }
+
+    public VisualComponentBase SpawnDisconnectedVisualComponent(Prototype prototype, string row,
+        TextureFactory textureFactory)
+    {
+        var scenePath = Utility.ComponentTypeToScenePath(prototype.Type, prototype.Parameters);
+
+        VisualComponentBase component = SpawnComponent(scenePath);
+
+        if (component == null)
+        {
+            GD.PrintErr("Null Spawn Component");
+            return null;
+        }
+
+        component.NeverHighlight = true;
+
+        component.PrototypeRef = prototype.PrototypeRef;
+        
+        //if the name is blank in the parameters, set it
+        if (prototype.Parameters.ContainsKey("ComponentName") && prototype.Parameters.ContainsKey("BaseName"))
+        {
+            if (string.IsNullOrWhiteSpace(prototype.Parameters["ComponentName"].ToString()))
+            {
+                prototype.Parameters["ComponentName"] = "unbound";
+            }
+        }
+
+        if (component.Setup(prototype.PrototypeRef, row, textureFactory))
+        {
+            return component;
+        }
+        else
+        {
+            GD.PrintErr("Error building component");
+            return null;
+        }
+    }
+
+    public VisualComponentBase SpawnComponent(string prototypeScene)
+    {
+        var scene = ResourceLoader.Load<PackedScene>(prototypeScene).Instantiate();
+
+        if (scene is VisualComponentBase vcb)
+        {
+            return vcb;
+        }
+        return null;
+    }
+
 }

@@ -72,7 +72,7 @@ public partial class GameController : Node3D
                 components.Add(sc);
         }
 
-        _mainScene.EnterSpawnMode(components);
+        _mainScene.EnterSpawnMode(components, false);
     }
 
     private void OnSpawnPrototype(SpawnPrototypeEvent e)
@@ -106,7 +106,7 @@ public partial class GameController : Node3D
         var component = SingleComponentSpawn(args, string.Empty);
         if (component != null)
         {
-            _mainScene.EnterSpawnMode(new List<VisualComponentBase> { component });
+            _mainScene.EnterSpawnMode(new List<VisualComponentBase> { component }, e.StartInDragMode);
         }
     }
 
@@ -187,7 +187,7 @@ public partial class GameController : Node3D
 
     private VisualComponentBase SingleComponentSpawn(CreateObjectEventArgs args, string row)
     {
-        VisualComponentBase component = SpawnComponent(args.PrototypeName);
+        VisualComponentBase component = ProjectService.Instance.SpawnComponent(args.PrototypeName);
 
         if (component == null)
         {
@@ -240,17 +240,6 @@ public partial class GameController : Node3D
     public override void _Process(double delta) { }
 
     public SceneController MainScene => _mainScene;
-
-    public VisualComponentBase SpawnComponent(string prototype)
-    {
-        var scene = ResourceLoader.Load<PackedScene>(prototype).Instantiate();
-
-        if (scene is VisualComponentBase vcb)
-        {
-            return vcb;
-        }
-        return null;
-    }
 
     public void ShowComponentPopup(Vector2I position, IEnumerable<VisualComponentBase> selected)
     {

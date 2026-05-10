@@ -159,8 +159,8 @@ public partial class Utility : Node
             T o = (T)parameter;
             return o;
         }
-        catch { }
-
+        catch{}
+        
         // Try Parse/TryParse on the string representation of the value.
         var str = parameter.ToString();
         var type = typeof(T);
@@ -261,8 +261,7 @@ public partial class Utility : Node
     public static string ComponentTypeToScenePath(
         VisualComponentBase.VisualComponentType componentType,
         Dictionary<string, object> parameters,
-        string dataSetRow = "",
-        bool previewMode = false
+        string dataSetRow = "", bool previewMode = false
     )
     {
         switch (componentType)
@@ -292,6 +291,9 @@ public partial class Utility : Node
             case VisualComponentBase.VisualComponentType.Meeple:
                 return "res://Scenes/VisualComponents/VcMeeple.tscn";
 
+            case VisualComponentBase.VisualComponentType.Bag:
+                return "res://Scenes/VisualComponents/VcBag.tscn";
+            
             default:
                 throw new ArgumentOutOfRangeException(nameof(componentType), componentType, null);
         }
@@ -331,8 +333,7 @@ public partial class Utility : Node
     {
         var sides = GetParam<QuickTextureField[]>(parameters, "Sides");
 
-        if (sides == null)
-            return $"res://Scenes/VisualComponents/Dice/VcD6s.tscn";
+        if (sides == null) return $"res://Scenes/VisualComponents/Dice/VcD6s.tscn";
 
         string shape = string.Empty;
 

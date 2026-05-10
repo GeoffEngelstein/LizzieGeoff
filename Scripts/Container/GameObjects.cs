@@ -37,7 +37,9 @@ public partial class GameObjects : Node
         EventBus.Instance.Subscribe<ModalDialogClosedEvent>(OnModalClosed);
         EventBus.Instance.Subscribe<AddComponentToSceneEvent>(OnAddComponentToScene);
         EventBus.Instance.Subscribe<ComponentPropertyChangedEvent>(OnComponentPropertyChanged);
+        EventBus.Instance.Subscribe<ShowAndDragComponentEvent>(EnterDragUnhideMode);
     }
+
 
     private void OnModalClosed()
     {
@@ -225,7 +227,14 @@ public partial class GameObjects : Node
                 }
                 else
                 {
-                    StartDrag(go);
+                    if (go.IsDrawSelected && go is VisualComponentGroup vcg)
+                    {
+                        vcg.DragDraw(1);
+                    }
+                    else
+                    {
+                        EnterDragMode(go);
+                    }
                 }
             }
         }
@@ -374,7 +383,9 @@ public partial class GameObjects : Node
         var saved = state.Components.ToDictionary(c => c.ComponentRef);
 
         // Build a lookup of live components.
-        var live = GetChildren().OfType<VisualComponentBase>().ToDictionary(c => c.Reference);
+        var live = GetChildren()
+            .OfType<VisualComponentBase>()
+            .ToDictionary(c => c.Reference);
 
         // Update or delete live components.
         foreach (var (refId, component) in live)
@@ -397,22 +408,13 @@ public partial class GameObjects : Node
                 continue; // Already handled above.
 
             var project = ProjectService.Instance.CurrentProject;
-            if (
-                project == null
-                || !project.Prototypes.TryGetValue(entry.PrototypeRef, out var proto)
-            )
+            if (project == null || !project.Prototypes.TryGetValue(entry.PrototypeRef, out var proto))
             {
-                GD.PrintErr(
-                    $"RestoreGameState: prototype {entry.PrototypeRef} not found for component {refId}."
-                );
+                GD.PrintErr($"RestoreGameState: prototype {entry.PrototypeRef} not found for component {refId}.");
                 continue;
             }
 
-            var scenePath = Utility.ComponentTypeToScenePath(
-                proto.Type,
-                proto.Parameters,
-                entry.DataSetRow
-            );
+            var scenePath = Utility.ComponentTypeToScenePath(proto.Type, proto.Parameters, entry.DataSetRow);
             if (string.IsNullOrEmpty(scenePath))
             {
                 GD.PrintErr($"RestoreGameState: could not resolve scene for {proto.Type}.");
@@ -427,7 +429,7 @@ public partial class GameObjects : Node
                 continue;
             }
 
-            newComponent.Reference = refId;
+            newComponent.Reference    = refId;
             newComponent.PrototypeRef = entry.PrototypeRef;
             newComponent.ExcludeFromSync = true;
 
@@ -798,18 +800,30 @@ public partial class GameObjects : Node
     #region Spawn
     private List<VisualComponentBase> _spawnComponents;
 
-    public void EnterSpawnMode(List<VisualComponentBase> components)
+    public void EnterSpawnMode(List<VisualComponentBase> components, bool startInDragMode)
     {
-        CursorMode = CursorMode.Spawn;
+        if (startInDragMode)
+        {
+            CursorMode = CursorMode.Drag;
+            
+        }
+        else
+        {
+            CursorMode = CursorMode.Spawn;
+        }
+        
+       
         _spawnComponents = components;
 
         foreach (var c in components)
         {
-            c.DimMode(true);
-            c.NeverHighlight = true;
-            c.ExcludeFromSync = true;
-            AddComponentToScene(c, false);
+            c.DimMode(!startInDragMode);
+            c.NeverHighlight = !startInDragMode;
+            c.ExcludeFromSync = !startInDragMode;
+            AddComponentToScene(c, startInDragMode);
         }
+        
+        if (startInDragMode) EnterDragSpawnMode();
     }
 
     private void HandleSpawnMode()
@@ -898,7 +912,7 @@ public partial class GameObjects : Node
     private Vector3 _lastDragPosition;
     private Change _dragChange;
 
-    private void StartDrag(VisualComponentBase go)
+    private void EnterDragMode(VisualComponentBase go)
     {
         // Check if object is locked by another player in multiplayer
         if (MultiplayerManager.Instance?.IsMultiplayerActive == true)
@@ -927,6 +941,54 @@ public partial class GameObjects : Node
         foreach (var gameObject in GetSelectedObjects())
         {
             gameObject.IsDragging = true;
+        }
+
+        QueueStackingUpdate();
+    }
+
+    /// <summary>
+    /// Handles when a component is being created as it is dragged away from a tray
+    /// </summary>
+    private void EnterDragSpawnMode()
+    {
+        CursorMode = CursorMode.Drag;
+
+        StartDragUndo(_spawnComponents.First());
+        _lastDragPosition = _dragPlane.GetCursorProjection();
+        foreach (var gameObject in _spawnComponents)
+        {
+            gameObject.IsDragging = true;
+            gameObject.Position = _lastDragPosition + gameObject.SpawnDelta;
+        }
+
+        QueueStackingUpdate();
+    }
+
+    /// <summary>
+    /// Handles when a component is being unhidden as it is dragged away from a deck, or bag
+    /// </summary>
+    private void EnterDragUnhideMode(ShowAndDragComponentEvent obj)
+    {
+        if (!obj.ComponentList.Any()) return;
+        
+        var fg = obj.ComponentList.First();
+        if (fg == Guid.Empty) return;
+        
+        var first = GetComponent(fg);
+        if (first == null) return;
+
+        CursorMode = CursorMode.Drag;
+
+        StartDragUndo(first);       //undo should also put it back into where it came from
+        _lastDragPosition = _dragPlane.GetCursorProjection();
+        foreach (var g in obj.ComponentList)
+        {
+            var gameObject = GetComponent(g);
+            if (gameObject == null) continue;
+
+            gameObject.Location = VisualComponentBase.ComponentLocation.Board;
+            gameObject.IsDragging = true;
+            gameObject.Position = _lastDragPosition + gameObject.SpawnDelta;
         }
 
         QueueStackingUpdate();

@@ -209,6 +209,7 @@ public partial class ComponentPreview : Panel
     {
         if (_component != null)
         {
+            /*
             var d = ShallowClone(parameters);
 
             var h = Utility.GetParam<float>(parameters, "Height");
@@ -224,17 +225,20 @@ public partial class ComponentPreview : Panel
                 d["Width"] = w * scale;
             if (d.ContainsKey("Length"))
                 d["Length"] = l * scale;
-
+            */
             if (string.IsNullOrWhiteSpace(row))
             {
-                _component.Setup(d, textureFactory); //we are doing this because not all components override the Setup method with the row parameter, and we don't want to break those that don't
+                _component.Setup(parameters, textureFactory); //we are doing this because not all components override the Setup method with the row parameter, and we don't want to break those that don't
                 _component.Build();
             }
             else
             {
-                _component.Setup(d, row, textureFactory);
+                _component.Setup(parameters, textureFactory);
                 _component.Build();
             }
+
+            var z = _component.Aabb.GetLongestAxisSize();
+            if (z != 0) _component.Scale /= z;
         }
     }
 
@@ -281,6 +285,7 @@ public partial class ComponentPreview : Panel
             VisualComponentBase.VisualComponentType.Token => new Vector3(Mathf.DegToRad(90), 0, 0),
             VisualComponentBase.VisualComponentType.Deck => new Vector3(Mathf.DegToRad(90), 0, 0),
             VisualComponentBase.VisualComponentType.Die => new Vector3(Mathf.DegToRad(-45), 0, 0),
+            VisualComponentBase.VisualComponentType.Tray => new Vector3(Mathf.DegToRad(30), 0, 0),
             VisualComponentBase.VisualComponentType.Mesh => new Vector3(Mathf.DegToRad(-10), 0, 0),
             VisualComponentBase.VisualComponentType.Meeple => new Vector3(
                 Mathf.DegToRad(-10),

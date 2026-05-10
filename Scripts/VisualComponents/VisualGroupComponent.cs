@@ -165,4 +165,12 @@ public abstract partial class VisualComponentGroup : VisualComponentBase
         Children.AddRange(children);
         OnChildrenChanged();
     }
+
+    /// <summary>
+    /// Called when the user drags on a container to draw components, or uses a key command to draw multiples
+    /// </summary>
+    /// <param name="quantity"></param>
+    public virtual void DragDraw(int quantity)
+    {
+    }
 }

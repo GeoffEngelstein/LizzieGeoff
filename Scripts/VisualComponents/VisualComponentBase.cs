@@ -13,6 +13,8 @@ public abstract partial class VisualComponentBase : Area3D
         Die = 7,
         Mesh = 8,
         Meeple = 9,
+        Tray = 10,
+        Bag = 11,
     }
 
     public bool TextureReady { get; set; }
@@ -69,10 +71,32 @@ public abstract partial class VisualComponentBase : Area3D
 
         IsMouseSelected = false;
 
-        MouseEntered += _on_mouse_entered;
+        //MouseEntered += _on_mouse_entered;
         MouseExited += _on_mouse_exited;
 
         base._Ready();
+    }
+
+    public override void _InputEvent(Camera3D camera, InputEvent @event, Vector3 eventPosition, Vector3 normal, int shapeIdx)
+    {
+        if (@event is InputEventMouseMotion mouse && !IsDragging)
+        {
+            if (shapeIdx == 0)
+            {
+                SetHighlightColor(Colors.White);
+                CanDrag = true;
+                IsDrawSelected = false;
+            }
+            else
+            {
+                SetHighlightColor(Colors.CornflowerBlue);
+                IsDrawSelected = true;
+                CanDrag = false;
+            }
+            _on_mouse_entered();
+
+        }
+        base._InputEvent(camera, @event, eventPosition, normal, shapeIdx);
     }
 
     public void MoveToTargetY(float y)
@@ -359,6 +383,15 @@ public abstract partial class VisualComponentBase : Area3D
         }
     }
 
+    private bool _isDrawSelected;
+
+    //Component is selected for drawing tokens, cards, etc. Relevant for containers.
+    public bool IsDrawSelected
+    {
+        get => _isDrawSelected;
+        set { _isDrawSelected = value; UpdateHighlight(); }
+    }
+
     protected bool _locked;
 
     public virtual bool Locked
@@ -409,7 +442,18 @@ public abstract partial class VisualComponentBase : Area3D
         HighlightMesh.Visible = IsSelected && !NeverHighlight && !Locked;
     }
 
-    public Aabb Aabb => MainMesh.GlobalTransform * MainMesh.GetAabb();
+    public Aabb Aabb
+    {
+        get
+        {
+            if (MainMesh != null)
+            {
+                return MainMesh.GlobalTransform* MainMesh.GetAabb();
+            }
+
+            return new Aabb();
+        }
+    }
 
     public abstract float MaxAxisSize { get; }
 

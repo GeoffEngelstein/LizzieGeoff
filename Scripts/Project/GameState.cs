@@ -51,24 +51,14 @@ public class GameStateComponent
     public Vector3 Position
     {
         get => new(Px, Py, Pz);
-        set
-        {
-            Px = value.X;
-            Py = value.Y;
-            Pz = value.Z;
-        }
+        set { Px = value.X; Py = value.Y; Pz = value.Z; }
     }
 
     [JsonIgnore]
     public Vector3 Rotation
     {
         get => new(Rx, Ry, Rz);
-        set
-        {
-            Rx = value.X;
-            Ry = value.Y;
-            Rz = value.Z;
-        }
+        set { Rx = value.X; Ry = value.Y; Rz = value.Z; }
     }
 
     /// <summary>
@@ -78,16 +68,16 @@ public class GameStateComponent
     {
         var entry = new GameStateComponent
         {
-            ComponentRef = component.Reference,
-            PrototypeRef = component.PrototypeRef,
-            DataSetRow = component.DataSetRow ?? string.Empty,
+            ComponentRef  = component.Reference,
+            PrototypeRef  = component.PrototypeRef,
+            DataSetRow    = component.DataSetRow ?? string.Empty,
             ComponentName = component.ComponentName ?? string.Empty,
-            Position = component.Position,
-            Rotation = component.Rotation,
-            Visible = component.Visible,
-            ZOrder = component.ZOrder,
-            Layer = component.Layer,
-            Location = component.Location,
+            Position      = component.Position,
+            Rotation      = component.Rotation,
+            Visible       = component.Visible,
+            ZOrder        = component.ZOrder,
+            Layer         = component.Layer,
+            Location      = component.Location,
         };
 
         if (component is VisualComponentGroup group)
@@ -103,12 +93,12 @@ public class GameStateComponent
     /// </summary>
     public void ApplyToComponent(VisualComponentBase component)
     {
-        component.Position = Position;
-        component.Rotation = Rotation;
-        component.Visible = Visible;
-        component.ZOrder = ZOrder;
-        component.Layer = Layer;
-        component.Location = Location;
+        component.Position   = Position;
+        component.Rotation   = Rotation;
+        component.Visible    = Visible;
+        component.ZOrder     = ZOrder;
+        component.Layer      = Layer;
+        component.Location   = Location;
         component.DataSetRow = DataSetRow;
 
         if (component is VisualComponentGroup group)
