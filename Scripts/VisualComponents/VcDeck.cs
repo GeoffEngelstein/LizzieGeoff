@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using Godot;
 
 public partial class VcDeck : VisualComponentGroup
@@ -538,16 +539,9 @@ public partial class VcDeck : VisualComponentGroup
         {
             var card = (VcToken)_templateCard.Duplicate();
             card.ComponentType = VisualComponentType.Token;
-
-            CreateTemplateCard(
-                frontTemplate,
-                backTemplate,
-                dataset.Name,
-                card,
-                kv.Key,
-                textureFactory
-            );
-
+            card.Parent = Reference;
+            card.PrototypeRef = PrototypeRef;
+            card.Setup(PrototypeRef, kv.Key, textureFactory);
             CreateAndAddChildComponent(card);
         }
     }
@@ -651,46 +645,19 @@ public partial class VcDeck : VisualComponentGroup
         Clear();
 
         int cardNum = 1;
-
         foreach (var q in _quickCardList)
         {
-            var values = Utility.ParseValueRanges(q.Caption);
-
-            foreach (var v in values)
+            foreach (var _ in Utility.ParseValueRanges(q.Caption))
             {
-                var c = CreateQuickCard(
-                    v,
-                    q.BackgroundColor,
-                    q.CardBackValue,
-                    q.CardBackColor,
-                    cardNum,
-                    textureFactory
-                );
-
+                var c = (VcToken)_templateCard.Duplicate();
+                c.ComponentType = VisualComponentType.Token;
+                c.Parent = Reference;
+                c.PrototypeRef = PrototypeRef;
+                c.Setup(PrototypeRef, cardNum.ToString(), textureFactory);
                 CreateAndAddChildComponent(c);
                 cardNum++;
             }
         }
-    }
-
-    private VcToken CreateQuickCard(
-        string faceCaption,
-        Color faceColor,
-        string backCaption,
-        Color backColor,
-        int cardNum,
-        TextureFactory textureFactory
-    )
-    {
-        var card = (VcToken)_templateCard.Duplicate();
-        card.ComponentType = VisualComponentType.Token;
-
-        card.Parent = Reference;
-        card.PrototypeRef = PrototypeRef;
-
-        card.Setup(PrototypeRef, cardNum.ToString(), textureFactory);
-
-        return card;
     }
 
     private void CreateTemplateCard(
@@ -851,8 +818,13 @@ public partial class VcDeck : VisualComponentGroup
             {
                 if (vcf.TextureChanged && vcf.IsNodeReady() && vcf.BackTexture != null)
                 {
-                    _frontSprite.Texture = vcf.BackTexture;
-                    _frontSprite.PixelSize = PixelSize(_frontSprite.Texture.GetSize());
+                    ApplyTokenToSprite(
+                        _frontSprite,
+                        vcf.BackTexture,
+                        vcf.BackFrame,
+                        vcf.BackHframes,
+                        vcf.BackVframes
+                    );
                     _frontTextureReady = true;
                     vcf.TextureChanged = false;
                 }
@@ -863,8 +835,13 @@ public partial class VcDeck : VisualComponentGroup
             {
                 if (vcb.TextureChanged && vcb.IsNodeReady() && vcb.FaceTexture != null)
                 {
-                    _backSprite.Texture = vcb.FaceTexture;
-                    _backSprite.PixelSize = PixelSize(_backSprite.Texture.GetSize());
+                    ApplyTokenToSprite(
+                        _backSprite,
+                        vcb.FaceTexture,
+                        vcb.FaceFrame,
+                        vcb.FaceHframes,
+                        vcb.FaceVframes
+                    );
                     _backTextureReady = true;
                     vcb.TextureChanged = false;
                 }
@@ -872,6 +849,25 @@ public partial class VcDeck : VisualComponentGroup
 
             TextureReady = _frontTextureReady && _backTextureReady;
         }
+    }
+
+    private void ApplyTokenToSprite(
+        Sprite3D sprite,
+        Texture2D tex,
+        int frame,
+        int hframes,
+        int vframes
+    )
+    {
+        int cols = Math.Max(hframes, 1);
+        int rows = Math.Max(vframes, 1);
+        sprite.Texture = tex;
+        sprite.Hframes = cols;
+        sprite.Vframes = rows;
+        sprite.Frame = Math.Max(frame, 0);
+        var ts = tex.GetSize();
+        var cellSize = new Vector2(ts.X / cols, ts.Y / rows);
+        sprite.PixelSize = PixelSize(cellSize);
     }
 
     private void CreateAndAddChildComponent(VisualComponentBase component)
@@ -910,19 +906,13 @@ public partial class VcDeck : VisualComponentGroup
                     if (vcf.BackTexture == null)
                         return;
 
-                    _frontSprite.PixelSize = PixelSize(vcf.BackTexture.GetSize());
-                    _frontSprite.Texture = vcf.BackTexture;
-
-                    if (_mode == VcToken.TokenBuildMode.Grid && !_gridSingleBack)
-                    {
-                        int.TryParse(vcf.DataSetRow, out var frontFrame);
-                        _frontSprite.Frame = frontFrame;
-                        _frontSprite.Hframes = _gridCols;
-                        _frontSprite.Vframes = _gridRows;
-                        var ts = _frontSprite.Texture.GetSize();
-                        var cv = new Vector2(ts.X / _gridCols, ts.Y / _gridRows);
-                        _frontSprite.PixelSize = PixelSize(cv);
-                    }
+                    ApplyTokenToSprite(
+                        _frontSprite,
+                        vcf.BackTexture,
+                        vcf.BackFrame,
+                        vcf.BackHframes,
+                        vcf.BackVframes
+                    );
 
                     _frontTextureReady = true;
                 }
@@ -936,19 +926,13 @@ public partial class VcDeck : VisualComponentGroup
                     if (vcb.FaceTexture == null)
                         return;
 
-                    _backSprite.PixelSize = PixelSize(vcb.FaceTexture.GetSize());
-                    _backSprite.Texture = vcb.FaceTexture;
-
-                    if (_mode == VcToken.TokenBuildMode.Grid)
-                    {
-                        int.TryParse(vcb.DataSetRow, out var lastFrame);
-                        _backSprite.Frame = lastFrame;
-                        _backSprite.Hframes = _gridCols;
-                        _backSprite.Vframes = _gridRows;
-                        var ts = _backSprite.Texture.GetSize();
-                        var cv = new Vector2(ts.X / _gridCols, ts.Y / _gridRows);
-                        _backSprite.PixelSize = PixelSize(cv);
-                    }
+                    ApplyTokenToSprite(
+                        _backSprite,
+                        vcb.FaceTexture,
+                        vcb.FaceFrame,
+                        vcb.FaceHframes,
+                        vcb.FaceVframes
+                    );
 
                     _backTextureReady = true;
                 }
