@@ -969,22 +969,26 @@ public partial class GameObjects : Node
     /// </summary>
     private void EnterDragUnhideMode(ShowAndDragComponentEvent obj)
     {
-        if (!obj.ComponentList.Any()) return;
-        
+        if (!obj.ComponentList.Any())
+            return;
+
         var fg = obj.ComponentList.First();
-        if (fg == Guid.Empty) return;
-        
+        if (fg == Guid.Empty)
+            return;
+
         var first = GetComponent(fg);
-        if (first == null) return;
+        if (first == null)
+            return;
 
         CursorMode = CursorMode.Drag;
 
-        StartDragUndo(first);       //undo should also put it back into where it came from
+        StartDragUndo(first); //undo should also put it back into where it came from
         _lastDragPosition = _dragPlane.GetCursorProjection();
         foreach (var g in obj.ComponentList)
         {
             var gameObject = GetComponent(g);
-            if (gameObject == null) continue;
+            if (gameObject == null)
+                continue;
 
             gameObject.Location = VisualComponentBase.ComponentLocation.Board;
             gameObject.IsDragging = true;

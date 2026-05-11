@@ -51,7 +51,6 @@ public partial class TrayPanelDialogResult : ComponentPanelDialogResult
         }
     }
 
-
     private void PrototypeSelected(long index)
     {
         _selectedPrototypeKey = _prototypeList.GetItemMetadata((int)index).ToString();
@@ -128,7 +127,7 @@ public partial class TrayPanelDialogResult : ComponentPanelDialogResult
         //normalize dimensions to 10x10x10 outer extants
         //var scale = 10f / Math.Max(h, Math.Max(w, l));
         var scale = 1;
-        
+
         d.Add("ComponentName", _nameInput.Text);
         d.Add("Height", h * scale);
         d.Add("Width", w * scale);

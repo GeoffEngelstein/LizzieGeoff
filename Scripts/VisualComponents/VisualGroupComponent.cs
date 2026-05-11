@@ -170,7 +170,5 @@ public abstract partial class VisualComponentGroup : VisualComponentBase
     /// Called when the user drags on a container to draw components, or uses a key command to draw multiples
     /// </summary>
     /// <param name="quantity"></param>
-    public virtual void DragDraw(int quantity)
-    {
-    }
+    public virtual void DragDraw(int quantity) { }
 }

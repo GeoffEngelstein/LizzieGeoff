@@ -121,4 +121,3 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
         Activate();
     }
 }
-
