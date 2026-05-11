@@ -1277,7 +1277,10 @@ public partial class VcToken : VisualComponentBase
         _backTextureGenerated = true;
         _backMaterial.AlbedoTexture = BackTexture;
 
-        ApplyUvOffset(_backMaterial, _backHframes, _backVframes, _backFrame);
+        if (!_gridSingleBack)
+        {
+            ApplyUvOffset(_backMaterial, _backHframes, _backVframes, _backFrame);
+        }
     }
 
     private static void ApplyUvOffset(StandardMaterial3D mat, int hframes, int vframes, int frame)

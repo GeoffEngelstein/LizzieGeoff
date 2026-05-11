@@ -7,8 +7,8 @@ public partial class VcBag : VisualComponentGroup
 {
     private VisualComponentBase _contents;
     private string _contentsDataRow;
-    private Node3D _prototypeSpawnPoint;
-
+    private Label3D _componentCount;
+    
     public override void _Ready()
     {
         base._Ready();
@@ -16,10 +16,15 @@ public partial class VcBag : VisualComponentGroup
 
         MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
+        _componentCount = GetNode<Label3D>("ComponentCount");
+        UpdateComponentCount();
         CanAcceptDrop = true;
     }
 
-
+    private void UpdateComponentCount()
+    {
+        _componentCount.Text = Children.Count().ToString();
+    }
 
     public override bool Setup(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
     {
@@ -133,7 +138,7 @@ public partial class VcBag : VisualComponentGroup
 
     protected override void OnChildrenChanged()
     {
-
+        UpdateComponentCount();
     }
 
     public override void DragDraw(int quantity)
@@ -143,5 +148,7 @@ public partial class VcBag : VisualComponentGroup
         
         EventBus.Instance.Publish(new ShowAndDragComponentEvent { ComponentList = gList });
     }
+    
+    
 
 }
