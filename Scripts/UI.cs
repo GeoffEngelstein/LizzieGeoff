@@ -42,6 +42,8 @@ public partial class UI : CanvasLayer
     private MultiplayerDialog _multiplayerDialog;
     private ImageManager _imageManager;
 
+    private OptionButton _rotationStep;
+    
     private Node _modalDialogs;
 
     // Called when the node enters the scene tree for the first time.
@@ -85,6 +87,9 @@ public partial class UI : CanvasLayer
         _helpMenu.AddItem("Test Function", 1);
         _helpMenu.IdPressed += OnHelpMenuSelection;
 
+        _rotationStep = GetNode<OptionButton>("%RotationStep");
+        _rotationStep.ItemSelected += RotationStepSelected;
+        
         _componentPopup = GetNode<PopupMenu>("ComponentPopup");
         _componentPopup.IdPressed += PopupMenuCommandSelected;
         _componentPopup.CloseRequested += ComponentPopupClosed;
@@ -101,6 +106,21 @@ public partial class UI : CanvasLayer
         EventBus.Instance.Subscribe<ShowTemplateEditor>(ShowTemplateEditorFromEvent);
         EventBus.Instance.Subscribe<ShowDatasetEditor>(ShowDatasetEditorFromEvent);
         EventBus.Instance.Subscribe<ShowImageManagerEvent>(ShowImageManagerFromEvent);
+    }
+
+    private void RotationStepSelected(long index)
+    {
+        var text = _rotationStep.GetItemText((int)index);
+
+        // Strip off the last character (the degree symbol '°')
+        if (!string.IsNullOrEmpty(text))
+        {
+            text = text.Substring(0, text.Length - 1);
+            if (float.TryParse(text, out var step))
+            {
+                ProjectService.Instance.RotationStep = step;
+            }
+        }
     }
 
     private void ProjectChanged(ProjectChangedEvent obj)
@@ -611,45 +631,36 @@ public partial class UI : CanvasLayer
         var commands = comDic.Where(x => x.Value == components.Count).Select(y => y.Key);
 
         _componentPopup.Clear();
-
-        if (commands.Any(x => x == VisualCommand.ToggleLock))
+        
+        // Build a menu from the commands that are valid for all selected items
+        foreach (var command in commands)
         {
-            var isChecked = fullCommands
-                .Where(x => x.Command == VisualCommand.ToggleLock)
-                .All(y => y.IsChecked);
-            AddItemToPopupMenu(
-                _componentPopup,
-                VisualCommand.ToggleLock,
-                "Frozen",
-                string.Empty,
-                true,
-                true,
-                isChecked
-            );
+            var menuCommand =
+                fullCommands.First(x =>
+                    x.Command == command); // Get the MenuCommand object to access IsChecked and other properties
+
+            switch (command)
+            {
+                case VisualCommand.ToggleLock:
+                    AddItemToPopupMenu(_componentPopup, command, "Frozen",
+                        string.Empty, // Icon path, currently empty
+                        true, // Enabled by default, handled by command logic
+                        true, // Checkable
+                        menuCommand.IsChecked);
+                    break;
+
+                default:
+                    AddItemToPopupMenu(_componentPopup, command, menuCommand.Caption,
+                        string.Empty, // Icon path, currently empty
+                        true, // Enabled by default, handled by command logic
+                        false); // Not checkable
+                    break;
+
+            }
+            
         }
 
-        if (commands.Any(x => x == VisualCommand.Roll))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Roll, "Roll", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Flip))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Flip, "Flip", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Delete))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Delete, "Delete", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Shuffle))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Shuffle, "Shuffle", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Edit))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Edit, "Edit", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.MakeUnique))
-            AddItemToPopupMenu(
-                _componentPopup,
-                VisualCommand.MakeUnique,
-                "Make Unique",
-                string.Empty
-            );
+      
     }
 
     private void PopupMenuCommandSelected(long id)

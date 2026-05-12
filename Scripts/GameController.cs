@@ -33,7 +33,7 @@ public partial class GameController : Node3D
             ?? new Project { Name = ProjectService.SampleProjectName };
         ProjectService.Instance.GameObjects = _mainScene.GameObjects;
 
-        var commandDic = new CommandDictionary(_mainScene);
+        
     }
 
     private void MainSceneOnShowComponentPopup2(object sender, ShowComponentPopupEventArgs e)

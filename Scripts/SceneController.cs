@@ -195,6 +195,10 @@ public partial class SceneController : Node3D
 
         if (Input.IsActionJustPressed("roll"))
             SendCommandToSelected(VisualCommand.Roll);
+        if (Input.IsActionJustPressed("rotate_cw"))
+            SendCommandToSelected(VisualCommand.RotateCw);
+        if (Input.IsActionJustPressed("rotate_ccw"))
+            SendCommandToSelected(VisualCommand.RotateCcw);
     }
     #endregion
 }
