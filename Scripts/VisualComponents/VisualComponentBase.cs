@@ -223,6 +223,38 @@ public abstract partial class VisualComponentBase : Area3D
             return new CommandResponse(true, null);
         }
 
+        if (command == VisualCommand.RotateCcw)
+        {
+            var c = new Change
+            {
+                Component = this, 
+                Action = Change.ChangeType.Transform, 
+                Begin = this.Transform
+            };
+
+            float rotation = ProjectService.Instance.RotationStep;
+            SetRotation(RotationDegrees + new Vector3(0, rotation, 0));
+            c.End = Transform;
+            
+            return new CommandResponse(true, c);
+        }
+
+        if (command == VisualCommand.RotateCw)
+        {
+            var c = new Change
+            {
+                Component = this,
+                Action = Change.ChangeType.Transform,
+                Begin = this.Transform
+            };  
+
+            float rotation = -1 * ProjectService.Instance.RotationStep;
+            SetRotation(RotationDegrees + new Vector3(0, rotation, 0));
+            c.End = Transform;
+
+            return new CommandResponse(true, c);
+        }
+
         if (command == VisualCommand.Delete)
         {
             Visible = false;
@@ -245,8 +277,10 @@ public abstract partial class VisualComponentBase : Area3D
 
         if (command == VisualCommand.Duplicate)
         {
-            var newComponent = (VisualComponentBase)this.Duplicate();
-            OnComponentAdded(newComponent);
+            EventBus.Instance.Publish(new SpawnPrototypeEvent
+            {
+                PrototypeRef = PrototypeRef, DataSetRow = DataSetRow
+            });
             return new CommandResponse(true, null);
         }
 
@@ -285,12 +319,14 @@ public abstract partial class VisualComponentBase : Area3D
             default:
                 throw new ArgumentOutOfRangeException();
         }
-
+        
+        l.Add(new MenuCommand(VisualCommand.RotateCw));
+        l.Add(new MenuCommand(VisualCommand.RotateCcw));
         l.Add(new MenuCommand(VisualCommand.Delete));
         l.Add(new MenuCommand(VisualCommand.Refresh));
         l.Add(new MenuCommand(VisualCommand.Duplicate));
-        l.Add(new MenuCommand(VisualCommand.Edit, singleOnly: true));
-        l.Add(new MenuCommand(VisualCommand.MakeUnique, singleOnly: true));
+        l.Add(new MenuCommand(VisualCommand.Edit));
+        l.Add(new MenuCommand(VisualCommand.MakeUnique));
         return l;
     }
 

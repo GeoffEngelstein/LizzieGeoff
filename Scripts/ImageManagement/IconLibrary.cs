@@ -111,6 +111,7 @@ public class IconLibrary : Dictionary<string, IconEntry>
         Addl("Skull and Crossbones", "skull-and-crossbones.png");
         Addl("Crown", "crown.png");
         Addl("Paw", "paw.png");
+        Addl("Money Bag", "money-bag.png");
     }
 
     private void Addl(string key, string value, bool isCore = false)

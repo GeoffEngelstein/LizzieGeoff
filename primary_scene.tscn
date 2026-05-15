@@ -25,17 +25,20 @@ grow_horizontal = 2
 theme_override_constants/margin_left = 0
 
 [node name="Panel" type="Panel" parent="UI/MarginContainer" unique_id=378692394]
-custom_minimum_size = Vector2(0, 35)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
-[node name="MenuBar" type="MenuBar" parent="UI/MarginContainer/Panel" unique_id=672250976]
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/MarginContainer/Panel" unique_id=1626350479]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 31.0
 grow_horizontal = 2
 
-[node name="File" type="PopupMenu" parent="UI/MarginContainer/Panel/MenuBar" unique_id=709451553]
+[node name="MenuBar" type="MenuBar" parent="UI/MarginContainer/Panel/HBoxContainer" unique_id=672250976]
+layout_mode = 2
+
+[node name="File" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=709451553]
 unique_name_in_owner = true
 oversampling_override = 1.0
 title = "File"
@@ -48,17 +51,47 @@ item_1/id = 1
 item_2/text = "Save Project"
 item_2/id = 2
 
-[node name="Edit" type="PopupMenu" parent="UI/MarginContainer/Panel/MenuBar" unique_id=1056068936]
+[node name="Edit" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=1056068936]
 unique_name_in_owner = true
 title = "Edit"
 
-[node name="Insert" type="PopupMenu" parent="UI/MarginContainer/Panel/MenuBar" unique_id=1536859569]
+[node name="Insert" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=1536859569]
 unique_name_in_owner = true
 title = "Insert"
 
-[node name="Help" type="PopupMenu" parent="UI/MarginContainer/Panel/MenuBar" unique_id=1339962661]
+[node name="Help" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=1339962661]
 unique_name_in_owner = true
 title = "Help"
+
+[node name="Panel" type="Panel" parent="UI/MarginContainer/Panel/HBoxContainer" unique_id=1797442022]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/MarginContainer/Panel/HBoxContainer" unique_id=1628889017]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="Label" type="Label" parent="UI/MarginContainer/Panel/HBoxContainer/HBoxContainer" unique_id=126657012]
+layout_mode = 2
+text = "Rotation Step"
+
+[node name="RotationStep" type="OptionButton" parent="UI/MarginContainer/Panel/HBoxContainer/HBoxContainer" unique_id=515238741]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 6
+popup/item_0/text = "15°"
+popup/item_0/id = 0
+popup/item_1/text = "30°"
+popup/item_1/id = 1
+popup/item_2/text = "45°"
+popup/item_2/id = 2
+popup/item_3/text = "60°"
+popup/item_3/id = 3
+popup/item_4/text = "90°"
+popup/item_4/id = 4
+popup/item_5/text = "180°"
+popup/item_5/id = 5
 
 [node name="Hand" type="Panel" parent="UI" unique_id=1988859394]
 visible = false

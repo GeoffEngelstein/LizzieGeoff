@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Godot;
 
-public class CommandDictionary : Dictionary<VisualCommand, ICommand>
+public class CommandDictionary : Dictionary<VisualCommand, CommandBase>
 {
-    public CommandDictionary(SceneController controller)
+    public CommandDictionary()
     {
         var assys = AppDomain.CurrentDomain.GetAssemblies();
         foreach (var assembly in assys)
@@ -19,7 +19,7 @@ public class CommandDictionary : Dictionary<VisualCommand, ICommand>
                     continue;
 
                 var cmdClass = Activator.CreateInstance(type);
-                if (!(cmdClass is ICommand ic))
+                if (!(cmdClass is CommandBase ic))
                     continue;
 
                 foreach (var a in atts)
@@ -27,7 +27,11 @@ public class CommandDictionary : Dictionary<VisualCommand, ICommand>
                     if (a is CommandAttribute ca)
                     {
                         ic.Command = ca.CommandKey;
-                        ic.SceneController = controller;
+
+                        if (ContainsKey(ic.Command))
+                        {
+                            int i = 0;
+                        }
                         Add(ic.Command, ic);
                     }
                 }
