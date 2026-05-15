@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dgxle1a8aquwd"]
 
 [ext_resource type="Texture2D" uid="uid://dn6uytmhm5r7q" path="res://Textures/UI/folder_open_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg" id="1_qeff1"]
-[ext_resource type="Script" uid="uid://3whugn303phg" path="res://Scripts/ComponentPanelResults/PrintedPanelDialogResult.cs" id="1_ykbf8"]
+[ext_resource type="Script" path="res://Scripts/ComponentPanelResults/PrintedPanelDialogResult.cs" id="1_ykbf8"]
 [ext_resource type="PackedScene" uid="uid://bqjj4fvs81gaw" path="res://Scenes/ComponentPanels/quick_texture_entry.tscn" id="2_25k1d"]
 [ext_resource type="PackedScene" uid="uid://ojs61k8nlddj" path="res://Scenes/ComponentPanels/ComponentPreview.tscn" id="3_aum2n"]
 [ext_resource type="Texture2D" uid="uid://cugnc5143oecw" path="res://Textures/UI/pencil.png" id="4_rdyhr"]
@@ -546,6 +546,7 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
+button_pressed = true
 text = "Single Back"
 
 [node name="HBoxContainer7" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/Tabs/Grid/MarginContainer/VBoxContainer" unique_id=283566052]

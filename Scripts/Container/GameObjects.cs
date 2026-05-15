@@ -40,6 +40,7 @@ public partial class GameObjects : Node
         EventBus.Instance.Subscribe<ShowAndDragComponentEvent>(EnterDragUnhideMode);
     }
 
+
     private void OnModalClosed()
     {
         _modalOpen = false;
@@ -382,7 +383,9 @@ public partial class GameObjects : Node
         var saved = state.Components.ToDictionary(c => c.ComponentRef);
 
         // Build a lookup of live components.
-        var live = GetChildren().OfType<VisualComponentBase>().ToDictionary(c => c.Reference);
+        var live = GetChildren()
+            .OfType<VisualComponentBase>()
+            .ToDictionary(c => c.Reference);
 
         // Update or delete live components.
         foreach (var (refId, component) in live)
@@ -405,22 +408,13 @@ public partial class GameObjects : Node
                 continue; // Already handled above.
 
             var project = ProjectService.Instance.CurrentProject;
-            if (
-                project == null
-                || !project.Prototypes.TryGetValue(entry.PrototypeRef, out var proto)
-            )
+            if (project == null || !project.Prototypes.TryGetValue(entry.PrototypeRef, out var proto))
             {
-                GD.PrintErr(
-                    $"RestoreGameState: prototype {entry.PrototypeRef} not found for component {refId}."
-                );
+                GD.PrintErr($"RestoreGameState: prototype {entry.PrototypeRef} not found for component {refId}.");
                 continue;
             }
 
-            var scenePath = Utility.ComponentTypeToScenePath(
-                proto.Type,
-                proto.Parameters,
-                entry.DataSetRow
-            );
+            var scenePath = Utility.ComponentTypeToScenePath(proto.Type, proto.Parameters, entry.DataSetRow);
             if (string.IsNullOrEmpty(scenePath))
             {
                 GD.PrintErr($"RestoreGameState: could not resolve scene for {proto.Type}.");
@@ -435,7 +429,7 @@ public partial class GameObjects : Node
                 continue;
             }
 
-            newComponent.Reference = refId;
+            newComponent.Reference    = refId;
             newComponent.PrototypeRef = entry.PrototypeRef;
             newComponent.ExcludeFromSync = true;
 
@@ -811,12 +805,14 @@ public partial class GameObjects : Node
         if (startInDragMode)
         {
             CursorMode = CursorMode.Drag;
+            
         }
         else
         {
             CursorMode = CursorMode.Spawn;
         }
-
+        
+       
         _spawnComponents = components;
 
         foreach (var c in components)
@@ -826,9 +822,8 @@ public partial class GameObjects : Node
             c.ExcludeFromSync = !startInDragMode;
             AddComponentToScene(c, startInDragMode);
         }
-
-        if (startInDragMode)
-            EnterDragSpawnMode();
+        
+        if (startInDragMode) EnterDragSpawnMode();
     }
 
     private void HandleSpawnMode()

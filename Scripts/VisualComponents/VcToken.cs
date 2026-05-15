@@ -272,7 +272,7 @@ public partial class VcToken : VisualComponentBase
         if (_quickCardList == null)
             _quickCardList = new();
 
-        _faceHframes = ReadIntParam(parameters, "FaceHframes", 1, min: 1);
+         _faceHframes = ReadIntParam(parameters, "FaceHframes", 1, min: 1);
         _faceVframes = ReadIntParam(parameters, "FaceVframes", 1, min: 1);
         _faceFrame = ReadIntParam(parameters, "FaceFrame", 0, min: 0);
         _backHframes = ReadIntParam(parameters, "BackHframes", 1, min: 1);
@@ -1277,7 +1277,10 @@ public partial class VcToken : VisualComponentBase
         _backTextureGenerated = true;
         _backMaterial.AlbedoTexture = BackTexture;
 
-        ApplyUvOffset(_backMaterial, _backHframes, _backVframes, _backFrame);
+        if (!_gridSingleBack)
+        {
+            ApplyUvOffset(_backMaterial, _backHframes, _backVframes, _backFrame);
+        }
     }
 
     private static void ApplyUvOffset(StandardMaterial3D mat, int hframes, int vframes, int frame)

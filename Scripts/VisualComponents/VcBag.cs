@@ -1,14 +1,14 @@
+using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Godot;
 
 public partial class VcBag : VisualComponentGroup
 {
     private VisualComponentBase _contents;
     private string _contentsDataRow;
-    private Node3D _prototypeSpawnPoint;
-
+    private Label3D _componentCount;
+    
     public override void _Ready()
     {
         base._Ready();
@@ -16,14 +16,17 @@ public partial class VcBag : VisualComponentGroup
 
         MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
+        _componentCount = GetNode<Label3D>("ComponentCount");
+        UpdateComponentCount();
         CanAcceptDrop = true;
     }
 
-    public override bool Setup(
-        Dictionary<string, object> parameters,
-        string dataSetRow,
-        TextureFactory textureFactory
-    )
+    private void UpdateComponentCount()
+    {
+        _componentCount.Text = Children.Count().ToString();
+    }
+
+    public override bool Setup(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
     {
         return Setup(parameters, textureFactory);
     }
@@ -68,6 +71,9 @@ public partial class VcBag : VisualComponentGroup
         YHeight = Height * 2;
 
         SetColor(BagColor);
+        _componentCount = GetNode<Label3D>("ComponentCount");
+        var _showCount = Utility.GetParam<bool>(parameters, "ShowCount");
+        _componentCount.Visible = _showCount;
 
         var c = new CircleShape2D();
         c.Radius = Diameter / 2;
@@ -126,7 +132,7 @@ public partial class VcBag : VisualComponentGroup
         }
     }
 
-    protected override void OnChildrenChanged() { }
+    protected override void OnChildrenChanged() { UpdateComponentCount();}
 
     public override void DragDraw(int quantity)
     {

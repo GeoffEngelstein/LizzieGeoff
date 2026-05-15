@@ -4,21 +4,34 @@ using Godot;
 public class MenuCommand
 {
     public MenuCommand(
-        VisualCommand command,
-        bool isChecked = false,
-        bool isEnabled = true,
-        bool singleOnly = false
+        CommandBase command
     )
     {
-        Command = command;
-        IsChecked = isChecked;
-        IsEnabled = isEnabled;
-        SingleOnly = singleOnly;
+        Init(command);
+    }
+
+    public MenuCommand(VisualCommand command)
+    {
+        ProjectService.Instance.CommandDictionary.TryGetValue(command, out var commandBase);
+        if (commandBase == null) return;
+        
+        Init(commandBase);
+    }
+
+    private void Init(CommandBase command)
+    {
+        Command = command.Command;
+        IsChecked = command.IsToggled;
+        IsEnabled = true;
+        SingleOnly = command.SingleOnly;
+        Caption = command.Caption;
     }
 
     public VisualCommand Command { get; set; }
     public bool IsChecked { get; set; }
     public bool IsEnabled { get; set; }
+
+    public string Caption { get; set; }
 
     /// <summary>
     /// If true, command is only valid if only one component is selected

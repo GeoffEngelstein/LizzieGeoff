@@ -111,6 +111,7 @@ public class IconLibrary : Dictionary<string, IconEntry>
         Addl("Skull and Crossbones", "skull-and-crossbones.png");
         Addl("Crown", "crown.png");
         Addl("Paw", "paw.png");
+        Addl("Money Bag", "money-bag.png");
     }
 
     private void Addl(string key, string value, bool isCore = false)
@@ -146,6 +147,17 @@ public class IconLibrary : Dictionary<string, IconEntry>
         {
             button.AddItem(icon, id);
             id++;
+        }
+        
+        //put in user-image block
+        if (ProjectService.Instance.CurrentProject.Images.Count > 0)
+        {
+            button.AddSeparator();
+            foreach(var img in ProjectService.Instance.CurrentProject.Images)
+            {
+                button.AddItem($"u:{img.Value.Name}", id);
+                id++;
+            }
         }
 
         //put in user-image block

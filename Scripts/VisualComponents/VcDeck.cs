@@ -16,6 +16,8 @@ public partial class VcDeck : VisualComponentGroup
     private TokenTextureSubViewport _frontView;
     private TokenTextureSubViewport _backView;
 
+    private Label3D _componentCount;
+    
     private VcToken _templateCard;
     private string _templateCardPath = "res://Scenes/VisualComponents/VcToken.tscn";
 
@@ -27,7 +29,9 @@ public partial class VcDeck : VisualComponentGroup
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
         _frontSprite = GetNode<Sprite3D>("FrontSprite");
         _backSprite = GetNode<Sprite3D>("BackSprite");
-
+        _componentCount = GetNode<Label3D>("ComponentCount");
+        UpdateComponentCount();
+        
         CanAcceptDrop = true;
     }
 
@@ -979,5 +983,56 @@ public partial class VcDeck : VisualComponentGroup
     protected override void OnChildrenChanged()
     {
         UpdateDeckSprites();
+        UpdateComponentCount();
+    }
+
+    private void UpdateComponentCount()
+    {
+        if (_componentCount == null) return;
+        _componentCount.Text = Children.Count().ToString();
+    }
+
+    public override void DragDraw(int count)
+    {
+        count = Math.Min(count, Children.Count);
+
+        Guid[] cards;
+        //draw cards
+        if (_showFace)
+        {
+            cards = DrawFromTop(count);
+        }
+        else
+        {
+            cards = DrawFromBottom(count);
+            cards = cards.Reverse().ToArray();
+        }
+
+
+        for (int i = 0; i < cards.Length; i++)
+        {
+            var comp = ProjectService.Instance.GameObjects.GetComponent(cards[i]);
+
+            if (comp == null)
+                continue;
+
+            if (comp is VcToken vcf)
+            {
+                if (_showFace)
+                {
+                    vcf.ForceBack();
+                }
+                else
+                {
+                    vcf.ForceFace();
+                }
+            }
+        }
+
+        UpdateDeckSprites();
+
+        if (!cards.Any()) return;
+
+        EventBus.Instance.Publish(new ShowAndDragComponentEvent { ComponentList = cards.ToList() });
     }
 }

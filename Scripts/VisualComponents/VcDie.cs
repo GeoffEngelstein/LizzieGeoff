@@ -216,6 +216,7 @@ public partial class VcDie : VisualComponentBase
 
     private TokenBuildMode _mode;
 
+
     public override bool Setup(
         Dictionary<string, object> parameters,
         string datasetRow,

@@ -96,6 +96,17 @@ horizontal_alignment = 2
 layout_mode = 2
 horizontal_alignment = 2
 
+[node name="Label10" type="Label" parent="HBoxContainer/GridContainer" unique_id=363730004]
+layout_mode = 2
+text = "Show Count"
+horizontal_alignment = 2
+
+[node name="ShowCountButton" type="CheckButton" parent="HBoxContainer/GridContainer" unique_id=1562537465]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+button_pressed = true
+
 [node name="Preview" parent="HBoxContainer" unique_id=612723203 instance=ExtResource("2_2uanh")]
 unique_name_in_owner = true
 layout_mode = 2

@@ -27,7 +27,7 @@ mesh = ExtResource("2_7onit")
 skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=644837911]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.73376787, 0.95230365, -0.7254766)
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -1.0666493, 0.952, 0)
 shape = SubResource("BoxShape3D_7dijs")
 
 [node name="DrawCollider" type="CollisionShape3D" parent="." unique_id=2080289539]
@@ -41,11 +41,13 @@ mesh = SubResource("CylinderMesh_72lon")
 [node name="ProtoAnchor" type="Node3D" parent="." unique_id=1832270472]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.397, -0.303)
 
-[node name="ComponentName" type="Label3D" parent="." unique_id=1262537943]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, -0.5, 0.30396438)
-text = "TEXT HERE"
-
 [node name="DragPatch" type="Sprite3D" parent="." unique_id=512471132]
-transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -0.733, 1.1808193, -0.722)
-billboard = 1
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -1.0656493, 1.004, 0)
+axis = 1
 texture = ExtResource("4_bojv1")
+
+[node name="ComponentCount" type="Label3D" parent="." unique_id=1262537943]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, -1.062, 1.01, 0)
+modulate = Color(1, 0, 0, 1)
+text = "0"
+font_size = 24

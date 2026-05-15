@@ -238,8 +238,7 @@ public partial class ComponentPreview : Panel
             }
 
             var z = _component.Aabb.GetLongestAxisSize();
-            if (z != 0)
-                _component.Scale /= z;
+            if (z != 0) _component.Scale /= z;
         }
     }
 

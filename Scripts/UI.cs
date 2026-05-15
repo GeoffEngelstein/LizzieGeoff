@@ -42,6 +42,8 @@ public partial class UI : CanvasLayer
     private MultiplayerDialog _multiplayerDialog;
     private ImageManager _imageManager;
 
+    private OptionButton _rotationStep;
+    
     private Node _modalDialogs;
 
     // Called when the node enters the scene tree for the first time.
@@ -69,6 +71,7 @@ public partial class UI : CanvasLayer
         _fileMenu.IdPressed += FileMenuOnIdPressed;
         _fileMenu.AboutToPopup += RebuildRestoreSnapshotMenu;
 
+
         _editMenu = GetNode<PopupMenu>("%Edit");
         _editMenu.AddItem("Templates", 1);
         _editMenu.AddItem("Datasets", 2);
@@ -85,6 +88,9 @@ public partial class UI : CanvasLayer
         _helpMenu.AddItem("Test Function", 1);
         _helpMenu.IdPressed += OnHelpMenuSelection;
 
+        _rotationStep = GetNode<OptionButton>("%RotationStep");
+        _rotationStep.ItemSelected += RotationStepSelected;
+        
         _componentPopup = GetNode<PopupMenu>("ComponentPopup");
         _componentPopup.IdPressed += PopupMenuCommandSelected;
         _componentPopup.CloseRequested += ComponentPopupClosed;
@@ -101,6 +107,21 @@ public partial class UI : CanvasLayer
         EventBus.Instance.Subscribe<ShowTemplateEditor>(ShowTemplateEditorFromEvent);
         EventBus.Instance.Subscribe<ShowDatasetEditor>(ShowDatasetEditorFromEvent);
         EventBus.Instance.Subscribe<ShowImageManagerEvent>(ShowImageManagerFromEvent);
+    }
+
+    private void RotationStepSelected(long index)
+    {
+        var text = _rotationStep.GetItemText((int)index);
+
+        // Strip off the last character (the degree symbol '°')
+        if (!string.IsNullOrEmpty(text))
+        {
+            text = text.Substring(0, text.Length - 1);
+            if (float.TryParse(text, out var step))
+            {
+                ProjectService.Instance.RotationStep = step;
+            }
+        }
     }
 
     private void ProjectChanged(ProjectChangedEvent obj)
@@ -363,8 +384,7 @@ public partial class UI : CanvasLayer
         restoreBtn.Pressed += () =>
         {
             var sel = list.GetSelectedItems();
-            if (sel.Length == 0)
-                return;
+            if (sel.Length == 0) return;
             var name = list.GetItemText(sel[0]);
             _gameController.MainScene.GameObjects.RestoreGameState(name);
         };
@@ -375,8 +395,7 @@ public partial class UI : CanvasLayer
         deleteBtn.Pressed += () =>
         {
             var sel = list.GetSelectedItems();
-            if (sel.Length == 0)
-                return;
+            if (sel.Length == 0) return;
             var name = list.GetItemText(sel[0]);
             _gameController.MainScene.GameObjects.DeleteGameState(name);
             EventBus.Instance.Publish(new GameStateChangedEvent());
@@ -611,45 +630,36 @@ public partial class UI : CanvasLayer
         var commands = comDic.Where(x => x.Value == components.Count).Select(y => y.Key);
 
         _componentPopup.Clear();
-
-        if (commands.Any(x => x == VisualCommand.ToggleLock))
+        
+        // Build a menu from the commands that are valid for all selected items
+        foreach (var command in commands)
         {
-            var isChecked = fullCommands
-                .Where(x => x.Command == VisualCommand.ToggleLock)
-                .All(y => y.IsChecked);
-            AddItemToPopupMenu(
-                _componentPopup,
-                VisualCommand.ToggleLock,
-                "Frozen",
-                string.Empty,
-                true,
-                true,
-                isChecked
-            );
+            var menuCommand =
+                fullCommands.First(x =>
+                    x.Command == command); // Get the MenuCommand object to access IsChecked and other properties
+
+            switch (command)
+            {
+                case VisualCommand.ToggleLock:
+                    AddItemToPopupMenu(_componentPopup, command, "Frozen",
+                        string.Empty, // Icon path, currently empty
+                        true, // Enabled by default, handled by command logic
+                        true, // Checkable
+                        menuCommand.IsChecked);
+                    break;
+
+                default:
+                    AddItemToPopupMenu(_componentPopup, command, menuCommand.Caption,
+                        string.Empty, // Icon path, currently empty
+                        true, // Enabled by default, handled by command logic
+                        false); // Not checkable
+                    break;
+
+            }
+            
         }
 
-        if (commands.Any(x => x == VisualCommand.Roll))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Roll, "Roll", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Flip))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Flip, "Flip", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Delete))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Delete, "Delete", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Shuffle))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Shuffle, "Shuffle", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.Edit))
-            AddItemToPopupMenu(_componentPopup, VisualCommand.Edit, "Edit", string.Empty);
-
-        if (commands.Any(x => x == VisualCommand.MakeUnique))
-            AddItemToPopupMenu(
-                _componentPopup,
-                VisualCommand.MakeUnique,
-                "Make Unique",
-                string.Empty
-            );
+      
     }
 
     private void PopupMenuCommandSelected(long id)
@@ -802,73 +812,58 @@ public partial class UI : CanvasLayer
 
     private const string _texUiBase = "res://Textures/UI/";
 
-    public const string TextureUI_Add = _texUiBase + "add16.png";
-    public const string TextureUI_ArrowDown = _texUiBase + "arrowdown16.png";
-    public const string TextureUI_ArrowUp = _texUiBase + "arrowup16.png";
-    public const string TextureUI_BackSurface = _texUiBase + "back_surface16.png";
-    public const string TextureUI_Bottom = _texUiBase + "bottom.png";
-    public const string TextureUI_Bounds = _texUiBase + "bounds16.png";
-    public const string TextureUI_Center = _texUiBase + "center.png";
-    public const string TextureUI_Checkbox = _texUiBase + "checkbox16.png";
-    public const string TextureUI_Circle =
-        _texUiBase + "circle_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_ContentCopy =
-        _texUiBase + "content_copy_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_CropLandscape =
-        _texUiBase + "crop_landscape_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_CropPortrait =
-        _texUiBase + "crop_portrait_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_Cube128 = _texUiBase + "cube128.png";
-    public const string TextureUI_Cube64 = _texUiBase + "cube64.png";
-    public const string TextureUI_Cube3d =
-        _texUiBase + "deployed_code_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_Flip =
-        _texUiBase + "flip_camera_android_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg";
-    public const string TextureUI_FolderOpen =
-        _texUiBase + "folder_open_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_FrontSurface = _texUiBase + "front_surface16.png";
-    public const string TextureUI_Fullscreen = _texUiBase + "fullscreen.png";
-    public const string TextureUI_Grid16 = _texUiBase + "Grid16.png";
-    public const string TextureUI_Grid24 =
-        _texUiBase + "grid_on_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_HorTrack = _texUiBase + "HorTrack.png";
-    public const string TextureUI_Die =
-        _texUiBase + "ifl_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_Image = _texUiBase + "image16.png";
-    public const string TextureUI_Inventory =
-        _texUiBase + "inventory_2_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_Inventory_Alt =
-        _texUiBase + "inventory_2_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24 (1).svg";
-    public const string TextureUI_Share =
-        _texUiBase + "ios_share_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_Left = _texUiBase + "left.png";
-    public const string TextureUI_Lock16 =
-        _texUiBase + "lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg";
-    public const string TextureUI_Lock24 =
-        _texUiBase + "lock_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_Meeple24 = _texUiBase + "meeple24.png";
-    public const string TextureUI_Meeple32 = _texUiBase + "meeple32.png";
-    public const string TextureUI_MeepleOutline24 = _texUiBase + "meepleo24.png";
-    public const string TextureUI_MenuWhite = _texUiBase + "menu white.png";
-    public const string TextureUI_Menu = _texUiBase + "menu.png";
-    public const string TextureUI_Menu16 = _texUiBase + "menu16.png";
-    public const string TextureUI_Menu24 = _texUiBase + "menu24.png";
-    public const string TextureUI_Menu32 = _texUiBase + "menu32.png";
-    public const string TextureUI_Middle = _texUiBase + "middle.png";
-    public const string TextureUI_Outbox24 =
-        _texUiBase + "outbox_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
-    public const string TextureUI_Pencil = _texUiBase + "pencil.png";
-    public const string TextureUI_PerimTrack = _texUiBase + "PerimTrack.png";
-    public const string TextureUI_Right = _texUiBase + "right.png";
-    public const string TextureUI_RotateRight = _texUiBase + "rotate-right.png";
-    public const string TextureUI_Text = _texUiBase + "text.png";
-    public const string TextureUI_Top = _texUiBase + "top.png";
-    public const string TextureUI_TrashCan = _texUiBase + "trash-can.png";
-    public const string TextureUI_VerTrack = _texUiBase + "VerTrack.png";
-    public const string TextureUI_Visibility = _texUiBase + "visibility16.png";
-    public const string TextureUI_VisibilityOff = _texUiBase + "visibility_off16.png";
-    public const string TextureUI_ZoomIn = _texUiBase + "zoom-in.png";
-    public const string TextureUI_ZoomOut = _texUiBase + "zoom-out.png";
+    public const string TextureUI_Add                  = _texUiBase + "add16.png";
+    public const string TextureUI_ArrowDown            = _texUiBase + "arrowdown16.png";
+    public const string TextureUI_ArrowUp              = _texUiBase + "arrowup16.png";
+    public const string TextureUI_BackSurface          = _texUiBase + "back_surface16.png";
+    public const string TextureUI_Bottom                 = _texUiBase + "bottom.png";
+    public const string TextureUI_Bounds               = _texUiBase + "bounds16.png";
+    public const string TextureUI_Center                 = _texUiBase + "center.png";
+    public const string TextureUI_Checkbox             = _texUiBase + "checkbox16.png";
+    public const string TextureUI_Circle               = _texUiBase + "circle_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_ContentCopy          = _texUiBase + "content_copy_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_CropLandscape        = _texUiBase + "crop_landscape_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_CropPortrait         = _texUiBase + "crop_portrait_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_Cube128                = _texUiBase + "cube128.png";
+    public const string TextureUI_Cube64                 = _texUiBase + "cube64.png";
+    public const string TextureUI_Cube3d         = _texUiBase + "deployed_code_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_Flip    = _texUiBase + "flip_camera_android_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg";
+    public const string TextureUI_FolderOpen           = _texUiBase + "folder_open_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_FrontSurface         = _texUiBase + "front_surface16.png";
+    public const string TextureUI_Fullscreen             = _texUiBase + "fullscreen.png";
+    public const string TextureUI_Grid16                 = _texUiBase + "Grid16.png";
+    public const string TextureUI_Grid24               = _texUiBase + "grid_on_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_HorTrack               = _texUiBase + "HorTrack.png";
+    public const string TextureUI_Die                  = _texUiBase + "ifl_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_Image                = _texUiBase + "image16.png";
+    public const string TextureUI_Inventory          = _texUiBase + "inventory_2_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_Inventory_Alt      = _texUiBase + "inventory_2_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24 (1).svg";
+    public const string TextureUI_Share             = _texUiBase + "ios_share_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_Left                   = _texUiBase + "left.png";
+    public const string TextureUI_Lock16                 = _texUiBase + "lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg";
+    public const string TextureUI_Lock24                 = _texUiBase + "lock_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_Meeple24               = _texUiBase + "meeple24.png";
+    public const string TextureUI_Meeple32               = _texUiBase + "meeple32.png";
+    public const string TextureUI_MeepleOutline24        = _texUiBase + "meepleo24.png";
+    public const string TextureUI_MenuWhite              = _texUiBase + "menu white.png";
+    public const string TextureUI_Menu                   = _texUiBase + "menu.png";
+    public const string TextureUI_Menu16                 = _texUiBase + "menu16.png";
+    public const string TextureUI_Menu24                 = _texUiBase + "menu24.png";
+    public const string TextureUI_Menu32                 = _texUiBase + "menu32.png";
+    public const string TextureUI_Middle                 = _texUiBase + "middle.png";
+    public const string TextureUI_Outbox24               = _texUiBase + "outbox_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg";
+    public const string TextureUI_Pencil                 = _texUiBase + "pencil.png";
+    public const string TextureUI_PerimTrack             = _texUiBase + "PerimTrack.png";
+    public const string TextureUI_Right                  = _texUiBase + "right.png";
+    public const string TextureUI_RotateRight            = _texUiBase + "rotate-right.png";
+    public const string TextureUI_Text                   = _texUiBase + "text.png";
+    public const string TextureUI_Top                    = _texUiBase + "top.png";
+    public const string TextureUI_TrashCan               = _texUiBase + "trash-can.png";
+    public const string TextureUI_VerTrack               = _texUiBase + "VerTrack.png";
+    public const string TextureUI_Visibility           = _texUiBase + "visibility16.png";
+    public const string TextureUI_VisibilityOff        = _texUiBase + "visibility_off16.png";
+    public const string TextureUI_ZoomIn                 = _texUiBase + "zoom-in.png";
+    public const string TextureUI_ZoomOut                = _texUiBase + "zoom-out.png";
 
     #endregion
 }
