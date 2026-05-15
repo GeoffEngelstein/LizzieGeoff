@@ -11,7 +11,7 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
     private ColorPickerButton _colorPicker;
     private ComponentPreview _preview;
 
-    private Button _hideCountButton;
+    private Button _showCountButton;
 
     public override void _Ready()
     {
@@ -26,8 +26,8 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
         _colorPicker = GetNode<ColorPickerButton>("%Color");
         _colorPicker.ColorChanged += color => UpdatePreview();
 
-        _hideCountButton = GetNode<Button>("%HideCountButton");
-        _hideCountButton.Pressed += UpdatePreview;
+        _showCountButton = GetNode<Button>("%ShowCountButton");
+        _showCountButton.Pressed += UpdatePreview;
         
         _preview = GetNode<ComponentPreview>("%Preview");
     }
@@ -74,7 +74,7 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
         d.Add("Height", ParamToFloat(_heightInput.Text));
         d.Add("Diameter", ParamToFloat((_diameterInput).Text));
         d.Add("Color", _colorPicker.Color);
-        d.Add("HideCount", _hideCountButton.ButtonPressed);
+        d.Add("ShowCount", _showCountButton.ButtonPressed);
 
         return d;
     }
@@ -124,7 +124,7 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
             ? (Color)prototype.Parameters["Color"]
             : Colors.Red;
 
-        _hideCountButton.ButtonPressed = Utility.GetParam<bool>("HideCount");
+        _showCountButton.ButtonPressed = Utility.GetParam<bool>(prototype.Parameters, "ShowCount");
         
         Activate();
     }

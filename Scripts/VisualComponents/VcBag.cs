@@ -71,6 +71,9 @@ public partial class VcBag : VisualComponentGroup
         YHeight = Height * 2;
 
         SetColor(BagColor);
+        _componentCount = GetNode<Label3D>("ComponentCount");
+        var _showCount = Utility.GetParam<bool>(parameters, "ShowCount");
+        _componentCount.Visible = _showCount;
 
         var c = new CircleShape2D();
         c.Radius = Diameter / 2;
@@ -129,7 +132,7 @@ public partial class VcBag : VisualComponentGroup
         }
     }
 
-    protected override void OnChildrenChanged() { }
+    protected override void OnChildrenChanged() { UpdateComponentCount();}
 
     public override void DragDraw(int quantity)
     {

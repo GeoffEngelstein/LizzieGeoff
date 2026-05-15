@@ -101,7 +101,8 @@ layout_mode = 2
 text = "Show Count"
 horizontal_alignment = 2
 
-[node name="ShowCountOption" type="CheckButton" parent="HBoxContainer/GridContainer" unique_id=1562537465]
+[node name="ShowCountButton" type="CheckButton" parent="HBoxContainer/GridContainer" unique_id=1562537465]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 button_pressed = true

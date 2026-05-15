@@ -80,7 +80,7 @@ public static class JsonUtilities
         p.Add("Height", TryGetFloat(d, "Height"));
         p.Add("Diameter", TryGetFloat(d, "Diameter"));
         p.Add("Color", TryGetColor(d, "Color"));
-        p.Add("HideCount", TryGetBool(d, "HideCount"));
+        p.Add("ShowCount", TryGetBool(d, "ShowCount"));
 
         return p;
     }
