@@ -6,10 +6,7 @@ public abstract class CommandBase
 {
     public virtual VisualCommand Command { get; set; }
 
-    public virtual Update Execute(
-        IEnumerable<VisualComponentBase> components,
-        GameObjects context
-    )
+    public virtual Update Execute(IEnumerable<VisualComponentBase> components, GameObjects context)
     {
         return new Update();
     }
@@ -18,6 +15,4 @@ public abstract class CommandBase
     public bool SingleOnly { get; protected set; } = false;
     public bool EnableToggle { get; protected set; } = false;
     public bool IsToggled { get; set; } = false;
-
-
 }

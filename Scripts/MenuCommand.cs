@@ -3,9 +3,7 @@ using Godot;
 
 public class MenuCommand
 {
-    public MenuCommand(
-        CommandBase command
-    )
+    public MenuCommand(CommandBase command)
     {
         Init(command);
     }
@@ -13,8 +11,9 @@ public class MenuCommand
     public MenuCommand(VisualCommand command)
     {
         ProjectService.Instance.CommandDictionary.TryGetValue(command, out var commandBase);
-        if (commandBase == null) return;
-        
+        if (commandBase == null)
+            return;
+
         Init(commandBase);
     }
 

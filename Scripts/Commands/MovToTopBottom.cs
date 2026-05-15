@@ -11,6 +11,7 @@ public class MoveToBottom : CommandBase
         Caption = "Move To Bottom";
         Command = VisualCommand.MoveToBottom;
     }
+
     public override Update Execute(IEnumerable<VisualComponentBase> components, GameObjects context)
     {
         int minZ = int.MaxValue;
@@ -71,7 +72,10 @@ public class MoveToBottom : CommandBase
             Command = VisualCommand.MoveToTop;
         }
 
-        public override Update Execute(IEnumerable<VisualComponentBase> components, GameObjects context)
+        public override Update Execute(
+            IEnumerable<VisualComponentBase> components,
+            GameObjects context
+        )
         {
             int maxZ = 0;
             Dictionary<Guid, int> oldZOrder = new Dictionary<Guid, int>();

@@ -1,6 +1,6 @@
-using Godot;
 using System;
 using System.Collections.Generic;
+using Godot;
 
 public partial class BagPanelDialogResults : ComponentPanelDialogResult
 {
@@ -28,7 +28,7 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
 
         _showCountButton = GetNode<Button>("%ShowCountButton");
         _showCountButton.Pressed += UpdatePreview;
-        
+
         _preview = GetNode<ComponentPreview>("%Preview");
     }
 
@@ -125,7 +125,7 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
             : Colors.Red;
 
         _showCountButton.ButtonPressed = Utility.GetParam<bool>(prototype.Parameters, "ShowCount");
-        
+
         Activate();
     }
 }

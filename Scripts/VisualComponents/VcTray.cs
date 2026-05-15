@@ -1,6 +1,6 @@
-using Godot;
 using System;
 using System.Collections.Generic;
+using Godot;
 
 public partial class VcTray : VisualComponentGroup
 {
@@ -67,10 +67,8 @@ public partial class VcTray : VisualComponentGroup
             var w = Utility.GetParam<float>(parameters, "Width");
             Width = w / 10f;
 
-
             var l = Utility.GetParam<float>(parameters, "Length");
             Length = l / 10f;
-
 
             if (parameters["Color"] is Color color)
             {
@@ -108,8 +106,6 @@ public partial class VcTray : VisualComponentGroup
 
         return true;
     }
-
-   
 
     public override List<string> ValidateParameters(Dictionary<string, object> parameters)
     {

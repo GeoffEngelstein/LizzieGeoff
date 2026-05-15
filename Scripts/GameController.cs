@@ -32,8 +32,6 @@ public partial class GameController : Node3D
             ProjectService.Instance.LoadProject(ProjectService.SampleProjectName)
             ?? new Project { Name = ProjectService.SampleProjectName };
         ProjectService.Instance.GameObjects = _mainScene.GameObjects;
-
-        
     }
 
     private void MainSceneOnShowComponentPopup2(object sender, ShowComponentPopupEventArgs e)

@@ -1,14 +1,14 @@
-using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Godot;
 
 public partial class VcBag : VisualComponentGroup
 {
     private VisualComponentBase _contents;
     private string _contentsDataRow;
     private Label3D _componentCount;
-    
+
     public override void _Ready()
     {
         base._Ready();
@@ -26,7 +26,11 @@ public partial class VcBag : VisualComponentGroup
         _componentCount.Text = Children.Count().ToString();
     }
 
-    public override bool Setup(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
+    public override bool Setup(
+        Dictionary<string, object> parameters,
+        string dataSetRow,
+        TextureFactory textureFactory
+    )
     {
         return Setup(parameters, textureFactory);
     }
@@ -132,7 +136,10 @@ public partial class VcBag : VisualComponentGroup
         }
     }
 
-    protected override void OnChildrenChanged() { UpdateComponentCount();}
+    protected override void OnChildrenChanged()
+    {
+        UpdateComponentCount();
+    }
 
     public override void DragDraw(int quantity)
     {

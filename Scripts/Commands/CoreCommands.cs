@@ -26,7 +26,6 @@ namespace Lizzie.Scripts.Commands
         }
     }
 
-
     [Command(VisualCommand.Freeze)]
     public class FreezeCommand : CommandBase
     {
@@ -35,8 +34,6 @@ namespace Lizzie.Scripts.Commands
             Caption = "Freeze";
             Command = VisualCommand.Freeze;
         }
-
-
     }
 
     [Command(VisualCommand.Unfreeze)]
@@ -48,7 +45,6 @@ namespace Lizzie.Scripts.Commands
             Command = VisualCommand.Unfreeze;
         }
     }
-
 
     [Command(VisualCommand.Refresh)]
     public class RefreshCommand : BasicCommand
@@ -102,5 +98,4 @@ namespace Lizzie.Scripts.Commands
             SingleOnly = true;
         }
     }
-
 }

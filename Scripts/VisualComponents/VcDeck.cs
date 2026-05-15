@@ -17,7 +17,7 @@ public partial class VcDeck : VisualComponentGroup
     private TokenTextureSubViewport _backView;
 
     private Label3D _componentCount;
-    
+
     private VcToken _templateCard;
     private string _templateCardPath = "res://Scenes/VisualComponents/VcToken.tscn";
 
@@ -31,7 +31,7 @@ public partial class VcDeck : VisualComponentGroup
         _backSprite = GetNode<Sprite3D>("BackSprite");
         _componentCount = GetNode<Label3D>("ComponentCount");
         UpdateComponentCount();
-        
+
         CanAcceptDrop = true;
     }
 
@@ -988,7 +988,8 @@ public partial class VcDeck : VisualComponentGroup
 
     private void UpdateComponentCount()
     {
-        if (_componentCount == null) return;
+        if (_componentCount == null)
+            return;
         _componentCount.Text = Children.Count().ToString();
     }
 
@@ -1007,7 +1008,6 @@ public partial class VcDeck : VisualComponentGroup
             cards = DrawFromBottom(count);
             cards = cards.Reverse().ToArray();
         }
-
 
         for (int i = 0; i < cards.Length; i++)
         {
@@ -1031,7 +1031,8 @@ public partial class VcDeck : VisualComponentGroup
 
         UpdateDeckSprites();
 
-        if (!cards.Any()) return;
+        if (!cards.Any())
+            return;
 
         EventBus.Instance.Publish(new ShowAndDragComponentEvent { ComponentList = cards.ToList() });
     }

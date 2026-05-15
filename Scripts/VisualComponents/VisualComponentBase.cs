@@ -100,7 +100,6 @@ public abstract partial class VisualComponentBase : Area3D
                 CanDrag = false;
             }
             _on_mouse_entered();
-
         }
         base._InputEvent(camera, @event, eventPosition, normal, shapeIdx);
     }
@@ -227,15 +226,15 @@ public abstract partial class VisualComponentBase : Area3D
         {
             var c = new Change
             {
-                Component = this, 
-                Action = Change.ChangeType.Transform, 
-                Begin = this.Transform
+                Component = this,
+                Action = Change.ChangeType.Transform,
+                Begin = this.Transform,
             };
 
             float rotation = ProjectService.Instance.RotationStep;
             SetRotation(RotationDegrees + new Vector3(0, rotation, 0));
             c.End = Transform;
-            
+
             return new CommandResponse(true, c);
         }
 
@@ -245,8 +244,8 @@ public abstract partial class VisualComponentBase : Area3D
             {
                 Component = this,
                 Action = Change.ChangeType.Transform,
-                Begin = this.Transform
-            };  
+                Begin = this.Transform,
+            };
 
             float rotation = -1 * ProjectService.Instance.RotationStep;
             SetRotation(RotationDegrees + new Vector3(0, rotation, 0));
@@ -277,10 +276,9 @@ public abstract partial class VisualComponentBase : Area3D
 
         if (command == VisualCommand.Duplicate)
         {
-            EventBus.Instance.Publish(new SpawnPrototypeEvent
-            {
-                PrototypeRef = PrototypeRef, DataSetRow = DataSetRow
-            });
+            EventBus.Instance.Publish(
+                new SpawnPrototypeEvent { PrototypeRef = PrototypeRef, DataSetRow = DataSetRow }
+            );
             return new CommandResponse(true, null);
         }
 
@@ -319,7 +317,7 @@ public abstract partial class VisualComponentBase : Area3D
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        
+
         l.Add(new MenuCommand(VisualCommand.RotateCw));
         l.Add(new MenuCommand(VisualCommand.RotateCcw));
         l.Add(new MenuCommand(VisualCommand.Delete));

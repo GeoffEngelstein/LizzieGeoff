@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Lizzie.Scripts.Commands
 {
     [Command(VisualCommand.RotateCw)]
-    public class RotateComponentCwCommand: BasicCommand
+    public class RotateComponentCwCommand : BasicCommand
     {
         public RotateComponentCwCommand()
         {
