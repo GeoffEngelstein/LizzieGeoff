@@ -1,107 +1,211 @@
 [gd_scene format=3 uid="uid://bqbaakftpue7u"]
 
-[ext_resource type="Script" uid="uid://bg3sdxxjlsnvw" path="res://Scripts/Project/ProjectManager.cs" id="1_81lru"]
+[ext_resource type="Script" uid="uid://cb04ev3xy2y8r" path="res://Scripts/GameController.cs" id="1_brj2a"]
+[ext_resource type="Script" uid="uid://caw45erf0ap1j" path="res://Scripts/UI.cs" id="2_v8h5q"]
+[ext_resource type="Script" uid="uid://3274wuq0qfvx" path="res://Scripts/HandManager.cs" id="3_m82es"]
+[ext_resource type="Texture2D" uid="uid://cvm5vjhh2nn2g" path="res://Textures/UI/arrowdown16.png" id="4_5d6ib"]
+[ext_resource type="Texture2D" uid="uid://41ftdwu6bvkv" path="res://Textures/UI/lock_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="5_hh44m"]
+[ext_resource type="Texture2D" uid="uid://b0ghdcbyhne5f" path="res://Textures/UI/flip_camera_android_16dp_F0F0F0_FILL0_wght400_GRAD0_opsz20.svg" id="6_ve6n3"]
+[ext_resource type="Script" uid="uid://rkus14o3uk6n" path="res://Scripts/TextureFactory.cs" id="7_glpfx"]
+[ext_resource type="PackedScene" uid="uid://s4e3sjhq6cm1" path="res://Scenes/Controls/player_hands_panel.tscn" id="8_6d3qr"]
+[ext_resource type="PackedScene" uid="uid://c10pvpfntkay3" path="res://Scenes/3d_scene_no_physics.tscn" id="9_n0b6f"]
 
-[node name="ProjectManager" type="Panel" unique_id=1517240523]
-custom_minimum_size = Vector2(400, 300)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -150.0
-offset_right = 200.0
-offset_bottom = 150.0
+[node name="PrimaryScene" type="Node3D" unique_id=410470090 node_paths=PackedStringArray("_textureFactory")]
+script = ExtResource("1_brj2a")
+_textureFactory = NodePath("UI/TextureFactory")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=309296479]
+script = ExtResource("2_v8h5q")
+highlightFontColor = Color(0.54902, 0.694118, 1, 1)
+baseFontColor = null
+
+[node name="MarginContainer" type="MarginContainer" parent="UI" unique_id=571287879]
+anchors_preset = 10
+anchor_right = 1.0
 grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_81lru")
+theme_override_constants/margin_left = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1908531285]
+[node name="Panel" type="Panel" parent="UI/MarginContainer" unique_id=378692394]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/MarginContainer/Panel" unique_id=1626350479]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 31.0
+grow_horizontal = 2
+
+[node name="MenuBar" type="MenuBar" parent="UI/MarginContainer/Panel/HBoxContainer" unique_id=672250976]
+layout_mode = 2
+
+[node name="File" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=709451553]
+unique_name_in_owner = true
+oversampling_override = 1.0
+title = "File"
+size = Vector2i(168, 100)
+item_count = 3
+item_0/text = "Project Manager"
+item_0/id = 0
+item_1/text = "Open Project"
+item_1/id = 1
+item_2/text = "Save Project"
+item_2/id = 2
+
+[node name="Edit" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=1056068936]
+unique_name_in_owner = true
+title = "Edit"
+
+[node name="Insert" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=1536859569]
+unique_name_in_owner = true
+title = "Insert"
+
+[node name="Help" type="PopupMenu" parent="UI/MarginContainer/Panel/HBoxContainer/MenuBar" unique_id=1339962661]
+unique_name_in_owner = true
+title = "Help"
+
+[node name="Panel" type="Panel" parent="UI/MarginContainer/Panel/HBoxContainer" unique_id=1797442022]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/MarginContainer/Panel/HBoxContainer" unique_id=1628889017]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="Label" type="Label" parent="UI/MarginContainer/Panel/HBoxContainer/HBoxContainer" unique_id=126657012]
+layout_mode = 2
+text = "Rotation Step"
+
+[node name="RotationStep" type="OptionButton" parent="UI/MarginContainer/Panel/HBoxContainer/HBoxContainer" unique_id=515238741]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 6
+popup/item_0/text = "15°"
+popup/item_0/id = 0
+popup/item_1/text = "30°"
+popup/item_1/id = 1
+popup/item_2/text = "45°"
+popup/item_2/id = 2
+popup/item_3/text = "60°"
+popup/item_3/id = 3
+popup/item_4/text = "90°"
+popup/item_4/id = 4
+popup/item_5/text = "180°"
+popup/item_5/id = 5
+
+[node name="Hand" type="Panel" parent="UI" unique_id=1988859394]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 200)
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("3_m82es")
+_openSpeed = null
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Hand" unique_id=184998263]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
-[node name="RichTextLabel" type="RichTextLabel" parent="VBoxContainer" unique_id=865649825]
-layout_mode = 2
-bbcode_enabled = true
-text = "  [color=Sky_Blue]Manage Projects[/color]"
-fit_content = true
-
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=1423501350]
-layout_mode = 2
-
-[node name="OpenButton" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=845843100]
+[node name="HandContainer" type="HBoxContainer" parent="UI/Hand/MarginContainer" unique_id=1158201109]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Open"
+theme_override_constants/separation = 6
+alignment = 1
 
-[node name="CreateButton" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=1594907213]
+[node name="HandLockButton" type="Button" parent="UI/Hand" unique_id=1128516974]
+layout_mode = 1
+offset_right = 24.0
+offset_bottom = 28.0
+icon = ExtResource("4_5d6ib")
+
+[node name="Mode" type="HBoxContainer" parent="UI" unique_id=1351550218]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -136.0
+offset_top = -31.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 8
+alignment = 2
+
+[node name="Play2D" type="Button" parent="UI/Mode" unique_id=1870421792]
+layout_mode = 2
+text = "Play 2D"
+
+[node name="Play3D" type="Button" parent="UI/Mode" unique_id=1596224388]
+layout_mode = 2
+text = "Play 3D"
+
+[node name="ComponentPopup" type="PopupMenu" parent="UI" unique_id=1851200208]
+oversampling_override = 1.0
+size = Vector2i(163, 174)
+item_count = 7
+item_0/text = "Lock"
+item_0/icon = ExtResource("5_hh44m")
+item_0/checkable = 1
+item_0/id = 0
+item_1/text = "Flip"
+item_1/icon = ExtResource("6_ve6n3")
+item_1/id = 1
+item_2/id = 6
+item_2/separator = true
+item_3/text = "Rotate CW"
+item_3/id = 2
+item_4/text = "Rotate CCW"
+item_4/id = 3
+item_5/id = 5
+item_5/separator = true
+item_6/text = "Delete"
+item_6/id = 4
+
+[node name="ComponentName" type="Label" parent="UI" unique_id=843150342]
 unique_name_in_owner = true
-layout_mode = 2
-text = "Create"
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+offset_right = 40.0
+grow_vertical = 0
+horizontal_alignment = 2
 
-[node name="CloneButton" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=875475873]
+[node name="TextureFactory" type="SubViewport" parent="UI" unique_id=1184539869]
 unique_name_in_owner = true
-layout_mode = 2
-text = "Clone"
+handle_input_locally = false
+render_target_update_mode = 4
+script = ExtResource("7_glpfx")
 
-[node name="DeleteButton" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=1430023226]
+[node name="ModalDialogs" type="Node" parent="UI" unique_id=693207545]
 unique_name_in_owner = true
-layout_mode = 2
-text = "Delete"
 
-[node name="Panel" type="MarginContainer" parent="VBoxContainer/HBoxContainer" unique_id=1383380112]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CloseButton" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=2115222496]
+[node name="PlayerHandsPanel" parent="UI" unique_id=416397088 instance=ExtResource("8_6d3qr")]
 unique_name_in_owner = true
-layout_mode = 2
-text = "Close"
 
-[node name="CreateProject" type="HBoxContainer" parent="VBoxContainer" unique_id=279453289]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
+[node name="FileDialog" type="FileDialog" parent="." unique_id=350939739]
+oversampling_override = 1.0
+title = "Open a File"
+initial_position = 2
+size = Vector2i(496, 500)
+ok_button_text = "Open"
+file_mode = 0
+access = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/CreateProject" unique_id=644650758]
-layout_mode = 2
-text = "Name: "
+[node name="3DSceneNoPhysics" parent="." unique_id=325671090 instance=ExtResource("9_n0b6f")]
 
-[node name="LineEdit" type="LineEdit" parent="VBoxContainer/CreateProject" unique_id=1621716425]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="CreateProjectButton" type="Button" parent="VBoxContainer/CreateProject" unique_id=422311491]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Create"
-
-[node name="CancelCreateButton" type="Button" parent="VBoxContainer/CreateProject" unique_id=2051360288]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Cancel"
-
-[node name="RichTextLabel2" type="RichTextLabel" parent="VBoxContainer" unique_id=979834862]
-layout_mode = 2
-bbcode_enabled = true
-text = "[color=light_yellow][i]Existing Projects[/i][/color]"
-fit_content = true
-
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=911509649]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/MarginContainer" unique_id=648348710]
-layout_mode = 2
-
-[node name="ItemList" type="ItemList" parent="VBoxContainer/MarginContainer/ScrollContainer" unique_id=1941350435]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-item_count = 1
-item_0/text = "Test Project"
+[connection signal="pressed" from="UI/Mode/Play2D" to="UI" method="_on_play_2d_pressed"]
+[connection signal="pressed" from="UI/Mode/Play3D" to="UI" method="_on_play_3d_pressed"]
+[connection signal="file_selected" from="FileDialog" to="." method="_on_file_dialog_file_selected"]
