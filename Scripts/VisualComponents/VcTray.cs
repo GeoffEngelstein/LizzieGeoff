@@ -1,6 +1,6 @@
+using Godot;
 using System;
 using System.Collections.Generic;
-using Godot;
 
 public partial class VcTray : VisualComponentGroup
 {
@@ -17,7 +17,6 @@ public partial class VcTray : VisualComponentGroup
         MainMesh = GetNode<GeometryInstance3D>("ObjectMesh");
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
         _prototypeSpawnPoint = GetNode<Node3D>("ProtoAnchor");
-        DragDropCollider = GetNode<CollisionShape3D>("DrawCollider");
     }
 
     public override void _Process(double delta)
@@ -38,11 +37,7 @@ public partial class VcTray : VisualComponentGroup
         }
     }
 
-    public override bool Setup(
-        Dictionary<string, object> parameters,
-        string dataSetRow,
-        TextureFactory textureFactory
-    )
+    public override bool Setup(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
     {
         return Setup(parameters, textureFactory);
     }
@@ -68,8 +63,10 @@ public partial class VcTray : VisualComponentGroup
             var w = Utility.GetParam<float>(parameters, "Width");
             Width = w / 10f;
 
+
             var l = Utility.GetParam<float>(parameters, "Length");
             Length = l / 10f;
+
 
             if (parameters["Color"] is Color color)
             {
@@ -107,6 +104,8 @@ public partial class VcTray : VisualComponentGroup
 
         return true;
     }
+
+   
 
     public override List<string> ValidateParameters(Dictionary<string, object> parameters)
     {
@@ -154,6 +153,8 @@ public partial class VcTray : VisualComponentGroup
         {
             _nameLabel = GetNode<Label3D>("ComponentName");
             _nameLabel.Name = "NameLabel";
+
+            
         }
 
         _nameLabel.Text = _prototype?.Name;
@@ -177,14 +178,9 @@ public partial class VcTray : VisualComponentGroup
         foreach (var child in _prototypeSpawnPoint.GetChildren())
             child.QueueFree();
 
-        if (_prototype == null)
-            return;
+        if (_prototype == null) return;
 
-        var c = ProjectService.Instance.SpawnDisconnectedVisualComponent(
-            _prototype,
-            string.Empty,
-            textureFactory
-        );
+        var c = ProjectService.Instance.SpawnDisconnectedVisualComponent(_prototype, string.Empty, textureFactory);
         UpdateChildScale(c);
         _prototypeSpawnPoint.AddChild(c);
         c.Position += new Vector3(0, c.YHeight, 0);
@@ -202,16 +198,13 @@ public partial class VcTray : VisualComponentGroup
         }
     }
 
-    protected override void OnChildrenChanged() { }
+    protected override void OnChildrenChanged()
+    {
+        
+    }
 
     public override void DragDraw(int quantity)
     {
-        EventBus.Instance.Publish(
-            new SpawnPrototypeEvent
-            {
-                PrototypeRef = _prototype.PrototypeRef,
-                StartInDragMode = true,
-            }
-        );
+        EventBus.Instance.Publish(new SpawnPrototypeEvent { PrototypeRef = _prototype.PrototypeRef, StartInDragMode = true});
     }
 }

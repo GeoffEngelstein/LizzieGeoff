@@ -80,7 +80,6 @@ public static class JsonUtilities
         p.Add("Height", TryGetFloat(d, "Height"));
         p.Add("Diameter", TryGetFloat(d, "Diameter"));
         p.Add("Color", TryGetColor(d, "Color"));
-        p.Add("ShowCount", TryGetBool(d, "ShowCount"));
 
         return p;
     }
@@ -122,10 +121,11 @@ public static class JsonUtilities
 
         p.Add("FrontGridImageKey", TryGetString(d, "FrontGridImageKey"));
         p.Add("BackGridImageKey", TryGetString(d, "BackGridImageKey"));
-
+        
         p.Add("GridRows", TryGetInt(d, "GridRows"));
         p.Add("GridCols", TryGetInt(d, "GridCols"));
         p.Add("GridCount", TryGetInt(d, "GridCount"));
+
 
         return p;
     }

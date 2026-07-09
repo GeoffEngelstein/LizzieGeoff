@@ -357,7 +357,6 @@ public class AssetChangedEvent : IEvent
 public class SpawnPrototypeEvent : IEvent
 {
     public Guid PrototypeRef { get; set; }
-    public string DataSetRow { get; set; } = string.Empty;
     public bool StartInDragMode { get; set; }
 }
 

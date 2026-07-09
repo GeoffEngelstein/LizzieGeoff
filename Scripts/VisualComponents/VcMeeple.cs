@@ -13,11 +13,7 @@ public partial class VcMeeple : VisualComponentBase
         HighlightMesh = GetNode<MeshInstance3D>("HighlightMesh");
     }
 
-    public override bool Setup(
-        Dictionary<string, object> parameters,
-        string dataSetRow,
-        TextureFactory textureFactory
-    )
+    public override bool Setup(Dictionary<string, object> parameters, string dataSetRow, TextureFactory textureFactory)
     {
         return Setup(parameters, textureFactory);
     }

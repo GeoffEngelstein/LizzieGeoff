@@ -250,6 +250,23 @@ public partial class ComponentPreview : Panel
     {
         if (_component != null)
         {
+            /*
+            var d = ShallowClone(parameters);
+
+            var h = Utility.GetParam<float>(parameters, "Height");
+            var w = Utility.GetParam<float>(parameters, "Width");
+            var l = Utility.GetParam<float>(parameters, "Length");
+
+            //normalize dimensions to 10x10x10 outer extants
+            var scale = 10f / Math.Max(h, Math.Max(w, l));
+
+            if (d.ContainsKey("Height"))
+                d["Height"] = h * scale;
+            if (d.ContainsKey("Width"))
+                d["Width"] = w * scale;
+            if (d.ContainsKey("Length"))
+                d["Length"] = l * scale;
+            */
             if (string.IsNullOrWhiteSpace(row))
             {
                 _component.Setup(parameters, textureFactory); //we are doing this because not all components override the Setup method with the row parameter, and we don't want to break those that don't
@@ -257,13 +274,12 @@ public partial class ComponentPreview : Panel
             }
             else
             {
-                _component.Setup(parameters, row, textureFactory);
+                _component.Setup(parameters, textureFactory);
                 _component.Build();
             }
 
             var z = _component.Aabb.GetLongestAxisSize();
-            if (z != 0)
-                _component.Scale /= z;
+            if (z != 0) _component.Scale /= z;
         }
     }
 

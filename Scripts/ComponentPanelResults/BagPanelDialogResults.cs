@@ -1,6 +1,6 @@
+using Godot;
 using System;
 using System.Collections.Generic;
-using Godot;
 
 public partial class BagPanelDialogResults : ComponentPanelDialogResult
 {
@@ -10,8 +10,6 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
 
     private ColorPickerButton _colorPicker;
     private ComponentPreview _preview;
-
-    private Button _showCountButton;
 
     public override void _Ready()
     {
@@ -25,9 +23,6 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
 
         _colorPicker = GetNode<ColorPickerButton>("%Color");
         _colorPicker.ColorChanged += color => UpdatePreview();
-
-        _showCountButton = GetNode<Button>("%ShowCountButton");
-        _showCountButton.Pressed += UpdatePreview;
 
         _preview = GetNode<ComponentPreview>("%Preview");
     }
@@ -54,6 +49,18 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
         _preview.ClearComponent();
     }
 
+    public override List<string> Validity()
+    {
+        var ret = new List<string>();
+
+        if (string.IsNullOrEmpty(_nameInput.Text.Trim()))
+        {
+            ret.Add("Component Name required");
+        }
+
+        return ret;
+    }
+
     public override Dictionary<string, object> GetParams()
     {
         var d = new Dictionary<string, object>();
@@ -62,7 +69,6 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
         d.Add("Height", ParamToFloat(_heightInput.Text));
         d.Add("Diameter", ParamToFloat((_diameterInput).Text));
         d.Add("Color", _colorPicker.Color);
-        d.Add("ShowCount", _showCountButton.ButtonPressed);
 
         return d;
     }
@@ -112,34 +118,7 @@ public partial class BagPanelDialogResults : ComponentPanelDialogResult
             ? (Color)prototype.Parameters["Color"]
             : Colors.Red;
 
-        _showCountButton.ButtonPressed = Utility.GetParam<bool>(prototype.Parameters, "ShowCount");
-
         Activate();
     }
-
-    public override List<string> ValidateParameters(Dictionary<string, object> parameters)
-    {
-        var ret = new List<string>();
-
-        //must have a name and height. Width/length optional
-        if (parameters.ContainsKey("ComponentName"))
-        {
-            if (string.IsNullOrEmpty(parameters["ComponentName"].ToString()))
-                ret.Add("Name may not be blank");
-        }
-        else
-        {
-            ret.Add("Instance Name not included");
-        }
-
-        var h = Utility.GetParam<float>(parameters, "Height");
-        if (h <= 0)
-            ret.Add("Height must be > 0");
-
-        var w = Utility.GetParam<float>(parameters, "Diameter");
-        if (w <= 0)
-            ret.Add("Diameter must be > 0");
-
-        return ret;
-    }
 }
+
